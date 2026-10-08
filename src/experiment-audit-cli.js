@@ -32,6 +32,12 @@ const summaryPath = path.join(projectRoot, "research", "results", "development-s
 const ledgerPath = path.join(projectRoot, "data", "research", "development-screen-v1", "ledger.final.jsonl");
 const outputJsonPath = path.join(projectRoot, "research", "audits", "development-screen-v1-independent-audit-v2.json");
 const outputMarkdownPath = path.join(projectRoot, "research", "audits", "development-screen-v1-independent-audit-v2.md");
+const historicalCollectionStatusPath = path.join(
+  projectRoot,
+  "data",
+  "market",
+  "historical-backfill-status.json",
+);
 
 const FAMILY_HYPOTHESES = Object.freeze({
   unconditional_baseline: "Persistent unconditional upward or downward tick bias.",
@@ -64,6 +70,52 @@ function codeState() {
     trackedWorktreeDirty = true;
   }
   return { commit, trackedWorktreeDirty };
+}
+
+async function historicalCollectionStatus() {
+  let bytes;
+  try {
+    bytes = await readFile(historicalCollectionStatusPath);
+  } catch (error) {
+    if (error?.code === "ENOENT") return { state: "NOT_FOUND" };
+    throw error;
+  }
+  const status = JSON.parse(bytes.toString("utf8"));
+  let processAlive = false;
+  if (Number.isSafeInteger(status.pid)) {
+    try {
+      process.kill(status.pid, 0);
+      processAlive = true;
+    } catch (error) {
+      if (error?.code !== "ESRCH") throw error;
+    }
+  }
+  return {
+    archive: status.archive ? {
+      coverageDaysAcrossAllIntervals: status.archive.coverageDays,
+      firstEpoch: status.archive.firstEpoch,
+      intervals: status.archive.intervals,
+      lastEpoch: status.archive.lastEpoch,
+      totalRows: status.archive.totalRows,
+    } : null,
+    cursorEpoch: status.cursorEpoch,
+    endpoint: status.endpoint,
+    fromEpoch: status.fromEpoch,
+    lastError: status.lastError,
+    pagesFetchedThisInvocation: status.pagesFetched,
+    processAlive,
+    remainingOlderSecondsBeforeTarget:
+      Number.isSafeInteger(status.cursorEpoch) && Number.isSafeInteger(status.fromEpoch)
+        ? Math.max(0, status.cursorEpoch + 1 - status.fromEpoch)
+        : null,
+    resumeCommand:
+      `node src/historical-backfill-cli.js --from ${status.fromEpoch} --to ${status.toEpochExclusive}`,
+    rowsStoredThisInvocation: status.rowsStored,
+    state: status.state,
+    statusFileSha256: digest(bytes),
+    toEpochExclusive: status.toEpochExclusive,
+    updatedAt: status.updatedAt,
+  };
 }
 
 function increment(target, key) {
@@ -427,6 +479,11 @@ function writeAuditMarkdown(audit) {
     `- Exact slice: ${audit.datasetSliceAudit.observedGenuineSeconds.toLocaleString()} of ${audit.datasetSliceAudit.expectedSeconds.toLocaleString()} seconds, with the original seven-second gap preserved.`,
     "- v1 artifacts were not edited or overwritten. This audit is versioned separately as v2.",
     "",
+    "## Historical collection status during the audit",
+    "",
+    `The authorized 90-day public backfill is ${audit.historicalCollection.state}, and its recorded PID is ${audit.historicalCollection.processAlive ? "still active" : "not active"}. It checkpointed ${audit.historicalCollection.rowsStoredThisInvocation?.toLocaleString() ?? "unknown"} rows across ${audit.historicalCollection.pagesFetchedThisInvocation?.toLocaleString() ?? "unknown"} pages in this invocation before the public API exhausted bounded retries${audit.historicalCollection.lastError ? `: ${audit.historicalCollection.lastError}` : "."}`,
+    `Approximately ${audit.historicalCollection.remainingOlderSecondsBeforeTarget?.toLocaleString() ?? "an unknown number of"} older target seconds remain before the requested start. The audit did not restart or duplicate the stopped collector. Resume only after the rate limit clears with \`${audit.historicalCollection.resumeCommand}\`; the immutable chunks and checkpoint remain in place.`,
+    "",
     "## Confirmed defects",
     "",
     "1. **High — mutable-manifest provenance.** The checkpoint keyed the entire append-only manifest rather than the fixed evaluated slice, and the original manifest snapshot was not retained. An unrelated older backfill therefore makes v1 non-resumable. The new independent slice auditor hashes exact chronological content and only the relevant chunk descriptor. The present slice has the same row count and gap as v1, but the missing original manifest snapshot prevents a cryptographic proof that its old whole-manifest hash described exactly this chunk list.",
@@ -473,12 +530,12 @@ function writeAuditMarkdown(audit) {
     "",
     "Deriv documents Volatility Indices as cryptographically generated and the 1s variants as one tick per second. Its current Synthetic Indices page says most such indices (except Range Break) may not suit technical indicators and that noticeable historical patterns are coincidental; its trading terms say option pricing includes a bias in Deriv's favour. That makes another larger SMA/momentum/reversion search on 1HZ100V difficult to justify without a new mechanism.",
     "",
-    "Bounded alternatives, none presumed profitable:",
+    "Bounded alternatives, none presumed profitable and none started by this audit:",
     "",
-    "1. **Stop the current direction (recommended).** Finish the existing 90-day collection for audit/replication, then run only predeclared null calibration and the frozen rule replication. Falsifier for reconsideration: a prospectively specified effect surviving actual quote, delay, and multiplicity controls. Incremental simulation cost is small; data collection is already authorized and running.",
-    "2. **Range Break feasibility study.** Official product description supplies a different channel/range mechanism. First verify Options availability, clock/tick durations, and indicative payouts; then at most a few hundred preregistered channel-state rules. Falsify if protected-window net expectancy is non-positive at observed quotes. Expected local simulation cost is under an hour after data collection; acquisition cost and API availability are unknown.",
-    "3. **Drift/Volatility Switch clock-horizon feasibility study.** Documented multi-minute regimes provide a mechanism unlike 1–10-tick noise. First verify supported Options contracts and obtain genuine cadence/quote data. Falsify if regime classification adds no protected accuracy above payout break-even. Do not mix this with the present tick grid.",
-    "4. **Skew Step analytical check before backtesting.** Documented asymmetric probabilities could create directional frequency, but payouts may fully price that bias. Compare empirical probabilities with simultaneous public proposals before any strategy search; stop immediately if expected value is non-positive after the quoted payout.",
+    "1. **Stop the current direction (recommended).** The evidence against expanding the same 1HZ100V SMA/momentum/channel/z-score grid is the exhaustive frozen screen plus Deriv's description of most synthetic-index patterns as coincidental. The existing checkpointed 90-day collection can still support replication and null calibration after rate limits clear. Reconsider only if a prospectively specified effect survives actual quote, delay, and full-search controls. Incremental local replay cost is minutes; no additional parameter search is justified.",
+    "2. **Range Break feasibility study.** Why: Deriv describes this instrument using explicit upper/lower ranges, a different mechanism from applying a generic channel breakout to 1HZ100V. Evidence to investigate is that official mechanism, not the rejected v1 curve. First require a public product probe for Options availability/durations, immutable native-cadence ticks, and contemporaneous indicative proposals; account quotes would still be needed before executable-profit claims. Preregister at most 300 boundary-state rules. Falsify if a protected window is non-positive at observed proposal economics or if availability does not match the proposed contract. Local simulation should be under one hour after acquisition; request count and public-API delay are unknown.",
+    "3. **Drift/Volatility Switch clock-horizon feasibility study.** Why: Deriv documents regimes whose average duration is measured in minutes, unlike the searched 1–10-tick horizon. Evidence is the marketed regime construction; its proprietary realization and Options pricing remain unknown. Require a successful contract-capability probe, native-cadence history, a clock-duration simulator, and contemporaneous proposals. Falsify if a preregistered regime classifier does not beat quote-implied break-even on protected data. A single 30-day one-second symbol is up to 2.6 million ticks (about 2,592 maximum-size history pages); local evaluation should be under an hour, but acquisition may again be rate-limited.",
+    "4. **Skew Step analytical check before backtesting.** Why: documented asymmetric up/down probabilities could change unconditional direction frequency, unlike the symmetric-style transforms screened here. The payout may fully or adversely price that skew. Require empirical transition counts plus simultaneous public Rise/Fall proposals and verified supported durations; do not infer executable profit from ticks alone. Falsify immediately if the probability-weighted value is non-positive at quoted payouts, before any grid search. A bounded one-week descriptive sample is at most 604,800 one-second ticks; analysis is minutes, while proposal sampling/API availability is the constraint.",
     "",
     "More history can narrow uncertainty and expose regime instability; it cannot by itself create a plausible mechanism or turn correlated parameter variations into independent hypotheses.",
     "",
@@ -536,6 +593,7 @@ const targetedStatisticalAudit = runTargetedStatisticalAudit({
   targetRecords: ledger.targetRecords,
 });
 const recordedObservationAudit = await auditBrowserObservations();
+const historicalCollection = await historicalCollectionStatus();
 const audit = {
   auditCode: codeState(),
   contractModelConclusion: {
@@ -582,6 +640,7 @@ const audit = {
     },
   ],
   generatedAtUtc: new Date().toISOString(),
+  historicalCollection,
   kind: "development-screen-v1-independent-audit-v2",
   ledgerAudit: ledger.result,
   noTradingActions: true,
