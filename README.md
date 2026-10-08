@@ -51,38 +51,57 @@ artifacts remain unchanged; the v2 audit is a separate versioned evaluation.
 
 ## Read-only product feasibility gate
 
-The follow-up
+The original
 [`product capability and payout feasibility study`](research/feasibility/product-capability-and-payout-feasibility-2026-10-08.md)
-preserves that audit conclusion and stops expansion of the rejected short-tick
-indicator search. It compares three genuinely different mechanisms—Range Break
-boundary state, Skew Step's published asymmetric distribution, and
-Drift/Volatility Switch latent regimes—using official sources and one bounded,
-unauthenticated nine-request public probe. It started no collector or search,
-placed no order, and used no paid service.
+is preserved. Its separate
+[`v2 addendum`](research/feasibility/product-capability-and-payout-feasibility-addendum-v2-2026-10-08.md)
+corrects the evidence labels without rewriting the original report. The
+machine-readable
+[`evidence/blocker matrix`](research/feasibility/evidence-blocker-matrix-v2-2026-10-08.json)
+records exact scope, assumptions, hashes, sources, data requirements, and
+blockers.
 
-The decision is `NONE_JUSTIFY_FURTHER_RESEARCH`. Range Break ranks first only
-for a possible future product-metadata and close-economics reconciliation: its
-public `contracts_for` multiplier range contradicted the proposal validator,
-and point ticks cannot reproduce multiplier exits. Skew Step 5's published raw
-increment expectation is zero before costs, while the published Skew Step 4
-tables are inconsistent. The regime products require historical bid/ask and
-dynamic-spread evidence not present in the current public Options data. These
-are feasibility findings, not claims that any product is profitable or
-unprofitable.
+The current decision is `NO_CURRENTLY_TESTABLE_EDGE_HYPOTHESIS`, not a claim of
+universal unprofitability. The completed 1HZ100V screen and the naive
+unconditional Skew Step 5 frequent-direction idea are narrow
+`TESTED_AND_FAILED` results. Current RB100 multiplier metadata/proposal behavior
+and Skew Step 4 publications have `SPECIFICATION_CONFLICT`. Range Break,
+conditional Skew, and regime-switch net simulations have
+`INSUFFICIENT_EXECUTION_DATA`. No direction is presently
+`FEASIBLE_FOR_BOUNDED_EXPERIMENT`, no edge has independent validation, and no
+trading implementation is ready.
 
-Verify the saved probe offline (the default command does not repeat it):
+| Evidence layer | Current verified status |
+|---|---|
+| Software correctness | Offline regression coverage passes locally; this validates code invariants, not profitability. Hosted CI status must be checked separately. |
+| Development research | The frozen 12,012-configuration 1HZ100V screen found no qualifying candidate within its narrow scope. |
+| Historical execution validation | Absent: public point prices are not historical account-specific executable quotes or settlements. |
+| Prospective validation | Not started for a qualified candidate; the earlier calendar range is `NOT_ASSIGNED`, not an untouched holdout by date alone. |
+| Demo implementation | No qualified implementation exists. Existing XML is archived experimental material and the browser gate is `WAIT`. |
+
+The v2 reconciliation added exactly three unauthenticated public requests with
+no retry or buy path. It confirmed that the same RB100 public environment
+advertised 20–100x in `contracts_for`, rejected an otherwise fixed 20x proposal,
+and accepted 400x. It did not resolve commission units or historical close
+economics. The Skew and cost calculations are offline. Verify all current
+status without making a network request:
 
 ```powershell
 node src/product-feasibility-probe-cli.js --verify
-node --test test/product-feasibility-probe.test.js
+node src/range-break-reconciliation-cli.js --verify
+node src/feasibility-calculations-cli.js
+node src/research-status-cli.js
+node --test test/product-feasibility-probe.test.js test/feasibility-addendum.test.js test/research-status.test.js
 ```
 
 The authorized 90-day expansion is checkpointed but incomplete. On 2026-10-08
 the public backfill stopped itself after all eight bounded `ticks_history`
 rate-limit retries: this invocation stored 250,000 rows across 250 pages, the
-cursor is `1788417199`, and no collector process remains active. Approximately
-4,934,000 older target seconds remain. After the public limit clears, resume
-without changing the frozen boundaries or starting a duplicate:
+cursor is `1788417199`, and process inspection during the v2 addendum found no
+collector process active. Approximately 4,934,000 older target seconds remain.
+It is deliberately stopped. The existing recovery command below is documented
+for a future explicitly authorized resume only; do not run it automatically or
+change the frozen boundaries:
 
 ```powershell
 node src/historical-backfill-cli.js --from 1783483200 --to 1791259200
@@ -99,6 +118,7 @@ node --test
 node src/cli.js symbols
 node src/cli.js snapshot
 node src/strategy-search-cli.js status
+node src/research-status-cli.js
 ```
 
 `node src/cli.js snapshot` downloads recent one-minute candles, calculates a 20/50
@@ -212,6 +232,13 @@ These are directional-price tests only; they omit contract payout and execution
 effects and therefore do not establish profitability.
 
 ## Browser Deriv Bot
+
+All XML files currently under `dbot/` are archived experimental artifacts, not
+qualified implementations. They are preserved for reproducibility and must not
+be imported or Run as part of the current research decision. The external gate
+is `WAIT`, the tracked API demo template has `executionEnabled: false`,
+and any future qualified implementation must be a new version tied to its own
+frozen strategy/configuration hash and evidence record.
 
 [`dbot/Codex_DEMO_Guarded_SMA.xml`](dbot/Codex_DEMO_Guarded_SMA.xml) can be
 imported into Deriv Bot from **Dashboard > My computer**. It uses Volatility 100

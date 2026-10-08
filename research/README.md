@@ -84,12 +84,15 @@ place an order.
 
 ## Product capability and payout feasibility gate
 
-The separate
+The original
 [`product-capability-and-payout-feasibility-2026-10-08.md`](feasibility/product-capability-and-payout-feasibility-2026-10-08.md)
-tests whether any of the audit's bounded alternatives is ready for a strategy
-experiment. Its machine-readable companion records every documented fact,
-inference, unknown, break-even calculation, and falsification cap. The original
-audit, result files, and 12,012-row ledger remain unchanged.
+and machine record remain unchanged. The versioned
+[`v2 addendum`](feasibility/product-capability-and-payout-feasibility-addendum-v2-2026-10-08.md)
+and
+[`evidence/blocker matrix`](feasibility/evidence-blocker-matrix-v2-2026-10-08.json)
+amend its overly broad terminal label by separating valid negative tests,
+specification conflicts, and missing execution evidence. The original audit,
+result files, raw probes, manifests, and 12,012-row ledger remain unchanged.
 
 The study compares exactly three mechanisms:
 
@@ -97,25 +100,37 @@ The study compares exactly three mechanisms:
 2. Skew Step's published asymmetric increment distribution; and
 3. Drift/Volatility Switch persistent clock-time regimes.
 
-The current decision is `NONE_JUSTIFY_FURTHER_RESEARCH`. Range Break's public
-Options capability was limited to no-expiry multipliers and contained a
-`contracts_for`/proposal multiplier disagreement; historical point ticks do not
-contain closing economics. Skew Step 5's published distribution has zero raw
-expected increment before costs, and the official Skew Step 4 tables conflict.
-Regime-switch CFDs require bid/ask, dynamic-spread, margin, and close-processing
-evidence that was not available through the public Options catalogue/history.
-No result is positive, and no candidate is ready for search or Demo.
+Existing files under `dbot/` are archived experimental XML, not implementations
+of a qualified candidate. They remain outside this feasibility decision and
+must not be Run. A future qualified implementation would require a new version
+bound to a frozen specification and its own parity/evidence record.
 
-The immutable bounded probe made nine unauthenticated public requests with no
-retry and no buy path. Verify it locally without making a network request:
+The current decision is `NO_CURRENTLY_TESTABLE_EDGE_HYPOTHESIS`. The prior
+1HZ100V result and naive unconditional Skew Step 5 direction are narrowly
+`TESTED_AND_FAILED`. RB100 capability/commission evidence and Skew Step 4
+sources contain `SPECIFICATION_CONFLICT`. All proposed after-cost alternatives
+have `INSUFFICIENT_EXECUTION_DATA`. This is not evidence that all Deriv
+strategies are unprofitable, and uncertainty is not evidence that an edge
+exists. No direction is currently `FEASIBLE_FOR_BOUNDED_EXPERIMENT`; no result
+is positive or independently validated, and no candidate is ready for Demo.
+
+The original immutable probe made nine unauthenticated public requests. The v2
+reconciliation made exactly three more, without retry or a buy path, and
+confirmed that the same RB100 environment advertised 20–100x, rejected 20x,
+and accepted 400x. This remains a conflict, not a capability workaround. Verify
+the saved evidence and current decision locally without making a network
+request:
 
     node src/product-feasibility-probe-cli.js --verify
-    node --test test/product-feasibility-probe.test.js
+    node src/range-break-reconciliation-cli.js --verify
+    node src/feasibility-calculations-cli.js
+    node src/research-status-cli.js
+    node --test test/product-feasibility-probe.test.js test/feasibility-addendum.test.js test/research-status.test.js
 
-A new public probe is deliberately opt-in and must use
-`--collect --output NEW_PATH`; it is not the recommended next action. The
-conditional micro-experiment ranking in the report is a capability-gate order,
-not a recommendation to trade or optimize.
+A new public probe is deliberately opt-in and is not the recommended next
+action. The ranked next-decision document lists evidence-acquisition gates,
+not recommendations to trade or optimize. The status command is offline and
+cannot authenticate, start a collector/search, or place an order.
 
 ## Historical expansion
 
@@ -125,7 +140,8 @@ The first expansion target is the exact 90-day UTC interval
     node src/historical-backfill-cli.js --from 1783483200 --to 1791259200
     Get-Content data/market/historical-backfill-status.json
 
-Run the same command to resume. Raw gzip JSONL chunks are immutable and outside
+For a future explicitly authorized recovery, run the same command to resume.
+It is not an instruction to restart it now. Raw gzip JSONL chunks are immutable and outside
 Git. Each new chunk records the public source, requested boundaries, retrieval
 time, row bounds, row count, and SHA-256. The collector has one outstanding
 request, a three-second inter-request delay, exponential backoff, and eight

@@ -1,0 +1,410 @@
+{
+  "schemaVersion": 2,
+  "kind": "feasibility-evidence-and-blocker-matrix",
+  "issuedAtUtc": "2026-10-08T15:59:00.000Z",
+  "amendsWithoutReplacing": {
+    "markdown": "research/feasibility/product-capability-and-payout-feasibility-2026-10-08.md",
+    "markdownSha256": "28141f5039014178da93e8a8b425aa5a81b3ad9a0030e335243eaa4ab6e8fbb3",
+    "machineRecord": "research/feasibility/product-capability-and-payout-feasibility-2026-10-08.json",
+    "machineRecordSha256": "9565bdb4b61dbcf0cf935a6ea33ef34d044cf10106ba671518c67248c7cb861a"
+  },
+  "reviewedBaselineCommit": "8fd7446f537fd5edbb29a5ee677d6337348a9455",
+  "classificationDefinitions": {
+    "TESTED_AND_FAILED": "The stated hypothesis failed a specified, reproducible test within the recorded product, data, period, and assumptions.",
+    "SPECIFICATION_CONFLICT": "Official documentation, public metadata, or observed API behavior disagree and the conflict is not resolved by available official evidence.",
+    "INSUFFICIENT_EXECUTION_DATA": "The price hypothesis may be describable, but material entry, exit, cost, or path fields required for a realistic net-profit simulation are unavailable.",
+    "FEASIBLE_FOR_BOUNDED_EXPERIMENT": "A frozen, limited experiment can be run with adequate public/offline data and an identified execution model.",
+    "VALIDATED_EDGE": "A frozen candidate passed an independent qualifying evaluation with realistic execution evidence. No item in this record has this classification."
+  },
+  "controls": {
+    "authenticated": false,
+    "ordersPlaced": false,
+    "paidServicesUsed": false,
+    "collectorStartedOrResumed": false,
+    "largeSearchStarted": false,
+    "reservedHoldoutAccessed": false,
+    "newPublicWebSocketRequests": 3,
+    "newPublicWebSocketRetries": 0,
+    "directionsCompared": 3
+  },
+  "protocol": {
+    "path": "research/protocols/feasibility-addendum-v2.md",
+    "frozenBeforeNewApiRequests": true,
+    "apiRequestCap": 3,
+    "apiRequestsUsed": 3,
+    "apiRequestCapComplied": true,
+    "officialPageCap": 12,
+    "officialPagesActuallyConsulted": 15,
+    "officialPageCapComplied": false,
+    "deviation": "Three additional official schema/product pages were opened while tracing the multiplier field and current product context. This exceeded the documentary page cap, did not expand the three-request API probe, did not inspect market outcomes, and is disclosed rather than retroactively changing the protocol."
+  },
+  "preservedEvidence": [
+    {
+      "name": "original development ledger",
+      "path": "data/research/development-screen-v1/ledger.final.jsonl",
+      "sha256": "23da90a773cdffb77c1f71187083985f4cf2916a38eb477875dfbdffe58dccd3",
+      "rows": 12012,
+      "tracked": false,
+      "requiredForOfflineReproduction": true
+    },
+    {
+      "name": "independent audit Markdown",
+      "path": "research/audits/development-screen-v1-independent-audit-v2.md",
+      "sha256": "b9b007dd264833db9c4f6cc0f886f9e037af0934f461c6b94c2e43cd321bb10f",
+      "tracked": true
+    },
+    {
+      "name": "independent audit machine record",
+      "path": "research/audits/development-screen-v1-independent-audit-v2.json",
+      "sha256": "3b66f7e3484f56d8d6a0178fe91ae14219b1b3bcd085dacf261901dc8853e9c1",
+      "tracked": true
+    },
+    {
+      "name": "v1 feasibility Markdown",
+      "path": "research/feasibility/product-capability-and-payout-feasibility-2026-10-08.md",
+      "sha256": "28141f5039014178da93e8a8b425aa5a81b3ad9a0030e335243eaa4ab6e8fbb3",
+      "tracked": true
+    },
+    {
+      "name": "v1 feasibility machine record",
+      "path": "research/feasibility/product-capability-and-payout-feasibility-2026-10-08.json",
+      "sha256": "9565bdb4b61dbcf0cf935a6ea33ef34d044cf10106ba671518c67248c7cb861a",
+      "tracked": true
+    },
+    {
+      "name": "v1 public probe",
+      "path": "research/evidence/product-feasibility-public-probe-2026-10-08-v1.json",
+      "sha256": "9a70b7e72fe006b6eb1ebbf644f121b86ab836985749fc0cfefeff82bdc9c51a",
+      "tracked": true
+    },
+    {
+      "name": "v2 Range Break reconciliation probe",
+      "path": "research/evidence/range-break-reconciliation-public-probe-2026-10-08-v2.json",
+      "sha256": "27ed7b0a176ca7158f163f905fe5febd62541c0a2da07d0b92b2f0ab22031ba2",
+      "tracked": true
+    },
+    {
+      "name": "development protocol",
+      "path": "research/protocols/development-screen-v1.json",
+      "sha256": "c7cd08b94f8d6155f16fb3f6af4b7276c3a343f972b123c647d0ffdd47ccb6e2",
+      "tracked": true
+    },
+    {
+      "name": "development summary",
+      "path": "research/results/development-screen-v1-summary.json",
+      "sha256": "fe94ebbe52a9ed7947e7e34e90136d05c28d9afee0a2a1fdcf5dd8401f9db2cd",
+      "tracked": true
+    }
+  ],
+  "priorSearch": {
+    "product": "Deriv 1HZ100V Rise/Fall CALL/PUT",
+    "hypothesisScope": "Seven declared families representing unconditional, SMA trend/reversion, momentum trend/reversion, channel breakout, and z-score reversion logic; fixed unit stake; 1, 2, 3, 5, 7, and 10 tick durations.",
+    "timeframeUtc": "[2026-09-06T12:00:00Z, 2026-10-06T12:00:00Z)",
+    "dataset": "2,591,993 genuine public point ticks with one known seven-second gap; previously viewed development data; no historical executable proposal prices.",
+    "classification": "TESTED_AND_FAILED",
+    "preciseConclusion": "All 12,012 configurations failed at least one predefined conservative 0.80 net-win-payout window/delay criterion. This supports NO_RELIABLE_EDGE_FOUND only for the frozen screen and assumptions; it does not establish universal unprofitability.",
+    "simulatorQualification": "Sufficient for the narrow direction/payout-sensitivity screen; insufficient to claim historical executable account profit."
+  },
+  "directions": [
+    {
+      "id": "range-break-boundary-state",
+      "product": "RB100 Range Break 100 Index MULTUP/MULTDOWN on the public Deriv Options API; CFD mechanics considered separately where official terms apply",
+      "hypothesis": "A causally inferred boundary/hit state might predict a multi-tick move after enough observations to overcome multiplier costs.",
+      "timeframeAndData": "Point-in-time public capability/proposal observations on 2026-10-08 plus the v1 1,000-row one-second RB100 public point sample; no strategy return evaluation.",
+      "assumptions": [
+        "The public point series can describe price paths but is not an executable entry/exit or settlement series.",
+        "The proprietary boundary and hit counter are not observed.",
+        "The observed proposal commission field has unresolved units."
+      ],
+      "classifications": [
+        {
+          "code": "SPECIFICATION_CONFLICT",
+          "scope": "Current public RB100 MULTUP multiplier capability",
+          "basis": "On the same unauthenticated trading/v1/options/ws/public environment, contracts_for advertised 20,40,60,80,100; an otherwise fixed USD 1 stake proposal rejected 20 and stated 400,1000,2000,3000,4000 were acceptable; 400 succeeded. Official pages and schemas reviewed do not reconcile the contexts or units."
+        },
+        {
+          "code": "INSUFFICIENT_EXECUTION_DATA",
+          "scope": "Historical net-profit or stop-out simulation",
+          "basis": "No public historical entry proposal, close/sell valuation, bid/ask effect, commission-unit resolution, stop-out valuation path, quote-expiry/rejection record, cancellation price, or processing/slippage series was established."
+        }
+      ],
+      "verifiedFacts": [
+        "The captured contracts are no-expiry multipliers, not fixed-payout binary Rise/Fall contracts.",
+        "The accepted 400x proposal had ask price/stake 1, commission field 0.02, payout field 0, spot 50857, and a stop-out value of 50732.4.",
+        "Official multiplier mechanics describe total profit/loss as percentage price movement times stake times multiplier minus commission; automatic stop-out and early close apply, and slippage may affect final return.",
+        "The largest observed one-tick point move cannot reject a multi-tick holding rule."
+      ],
+      "reproducibleCalculation": {
+        "conditionalMonetaryInterpretation": "0.02 account-currency commission / (USD 1 stake * 400) = 0.00005 return = 0.005% = 0.5 basis point before every excluded charge.",
+        "alternateSchemaPercentInterpretation": "If 0.02 means 0.02% of USD 400 notional, commission is USD 0.08 and the same threshold is 0.0002 = 0.02% = 2 basis points.",
+        "unitConclusion": "The 0.5 bp figure is conditional, not a verified all-in break-even. Not every charge is reducible to one constant price threshold."
+      },
+      "blockers": [
+        "RB_MULTIPLIER_CAPABILITY_CONFLICT",
+        "COMMISSION_FIELD_UNIT_CONFLICT",
+        "NO_HISTORICAL_ENTRY_AND_CLOSE_QUOTES",
+        "NO_STOP_OUT_OR_ADVERSE_PATH_VALUATION",
+        "NO_QUOTE_VALIDITY_OR_EARLY_CLOSE_SERIES"
+      ],
+      "boundedExperimentJustified": false,
+      "cheapestNextFalsifier": "First obtain an official reconciliation of multiplier/commission units and a legitimate historical or prospective read-only demo record containing proposal time/price, actual entry tick, close/sell price, commission, stop-out, and status. Without it, only a price-path diagnostic—not a profitable backtest—is possible.",
+      "v1ConclusionAmendment": "The v1 one-tick raw-move comparison remains a limited price-path diagnostic under a conditional commission interpretation. It is not a failure of every multi-tick Range Break strategy."
+    },
+    {
+      "id": "skew-step-distribution-and-conditional-dependence",
+      "product": "Skew Step 5 Up/Down and Skew Step 4 Up/Down as described for Deriv MT5/cTrader",
+      "hypothesis": "The frequent-move direction could have positive raw expectation, or lagged states could contain conditional dependence not implied by the unconditional distribution.",
+      "timeframeAndData": "Official Academy distributions accessed 2026-10-08; no authenticated platform tick/bid/ask export and no return backtest.",
+      "assumptions": [
+        "Published move values are compared in their stated common step units.",
+        "Zero unconditional expectation does not imply zero conditional expectation.",
+        "The official description does not establish independent and identically distributed increments or a transition law."
+      ],
+      "classifications": [
+        {
+          "code": "TESTED_AND_FAILED",
+          "scope": "Naive unconditional Skew Step 5 frequent-direction raw-increment hypothesis only",
+          "basis": "Published Skew 5 Up probabilities sum to one and -1(0.10)+0.1(0.83)+0.2(0.05)+0.3(0.01)+0.4(0.01)=0; Down is the sign mirror. The claimed raw unconditional directional expectation is zero before costs."
+        },
+        {
+          "code": "SPECIFICATION_CONFLICT",
+          "scope": "Skew Step 4 mechanism",
+          "basis": "The same official page's narratives, section tables, and later comparison table disagree on directions, probabilities, and completeness; the page gives no visible publication/update date."
+        },
+        {
+          "code": "INSUFFICIENT_EXECUTION_DATA",
+          "scope": "Conditional-dependence and after-cost hypotheses",
+          "basis": "No readily available unauthenticated immutable platform tick/bid/ask data was established, and the official source does not specify independence, transition dependence, or another state process."
+        }
+      ],
+      "verifiedFacts": [
+        "Each complete section table encoded by the calculation script sums to probability one and has zero raw mean.",
+        "Skew 5 Up and Down have raw increment variance 0.1128 in squared published step units.",
+        "The Academy says ticks are randomly generated using predefined probabilities, but does not explicitly specify inter-tick independence or a conditional transition rule.",
+        "Statistical dependence by itself would not establish profitability after spread and execution costs."
+      ],
+      "reproducibleCalculation": "node src/feasibility-calculations-cli.js",
+      "blockers": [
+        "SKEW4_OFFICIAL_TABLE_CONFLICT",
+        "SKEW_TRANSITION_MECHANISM_UNDOCUMENTED",
+        "NO_PUBLIC_EXECUTION_GRADE_TICK_BID_ASK_EXPORT"
+      ],
+      "boundedExperimentJustified": false,
+      "diagnosticDecision": "Stopped before inspecting conditional patterns because the preregistered clarity/data gates failed. No adaptive pattern search was performed.",
+      "cheapestNextFalsifier": "After a coherent exact variant specification and a sanitized zero-order platform export become available, preregister one transition statistic, comparison count, simulated null, and rejection threshold on a development sample; then require separate data and costs before any profitability claim."
+    },
+    {
+      "id": "drift-volatility-switch-regimes",
+      "product": "One exact Drift Switch or Volatility Switch CFD on Deriv MT5/cTrader; no exact symbol was selected because its data gate failed",
+      "hypothesis": "A decision-time classifier may detect persistent direction or volatility regimes over minutes despite random switch timing.",
+      "timeframeAndData": "Official product/KID descriptions accessed 2026-10-08; no strategy sample and no authenticated platform export.",
+      "assumptions": [
+        "Only causal price/spread features observable before a decision may be used; hidden hindsight regime labels are forbidden.",
+        "Illustrative KID costs are not current universal quotes.",
+        "Public midpoint/point history alone is insufficient for CFD P/L."
+      ],
+      "classifications": [
+        {
+          "code": "INSUFFICIENT_EXECUTION_DATA",
+          "scope": "Regime classification tied to realistic net CFD profitability",
+          "basis": "No free unauthenticated source was established for synchronized historical bid/ask, dynamic spread, contract size/point value, commission and financing, margin/stop-out, close processing, and slippage for one exact product."
+        }
+      ],
+      "verifiedFacts": [
+        "Official material describes persistent low/medium/high or bullish/bearish/sideways behavior while exact switching is random.",
+        "Official material says spreads can change dynamically with regimes.",
+        "The Drift Switch KID defines open-ended CFD P/L and includes spread, possible financing, margin, and stop-out mechanics.",
+        "A KID illustration reports a 1.97 bp spread and about 4.1 bp total 24-hour cost, but these are examples only."
+      ],
+      "minimumViableData": [
+        {
+          "field": "instrument and product",
+          "required": "Exact symbol, platform, account/jurisdiction availability, long/short rules",
+          "availableNow": "Product-family descriptions only",
+          "decisionTimeConstraint": "Must be frozen before analysis"
+        },
+        {
+          "field": "bid and ask history",
+          "required": "Synchronized causal bid/ask ticks including spread changes and gaps",
+          "availableNow": "Not established through a free unauthenticated interface",
+          "decisionTimeConstraint": "Only quotes already received at the decision may be used"
+        },
+        {
+          "field": "timestamps and cadence",
+          "required": "Server timestamps, ordering, missing intervals, platform timezone",
+          "availableNow": "Mechanism descriptions only",
+          "decisionTimeConstraint": "No future or completed-candle leakage"
+        },
+        {
+          "field": "contract size and point value",
+          "required": "Exact symbol specification and currency conversion",
+          "availableNow": "Illustrative KID example only",
+          "decisionTimeConstraint": "Specification effective at trade time"
+        },
+        {
+          "field": "commission and financing",
+          "required": "Commission schedule and time-varying swap/financing with rollover rules",
+          "availableNow": "General terms and illustrative example only",
+          "decisionTimeConstraint": "Rates known or conservatively frozen before entry"
+        },
+        {
+          "field": "margin and stop-out",
+          "required": "Leverage, required margin, stop-out threshold, valuation path",
+          "availableNow": "General mechanics only",
+          "decisionTimeConstraint": "Account/product settings effective at entry"
+        },
+        {
+          "field": "execution delay and slippage",
+          "required": "Order/close receipt, processing and fill timestamps/prices or a defensible frozen model",
+          "availableNow": "General next/latest-tick processing language, no empirical distribution",
+          "decisionTimeConstraint": "No impossible midpoint fills"
+        },
+        {
+          "field": "regime information",
+          "required": "Published causal state field if one exists, otherwise no label and only preregistered causal inference",
+          "availableNow": "Behavior descriptions; no public state-label history",
+          "decisionTimeConstraint": "A hindsight segment label may not be a feature"
+        }
+      ],
+      "blockers": [
+        "NO_EXACT_PRODUCT_DATASET",
+        "NO_SYNCHRONIZED_HISTORICAL_BID_ASK",
+        "NO_DYNAMIC_COST_HISTORY",
+        "NO_EMPIRICAL_FILL_OR_STOP_OUT_PATH",
+        "NO_CAUSAL_REGIME_LABEL"
+      ],
+      "boundedExperimentJustified": false,
+      "minimumFutureAction": "The user would need to provide a sanitized, zero-order demo MT5/cTrader export with bid/ask ticks and the exact symbol/account specification, or separately authorize future authenticated read-only demo capture. No order is needed, but authentication is outside this task.",
+      "cheapestNextFalsifier": "After the complete data gate is met, freeze one causal classifier and compare it with a no-skill persistence baseline over seven chronological development days without a P/L parameter grid."
+    }
+  ],
+  "holdout": {
+    "reservedFinalHoldoutAccessed": false,
+    "priorDateScheduleUtc": "[2026-10-09T00:00:00Z, 2026-11-08T00:00:00Z)",
+    "status": "NOT_ASSIGNED",
+    "reason": "No finalist or one of these three exact hypotheses was frozen before a qualifying future evaluation. A calendar range alone is not prospective validation. It may become future data only for a candidate frozen before collection/evaluation and with an adequate execution record."
+  },
+  "historicalExpansionCheckpoint": {
+    "statusPath": "data/market/historical-backfill-status.json",
+    "observedState": "FAILED",
+    "observedActiveProcess": false,
+    "observedAtUtc": "2026-10-08T15:47:00Z",
+    "pidInCheckpoint": 21400,
+    "symbol": "1HZ100V",
+    "fromEpoch": 1783483200,
+    "toEpochExclusive": 1791259200,
+    "pagesFetched": 250,
+    "rowsStored": 250000,
+    "cursorEpoch": 1788417199,
+    "failure": "Eight bounded ticks_history rate-limit retries were exhausted.",
+    "resumeCommandForFutureExplicitAuthorizationOnly": "node src/historical-backfill-cli.js --from 1783483200 --to 1791259200",
+    "autoResumeAllowed": false
+  },
+  "decision": {
+    "code": "NO_CURRENTLY_TESTABLE_EDGE_HYPOTHESIS",
+    "validatedEdge": false,
+    "implementationReadiness": "NOT_READY_NO_VALIDATED_EDGE",
+    "reasonTypes": [
+      "negative evidence for the exact frozen 1HZ100V screen and the naive unconditional Skew Step 5 direction",
+      "unresolved official/API specification conflicts for RB100 and Skew Step 4",
+      "missing execution-grade data for every proposed after-cost experiment"
+    ],
+    "scopeWarning": "This does not imply that all Deriv strategies or products are unprofitable. Missing evidence is not evidence of an edge either.",
+    "nextDecision": "Do not spend more compute. Preserve the stopped state. Reconsider only when one named blocker is resolved with legitimate evidence; the first useful artifact is execution-grade data or an official specification correction, not a larger strategy grid."
+  },
+  "sources": [
+    {
+      "title": "Contracts For",
+      "url": "https://developers.deriv.com/docs/data/contracts-for/",
+      "accessed": "2026-10-08",
+      "supports": "Public symbol capability endpoint"
+    },
+    {
+      "title": "Price Proposal",
+      "url": "https://developers.deriv.com/docs/trading/proposal/",
+      "accessed": "2026-10-08",
+      "supports": "Unauthenticated point-proposal semantics"
+    },
+    {
+      "title": "Multipliers",
+      "url": "https://deriv.com/options-types/multipliers",
+      "accessed": "2026-10-08",
+      "supports": "P/L, commission, stop-out, early close, cancellation, and slippage mechanics"
+    },
+    {
+      "title": "Trading terms R26|03",
+      "url": "https://deriv.com/terms-and-conditions/trading-terms",
+      "accessed": "2026-10-08",
+      "sourceVersionOrDate": "R26|03; updated 2026-08-20",
+      "supports": "Entry/close processing, price frequency, slippage, spread, financing, margin, stop-out"
+    },
+    {
+      "title": "deriv-api-schemas contracts_for response",
+      "url": "https://raw.githubusercontent.com/deriv-com/deriv-api-schemas/master/schemas/contracts_for_response.schema.json",
+      "accessed": "2026-10-08",
+      "supports": "multiplier_range field without contextual unit reconciliation"
+    },
+    {
+      "title": "deriv-api-schemas proposal request",
+      "url": "https://raw.githubusercontent.com/deriv-com/deriv-api-schemas/master/schemas/proposal_request.schema.json",
+      "accessed": "2026-10-08",
+      "supports": "MULTUP/MULTDOWN and multiplier request fields"
+    },
+    {
+      "title": "deriv-api-schemas proposal response",
+      "url": "https://raw.githubusercontent.com/deriv-com/deriv-api-schemas/master/schemas/proposal_response.schema.json",
+      "accessed": "2026-10-08",
+      "supports": "Ambiguous commission description and stop-out/multiplier fields"
+    },
+    {
+      "title": "deriv-api-schemas contracts_for request",
+      "url": "https://raw.githubusercontent.com/deriv-com/deriv-api-schemas/master/schemas/contracts_for_request.schema.json",
+      "accessed": "2026-10-08",
+      "supports": "Symbol-level request semantics"
+    },
+    {
+      "title": "KID: Multipliers on Volatility Indices",
+      "url": "https://docs.deriv.com/regulatory/kid/kid_deriv_multipliers_volatility_indices.pdf",
+      "accessed": "2026-10-08",
+      "sourceVersionOrDate": "updated 2026-08-27",
+      "supports": "General multiplier return/cost example; not RB100-specific"
+    },
+    {
+      "title": "Skew Step Indices guide",
+      "url": "https://traders-academy.deriv.com/trading-guides/skew-step-indices-guide-asymmetrical-trading",
+      "accessed": "2026-10-08",
+      "sourceVersionOrDate": "No publication/update date visible in the accessed page",
+      "supports": "Published distributions, platforms, and conflicts"
+    },
+    {
+      "title": "Volatility Switch Indices guide",
+      "url": "https://traders-academy.deriv.com/trading-guides/volatility-switch-indices-guide",
+      "accessed": "2026-10-08",
+      "supports": "Regime descriptions, random timing, dynamic spread"
+    },
+    {
+      "title": "KID: CFDs on Drift Switch Indices",
+      "url": "https://docs.deriv.com/regulatory/kid/kid_deriv_cfds_drift_switch_indices.pdf",
+      "accessed": "2026-10-08",
+      "supports": "CFD return, term, platform, illustrative spread/financing, margin, stop-out"
+    },
+    {
+      "title": "Proposal API comparison",
+      "url": "https://developers.deriv.com/comparison/proposal/",
+      "accessed": "2026-10-08",
+      "supports": "Current API field/environment context"
+    },
+    {
+      "title": "Deriv API product updates",
+      "url": "https://developers.deriv.com/product-updates/",
+      "accessed": "2026-10-08",
+      "supports": "RB100/RB200 introduction on 2026-08-10 and capability-discovery warning"
+    },
+    {
+      "title": "Synthetic Indices",
+      "url": "https://deriv.com/markets/derived-indices/synthetic-indices",
+      "accessed": "2026-10-08",
+      "supports": "Product mechanisms and limits of mechanism descriptions as edge evidence"
+    }
+  ]
+}

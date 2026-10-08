@@ -1,0 +1,191 @@
+{
+  "accessedAtUtc": "2026-10-08T15:52:19.962Z",
+  "authenticated": false,
+  "captures": [
+    {
+      "outcome": "SUCCESS",
+      "parsedResponseJsonSha256BeforeSanitization": "18f1002f80b2d45432702bcbe562df23542cbb60f798abcff47ac38450e50cac",
+      "request": {
+        "contracts_for": "RB100"
+      },
+      "response": {
+        "contracts_for": {
+          "available": [
+            {
+              "barriers": 0,
+              "cancellation_range": [],
+              "contract_category": "multiplier",
+              "contract_type": "MULTUP",
+              "default_stake": 2,
+              "expiry_type": "no_expiry",
+              "market": "synthetic_index",
+              "max_contract_duration": "0",
+              "min_contract_duration": "0",
+              "multiplier_range": [
+                20,
+                40,
+                60,
+                80,
+                100
+              ],
+              "sentiment": "up",
+              "submarket": "range_index",
+              "underlying_symbol": "RB100"
+            },
+            {
+              "barriers": 0,
+              "cancellation_range": [],
+              "contract_category": "multiplier",
+              "contract_type": "MULTDOWN",
+              "default_stake": 2,
+              "expiry_type": "no_expiry",
+              "market": "synthetic_index",
+              "max_contract_duration": "0",
+              "min_contract_duration": "0",
+              "multiplier_range": [
+                20,
+                40,
+                60,
+                80,
+                100
+              ],
+              "sentiment": "down",
+              "submarket": "range_index",
+              "underlying_symbol": "RB100"
+            }
+          ],
+          "hit_count": 2
+        },
+        "echo_req": {
+          "contracts_for": "RB100"
+        },
+        "msg_type": "contracts_for"
+      }
+    },
+    {
+      "acceptedMultipliersFromError": [
+        400,
+        1000,
+        2000,
+        3000,
+        4000
+      ],
+      "error": {
+        "code": "ContractBuyValidationError",
+        "message": "Multiplier is not in acceptable range. Accepts 400,1000,2000,3000,4000."
+      },
+      "outcome": "ERROR",
+      "request": {
+        "amount": 1,
+        "basis": "stake",
+        "contract_type": "MULTUP",
+        "currency": "USD",
+        "multiplier": 20,
+        "proposal": 1,
+        "underlying_symbol": "RB100"
+      }
+    },
+    {
+      "outcome": "SUCCESS",
+      "parsedResponseJsonSha256BeforeSanitization": "298c08948aa5c2aefb1b888572b222f9254321a644c9fe19ed4a9128c822952d",
+      "request": {
+        "amount": 1,
+        "basis": "stake",
+        "contract_type": "MULTUP",
+        "currency": "USD",
+        "multiplier": 400,
+        "proposal": 1,
+        "underlying_symbol": "RB100"
+      },
+      "response": {
+        "echo_req": {
+          "amount": 1,
+          "basis": "stake",
+          "contract_type": "MULTUP",
+          "currency": "USD",
+          "duration_unit": "s",
+          "multiplier": 400,
+          "proposal": 1,
+          "underlying_symbol": "RB100"
+        },
+        "msg_type": "proposal",
+        "proposal": {
+          "ask_price": 1,
+          "commission": 0.02,
+          "contract_details": {
+            "maximum_stake": "500.00",
+            "minimum_stake": "1.00"
+          },
+          "date_expiry": 4945103999,
+          "date_start": 1791474740,
+          "limit_order": {
+            "stop_out": {
+              "display_name": "Stop out",
+              "display_order_amount": "-1.00",
+              "order_amount": -1,
+              "order_date": 1791474740,
+              "value": "50732.4"
+            }
+          },
+          "longcode": "If you select 'Up', your total profit/loss will be the percentage increase in Range Break 100 Index, multiplied by 400, minus commissions.",
+          "multiplier": 400,
+          "payout": 0,
+          "spot": 50857,
+          "spot_time": 1791474740,
+          "validation_params": {
+            "stake": {
+              "max": "500.00",
+              "min": "1.00"
+            },
+            "stop_loss": {
+              "max": "1.00",
+              "min": "0.10"
+            },
+            "take_profit": {
+              "max": "50.00",
+              "min": "0.10"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "classification": "SPECIFICATION_CONFLICT",
+  "comparison": {
+    "contractsForMultiplierRange": [
+      20,
+      40,
+      60,
+      80,
+      100
+    ],
+    "multiplier20ErrorAcceptedMultipliers": [
+      400,
+      1000,
+      2000,
+      3000,
+      4000
+    ],
+    "multiplier20Outcome": "ERROR",
+    "multiplier400Outcome": "SUCCESS",
+    "sameEndpointSymbolContractAndParametersExceptMultiplier": true
+  },
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "kind": "range-break-capability-reconciliation-probe",
+  "limitations": [
+    "contracts_for has a symbol request while proposal additionally requires contract type, currency, basis, amount, and multiplier; they are related capability and validation endpoints, not identical requests.",
+    "The public response is not account-specific and does not establish availability for every jurisdiction or account.",
+    "A successful proposal is an indicative point quote, not a purchase or historical executable quote."
+  ],
+  "ordersAuthorized": false,
+  "provenance": {
+    "protocol": "research/protocols/feasibility-addendum-v2.md",
+    "sanitization": "Removed proposal/subscription identifiers and request IDs; retained a SHA-256 of each parsed successful response before sanitization."
+  },
+  "requestBudget": {
+    "maximumRequests": 3,
+    "noRetries": true,
+    "requestsActuallyMade": 3
+  },
+  "schemaVersion": 1
+}
