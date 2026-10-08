@@ -34,6 +34,27 @@ test("shared execution model enforces one-open-contract sequencing", () => {
   );
 });
 
+test("five-tick timing uses the next tick as entry and the fifth later tick as exit", () => {
+  const ticks = Array.from({ length: 8 }, (_, index) => ({
+    epoch: 1_700_000_000 + index,
+    quote: 100 + index,
+  }));
+  const signals = new Uint8Array(ticks.length);
+  signals[0] = SIGNAL_RISE;
+  const result = replaySequentialSignals({
+    captureTrades: true,
+    delayTicks: 1,
+    durationTicks: 5,
+    fromEpoch: ticks[0].epoch,
+    signals,
+    ticks,
+    toEpochExclusive: ticks.at(-1).epoch + 1,
+  });
+  assert.equal(result.trades.length, 1);
+  assert.equal(result.trades[0].entryEpoch, ticks[0].epoch + 1);
+  assert.equal(result.trades[0].settlementEpoch, ticks[0].epoch + 6);
+});
+
 test("shared execution model never crosses a genuine tick gap", () => {
   const ticks = [
     ...Array.from({ length: 8 }, (_, index) => ({

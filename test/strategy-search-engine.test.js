@@ -7,6 +7,10 @@ import {
   evaluateSearchConfiguration,
   oneSidedStudentTPValue,
 } from "../src/strategy-search-engine.js";
+import {
+  replaySequentialSignals,
+  SIGNAL_RISE,
+} from "../src/execution-model.js";
 
 const frozen = JSON.parse(
   await readFile(
@@ -92,4 +96,72 @@ test("a genuine gap invalidates crossing outcomes instead of inventing prices", 
     protocol,
   });
   assert.ok(gappedEvaluation.base.trades < completeEvaluation.base.trades);
+});
+
+test("audit mode exposes complete chronological UTC-day outcome blocks", () => {
+  const protocol = smallProtocol();
+  const slots =
+    protocol.dataset.toEpochExclusive - protocol.dataset.fromEpochInclusive;
+  const quotes = Float64Array.from(
+    { length: slots },
+    (_, index) => 100 + index * 0.01,
+  );
+  const present = new Uint8Array(slots).fill(1);
+  const evaluation = evaluateSearchConfiguration({
+    cache: buildSearchFeatureCache({ present, protocol, quotes }),
+    captureDayBlocks: true,
+    config: {
+      direction: "rise",
+      durationTicks: 1,
+      family: "unconditional_baseline",
+    },
+    protocol,
+  });
+  assert.equal(evaluation.uncertainty.utcDayOutcomeBlocks.length, 1);
+  const block = evaluation.uncertainty.utcDayOutcomeBlocks[0];
+  assert.equal(block.wins + block.losses, block.trades);
+});
+
+test("vectorized search outcomes agree with the shared sequential reference", () => {
+  const protocol = smallProtocol();
+  const slots =
+    protocol.dataset.toEpochExclusive - protocol.dataset.fromEpochInclusive;
+  const ticks = Array.from({ length: slots }, (_, index) => ({
+    epoch: protocol.dataset.fromEpochInclusive + index,
+    quote: 100 + Math.sin(index / 9),
+  }));
+  const quotes = Float64Array.from(ticks, (tick) => tick.quote);
+  const present = new Uint8Array(slots).fill(1);
+  const evaluation = evaluateSearchConfiguration({
+    cache: buildSearchFeatureCache({ present, protocol, quotes }),
+    config: {
+      direction: "rise",
+      durationTicks: 5,
+      family: "unconditional_baseline",
+    },
+    protocol,
+  });
+  const signals = new Uint8Array(ticks.length);
+  for (let index = 0; index < ticks.length; index += 1) {
+    if (ticks[index].epoch % 60 === 0) signals[index] = SIGNAL_RISE;
+  }
+  for (const scenario of evaluation.scenarios) {
+    const window = protocol.evaluationWindows.find(
+      (candidate) => candidate.id === scenario.windowId,
+    );
+    const reference = replaySequentialSignals({
+      delayTicks: scenario.delayTicks,
+      durationTicks: 5,
+      fromEpoch: window.fromEpochInclusive,
+      signals,
+      ticks,
+      toEpochExclusive: window.toEpochExclusive,
+    });
+    assert.deepEqual(scenario.counts, {
+      losses: reference.counts.losses,
+      ties: reference.counts.ties,
+      trades: reference.counts.settledTrades,
+      wins: reference.counts.wins,
+    });
+  }
 });

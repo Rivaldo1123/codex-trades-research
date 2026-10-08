@@ -443,6 +443,7 @@ export function evaluateSearchConfiguration({
   cache,
   config,
   protocol,
+  captureDayBlocks = false,
 }) {
   const delays = protocol.parameterRanges.entryDelayTicks;
   const windows = protocol.evaluationWindows;
@@ -588,6 +589,11 @@ export function evaluateSearchConfiguration({
     protocol.acceptanceRules.stressPayoutOnWin,
     protocol.searchBudget.plannedUniqueConfigurations,
   );
+  if (captureDayBlocks) {
+    uncertainty.utcDayOutcomeBlocks = dailyByDelay[
+      delays.indexOf(worstDelay.delay)
+    ].map((counts, utcDayIndex) => ({ utcDayIndex, ...counts }));
+  }
   const minimumStressAverage = Math.min(
     ...stressWindowDelayScores.map(
       (item) => item.averageProfitPerDollarStaked ?? -Infinity,
