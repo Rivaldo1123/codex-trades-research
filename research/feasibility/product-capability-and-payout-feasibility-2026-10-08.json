@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "kind": "read-only-product-capability-and-payout-feasibility-study",
+  "accessDate": "2026-10-08",
+  "baseline": {
+    "auditConclusionPreserved": "NO_RELIABLE_EDGE_FOUND",
+    "scope": "1HZ100V CALL/PUT, 1-10 tick durations, fixed unit stake, seven indicator families/five signal transformations, exposed 30-day development interval",
+    "reviewedCommit": "ef03504b5f82bc73f0ce23669cab8072591b8f2d",
+    "auditReport": {
+      "path": "research/audits/development-screen-v1-independent-audit-v2.md",
+      "sha256": "b9b007dd264833db9c4f6cc0f886f9e037af0934f461c6b94c2e43cd321bb10f"
+    },
+    "auditMachineRecord": {
+      "path": "research/audits/development-screen-v1-independent-audit-v2.json",
+      "sha256": "3b66f7e3484f56d8d6a0178fe91ae14219b1b3bcd085dacf261901dc8853e9c1"
+    },
+    "originalLedger": {
+      "path": "data/research/development-screen-v1/ledger.final.jsonl",
+      "rows": 12012,
+      "sha256": "23da90a773cdffb77c1f71187083985f4cf2916a38eb477875dfbdffe58dccd3"
+    }
+  },
+  "controls": {
+    "authenticated": false,
+    "collectorStartedOrResumed": false,
+    "largeSearchStarted": false,
+    "ordersPlaced": false,
+    "paidServicesUsed": false,
+    "directionsCompared": 3
+  },
+  "publicProbe": {
+    "path": "research/evidence/product-feasibility-public-probe-2026-10-08-v1.json",
+    "sha256": "9a70b7e72fe006b6eb1ebbf644f121b86ab836985749fc0cfefeff82bdc9c51a",
+    "accessedAtUtc": "2026-10-08T14:41:11.720Z",
+    "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+    "requests": 9,
+    "retries": 0,
+    "proposalIdsRetained": false,
+    "limitations": [
+      "This is the current public Options catalogue, not a catalogue for CFD platforms, all accounts, or all jurisdictions.",
+      "The probe retained the total catalogue count and only hypothesis-matching rows, not all 89 raw catalogue rows; an empty match is reproducible from code but is not a full raw-catalogue snapshot.",
+      "Point proposals are indicative and unauthenticated; no contract was purchased.",
+      "Point tick history is not historical bid/ask, exit-quote, or settlement evidence."
+    ]
+  },
+  "breakEvenModels": {
+    "binaryContrastOnly": {
+      "formula": "p_break_even = 1 / (1 + r), where r is net win profit per unit stake",
+      "applicableToCurrentRangeBreakProbe": false,
+      "reason": "RB100 and RB200 exposed only MULTUP/MULTDOWN no-expiry contracts in the bounded public Options probe, not fixed-duration CALL/PUT."
+    },
+    "multiplier": {
+      "formula": "raw_favourable_return > commission / (stake * multiplier), before exit costs or slippage",
+      "pointQuoteInputs": {
+        "stakeUsd": 1,
+        "multiplier": 400,
+        "commissionUsd": 0.02
+      },
+      "pointQuoteRawBreakEvenFractionBeforeExitCosts": 0.00005,
+      "pointQuoteRawBreakEvenPercentBeforeExitCosts": 0.005,
+      "pointQuoteRawBreakEvenBpsBeforeExitCosts": 0.5
+    },
+    "cfd": {
+      "formula": "favourable price change * units > round-trip spread + commission + swap + other execution costs",
+      "probabilityOnlyBreakEvenAvailable": false,
+      "driftSwitchKidExample": {
+        "illustrativeNotionalUsd": 5130.5,
+        "illustrativeSpreadPercent": 0.0197,
+        "illustrativeSpreadBps": 1.97,
+        "illustrativeTwentyFourHourTotalCostUsd": 2.079,
+        "illustrativeTwentyFourHourTotalCostPercentOfNotional": 0.041,
+        "warning": "Illustrative KID scenario, not a current or universal quote."
+      }
+    }
+  },
+  "directions": [
+    {
+      "rankAmongConditionalMicroExperiments": 1,
+      "id": "range-break-boundary-state",
+      "name": "Range Break boundary-state mechanism",
+      "status": "NOT_READY_FOR_STRATEGY_SEARCH",
+      "documentedMechanism": [
+        "Deriv describes price as bouncing between upper and lower boundaries, followed by a high or low break that creates a new range.",
+        "The 100 and 200 variants are described as breaking after 100 or 200 boundary hits on average.",
+        "Deriv says Range Break may be more compatible with channel analysis than its other synthetic indices."
+      ],
+      "edgeEvidence": "None. A documented state mechanism makes a causal hypothesis testable; it does not show after-cost predictability.",
+      "productsDurationsAndConstraints": {
+        "symbolsObserved": ["RB100", "RB200"],
+        "publicOptionsContractsObserved": ["MULTUP", "MULTDOWN"],
+        "expiryObserved": "no_expiry",
+        "fixedDurationCallPutObserved": false,
+        "contractsForAdvertisedMultipliers": [20, 40, 60, 80, 100],
+        "proposalAcceptedMultipliersReportedByError": [400, 1000, 2000, 3000, 4000],
+        "metadataConflict": true,
+        "entryTiming": "next tick after server processes a multiplier or Derived-Index CFD contract",
+        "rangeBreakCfdExitTiming": "next tick after server processes the close"
+      },
+      "indicativePayoutAndBreakEven": {
+        "contractEconomics": "No binary payout. Four point multiplier indications had ask/stake USD 1, commission USD 0.02, multiplier 400, and payout field 0.",
+        "rawBreakEvenBeforeExitCostsBps": 0.5,
+        "pointHistoryMaximumAbsoluteOneTickMoveBps": 0.18562518562518562,
+        "oneTickMovesExceedingRawBreakEven": 0,
+        "interpretation": "This falsifies only a one-tick raw-movement version at that point quote. It does not evaluate a multi-tick boundary-state rule or closing economics."
+      },
+      "historicalDataAndSimulation": {
+        "pointHistoryAvailable": true,
+        "sample": "1,000 RB100 rows from 2026-09-08T14:19:48Z through 2026-09-08T14:36:27Z; all 999 observed intervals were one second",
+        "completeLongPeriodCoverageVerified": false,
+        "hiddenBoundaryOrHitCounterAvailable": false,
+        "historicalExitQuotesAvailable": false,
+        "realisticNetSimulationPossibleNow": false
+      },
+      "differenceFromRejectedFamilies": "It conditions on an instrument-specific boundary/reset process, rather than applying generic momentum, SMA, z-score, or channel transforms to 1HZ100V short-tick CALL/PUT outcomes.",
+      "cheapestBoundedFalsifier": {
+        "currentGate": "FAILED_READINESS",
+        "actionNow": "Do not search. First resolve the contracts_for/proposal multiplier contradiction and establish a read-only source for exact entry and close economics. Stop if either remains unavailable.",
+        "conditionalFutureCap": "If both gates are later cleared, preregister one RB100 boundary-state rule, use at most 20,000 consecutive native ticks and at most 12 point-quote snapshots, and reject it if causal boundary reconstruction fails or the protected after-cost estimate is non-positive.",
+        "estimatedCost": "Minutes of local analysis plus at most 20 public requests; zero paid compute; no order."
+      }
+    },
+    {
+      "rankAmongConditionalMicroExperiments": 2,
+      "id": "skew-step-distribution",
+      "name": "Skew Step published-distribution mechanism",
+      "status": "ANALYTIC_BASELINE_NON_POSITIVE_AND_DATA_GATE_FAILED",
+      "documentedMechanism": [
+        "Skew Step combines frequent small moves in one direction with rare larger moves in the opposite direction.",
+        "The Academy lists four variants and says they are available on Deriv MT5 and cTrader.",
+        "For Skew Step 5 Up, the published table assigns 10% to -1, 83% to +0.1, 5% to +0.2, 1% to +0.3, and 1% to +0.4."
+      ],
+      "edgeEvidence": "None. The published Skew Step 5 Up raw expected increment is exactly zero: -1(0.10)+0.1(0.83)+0.2(0.05)+0.3(0.01)+0.4(0.01)=0. The Down version is its mirror. Frequent direction is not expected value.",
+      "productsDurationsAndConstraints": {
+        "variantsDocumented": ["Skew Step 5 Up", "Skew Step 5 Down", "Skew Step 4 Up", "Skew Step 4 Down"],
+        "platformsDocumented": ["Deriv MT5", "cTrader"],
+        "publicOptionsCatalogMatches": 0,
+        "fixedExpiryDocumented": false,
+        "implementationType": "CFD-style platform access is documented; no matching public Options product was observed.",
+        "documentationDefect": "The Academy's Skew Step 4 tables conflict with their surrounding 80/20 descriptions, and one line says 0% where context says 80%; Skew Step 4 economics cannot be safely derived from that page."
+      },
+      "indicativePayoutAndBreakEven": {
+        "currentExecutableQuoteAvailable": false,
+        "publishedSkew5UpDistribution": [
+          { "move": -1, "probability": 0.1 },
+          { "move": 0.1, "probability": 0.83 },
+          { "move": 0.2, "probability": 0.05 },
+          { "move": 0.3, "probability": 0.01 },
+          { "move": 0.4, "probability": 0.01 }
+        ],
+        "rawExpectedStepSkew5Up": 0,
+        "rawExpectedStepSkew5Down": 0,
+        "cfdBreakEven": "Favourable movement must exceed round-trip spread, commission, swap, and execution costs; no probability-only threshold is available without quotes."
+      },
+      "historicalDataAndSimulation": {
+        "academySaysPlatformBacktestingSupported": true,
+        "publicOptionsTickHistoryObserved": false,
+        "publicHistoricalBidAskOrSpreadObserved": false,
+        "realisticNetSimulationPossibleNow": false
+      },
+      "differenceFromRejectedFamilies": "The hypothesis comes from a published asymmetric increment distribution, not a fitted short-horizon indicator pattern on a nominally symmetric volatility index.",
+      "cheapestBoundedFalsifier": {
+        "currentGate": "ALREADY_FAILS_UNCONDITIONAL_RAW_VALUE_FOR_SKEW5",
+        "actionNow": "Do not backtest an unconditional frequent-direction rule; its published raw expectation is zero before costs. Do not model Skew Step 4 until Deriv publishes a consistent table.",
+        "conditionalFutureCap": "Only if consistent official specifications and a zero-cost bid/ask history export become available, verify one week of empirical transition frequencies against the published distribution before testing any single preregistered path-dependent rule.",
+        "estimatedCost": "Current falsifier is algebra only. Conditional descriptive check would be minutes locally and no paid service."
+      }
+    },
+    {
+      "rankAmongConditionalMicroExperiments": 3,
+      "id": "latent-regime-switching",
+      "name": "Drift Switch / Volatility Switch latent-regime mechanism",
+      "status": "PRODUCT_AND_EXECUTION_DATA_GATE_FAILED",
+      "documentedMechanism": [
+        "Drift Switch alternates among bullish, bearish, and sideways regimes with average regime durations of 10, 20, or 30 minutes depending on the variant.",
+        "Volatility Switch alternates among low, medium, and high volatility regimes; exact change timing is random and its spreads adjust with the regime.",
+        "Regime persistence could make state classification relevant over clock time, while the random switch timing is not itself a predictable event."
+      ],
+      "edgeEvidence": "None. Persistence is a mechanism for a classifier experiment, not evidence that direction or volatility can be traded after dynamic costs.",
+      "productsDurationsAndConstraints": {
+        "publicOptionsCatalogMatches": 0,
+        "driftSwitchProductDocumented": "CFD on Deriv MT5, typically no fixed term",
+        "volatilitySwitchFixedDurationOptionObserved": false,
+        "execution": "Derived-Index CFD entry is the next tick after server processing; for indices other than the named Crash/Boom, Jump, DEX, and Range Break exceptions, exit is the latest available tick when the server processes the close.",
+        "operationalCosts": ["dynamic or quoted spread", "possible overnight swap", "margin", "leverage", "stop-out", "processing timing"]
+      },
+      "indicativePayoutAndBreakEven": {
+        "binaryPayoutApplicable": false,
+        "driftSwitchKidExampleSpreadBps": 1.97,
+        "driftSwitchKidExampleTwentyFourHourTotalCostBps": 4.1,
+        "warning": "The KID figures are illustrative, not current quotes and not applicable to every variant or holding period.",
+        "breakEven": "Favourable price change * units must exceed all spread, swap, commission, and execution costs."
+      },
+      "historicalDataAndSimulation": {
+        "publicOptionsTickHistoryObserved": false,
+        "historicalBidAskAndDynamicSpreadObserved": false,
+        "explicitRegimeStateFeedObserved": false,
+        "realisticNetSimulationPossibleNow": false,
+        "reason": "Mid/point prices alone cannot reproduce dynamic spread, close processing, margin, or stop-out."
+      },
+      "differenceFromRejectedFamilies": "It targets a documented persistent clock-time latent state over minutes, not direction from 1-10 tick SMA, momentum, z-score, channel, or unconditional rules.",
+      "cheapestBoundedFalsifier": {
+        "currentGate": "FAILED_CAPABILITY",
+        "actionNow": "Do not search. Require a zero-cost export containing one exact product's timestamps, bid, ask, and spread plus unambiguous contract specifications. Stop if it is unavailable.",
+        "conditionalFutureCap": "If the data gate is later cleared, use seven chronological days for one descriptive, preregistered regime-classification check; no P/L grid and no parameter optimization.",
+        "estimatedCost": "No cost now. Conditional analysis would be under one local hour; data acquisition feasibility is unknown."
+      }
+    }
+  ],
+  "decision": {
+    "code": "NONE_JUSTIFY_FURTHER_RESEARCH",
+    "recommendation": "Stop this research direction rather than launch another search.",
+    "reason": "Range Break has the only instrument-specific directional mechanism, but current contract metadata conflict and missing close-price history prevent credible net simulation. Skew Step 5 has zero published raw expected increment before costs and Skew Step 4 documentation is inconsistent. Regime-switch products lack accessible execution-grade history and impose spread/margin/close-timing mechanics absent from the current simulator.",
+    "conditionalRanking": [
+      "Range Break metadata and exit-economics reconciliation",
+      "Skew Step specification/data consistency gate",
+      "Regime-switch bid/ask data capability gate"
+    ],
+    "positiveResultStatus": "NO_POSITIVE_RESULT"
+  },
+  "sources": [
+    {
+      "title": "Deriv Synthetic Indices",
+      "url": "https://deriv.com/markets/derived-indices/synthetic-indices",
+      "accessed": "2026-10-08",
+      "supports": ["RNG construction", "Range Break mechanism", "Drift/Volatility Switch mechanisms", "Skew Step mechanism", "technical-indicator limitation"]
+    },
+    {
+      "title": "Deriv API product updates",
+      "url": "https://developers.deriv.com/product-updates/",
+      "accessed": "2026-10-08",
+      "supports": ["RB100/RB200 API availability announcement", "instruction to use active_symbols for actual trade types"]
+    },
+    {
+      "title": "Deriv Active Symbols API",
+      "url": "https://developers.deriv.com/docs/data/active-symbols/",
+      "accessed": "2026-10-08",
+      "supports": ["public current symbol catalogue semantics"]
+    },
+    {
+      "title": "Deriv Contracts For API",
+      "url": "https://developers.deriv.com/docs/data/contracts-for/",
+      "accessed": "2026-10-08",
+      "supports": ["public symbol-specific contract capability semantics"]
+    },
+    {
+      "title": "Deriv Price Proposal API",
+      "url": "https://developers.deriv.com/docs/trading/proposal/",
+      "accessed": "2026-10-08",
+      "supports": ["public point proposal semantics"]
+    },
+    {
+      "title": "Deriv Ticks History API",
+      "url": "https://developers.deriv.com/docs/data/ticks-history/",
+      "accessed": "2026-10-08",
+      "supports": ["public point/tick history capability"]
+    },
+    {
+      "title": "Deriv Multipliers",
+      "url": "https://deriv.com/options-types/multipliers",
+      "accessed": "2026-10-08",
+      "supports": ["multiplier profit/loss and commission formula"]
+    },
+    {
+      "title": "Deriv trading terms R26|03",
+      "url": "https://deriv.com/terms-and-conditions/trading-terms",
+      "accessed": "2026-10-08",
+      "supports": ["entry/exit timing", "pricing bias", "spread", "swap", "margin", "stop-out"]
+    },
+    {
+      "title": "KID: CFDs on Drift Switch Indices",
+      "url": "https://docs.deriv.com/regulatory/kid/kid_deriv_cfds_drift_switch_indices.pdf",
+      "accessed": "2026-10-08",
+      "supports": ["regime mechanism", "CFD formula", "no fixed term", "illustrative spread and swap costs", "MT5"]
+    },
+    {
+      "title": "Deriv Academy: Volatility Switch Index guide",
+      "url": "https://traders-academy.deriv.com/trading-guides/volatility-switch-indices-guide",
+      "accessed": "2026-10-08",
+      "supports": ["random regime switching", "dynamic spread", "regime durations"]
+    },
+    {
+      "title": "Deriv Academy: Skew Step Indices guide",
+      "url": "https://traders-academy.deriv.com/trading-guides/skew-step-indices-guide-asymmetrical-trading",
+      "accessed": "2026-10-08",
+      "supports": ["published Skew Step distributions", "platforms", "documentation inconsistency"]
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "accessedAtUtc": "2026-10-08T14:41:11.720Z",
+  "advertisedMultiplierProbe": {
+    "accepted": false,
+    "error": {
+      "code": "ContractBuyValidationError",
+      "message": "Multiplier is not in acceptable range. Accepts 400,1000,2000,3000,4000."
+    },
+    "multiplier": 20,
+    "proposalAcceptedMultipliersFromError": [
+      400,
+      1000,
+      2000,
+      3000,
+      4000
+    ]
+  },
+  "catalog": {
+    "relevant": {
+      "rangeBreak": [
+        {
+          "market": "synthetic_index",
+          "name": "Range Break 100 Index",
+          "symbol": "RB100",
+          "type": ""
+        },
+        {
+          "market": "synthetic_index",
+          "name": "Range Break 200 Index",
+          "symbol": "RB200",
+          "type": ""
+        }
+      ],
+      "regimeSwitching": [],
+      "skewStep": []
+    },
+    "totalActiveSymbols": 89
+  },
+  "contractsBySymbol": {
+    "RB100": [
+      {
+        "cancellationRange": [],
+        "category": "multiplier",
+        "contractType": "MULTDOWN",
+        "expiryType": "no_expiry",
+        "maximumDuration": "0",
+        "minimumDuration": "0",
+        "multiplierRange": [
+          20,
+          40,
+          60,
+          80,
+          100
+        ],
+        "sentiment": "down",
+        "symbol": "RB100"
+      },
+      {
+        "cancellationRange": [],
+        "category": "multiplier",
+        "contractType": "MULTUP",
+        "expiryType": "no_expiry",
+        "maximumDuration": "0",
+        "minimumDuration": "0",
+        "multiplierRange": [
+          20,
+          40,
+          60,
+          80,
+          100
+        ],
+        "sentiment": "up",
+        "symbol": "RB100"
+      }
+    ],
+    "RB200": [
+      {
+        "cancellationRange": [],
+        "category": "multiplier",
+        "contractType": "MULTDOWN",
+        "expiryType": "no_expiry",
+        "maximumDuration": "0",
+        "minimumDuration": "0",
+        "multiplierRange": [
+          20,
+          40,
+          60,
+          80,
+          100
+        ],
+        "sentiment": "down",
+        "symbol": "RB200"
+      },
+      {
+        "cancellationRange": [],
+        "category": "multiplier",
+        "contractType": "MULTUP",
+        "expiryType": "no_expiry",
+        "maximumDuration": "0",
+        "minimumDuration": "0",
+        "multiplierRange": [
+          20,
+          40,
+          60,
+          80,
+          100
+        ],
+        "sentiment": "up",
+        "symbol": "RB200"
+      }
+    ]
+  },
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "historicalPointSample": {
+    "request": {
+      "count": 1000,
+      "end": 1788878187,
+      "start": 1788870987,
+      "symbol": "RB100"
+    },
+    "result": {
+      "cadenceSeconds": {
+        "1": 999
+      },
+      "changes": 999,
+      "downMovesAboveRawBreakEven": 0,
+      "firstEpoch": 1788877188,
+      "lastEpoch": 1788878187,
+      "maximumAbsoluteOneTickMoveBps": 0.18562518562518562,
+      "meanAbsoluteOneTickMoveBps": 0.18558161426469624,
+      "negativeMoves": 495,
+      "positiveMoves": 504,
+      "rows": 1000,
+      "unchangedMoves": 0,
+      "upMovesAboveRawBreakEven": 0,
+      "warning": "Raw tick movement only; this is not a historical multiplier return because exit quotes, slippage, and closure processing are absent."
+    },
+    "status": "AVAILABLE_POINT_SAMPLE"
+  },
+  "indicativeProposals": [
+    {
+      "askPrice": 1,
+      "commission": 0.02,
+      "commissionPerUnitStake": 0.02,
+      "contractType": "MULTUP",
+      "grossPayoutField": 0,
+      "multiplier": 400,
+      "quoteEpoch": 1791470476,
+      "quoteSpot": 50828,
+      "rawMoveBreakEvenBpsBeforeExitCosts": 0.5,
+      "rawMoveBreakEvenFractionBeforeExitCosts": 0.00005,
+      "symbol": "RB100"
+    },
+    {
+      "askPrice": 1,
+      "commission": 0.02,
+      "commissionPerUnitStake": 0.02,
+      "contractType": "MULTDOWN",
+      "grossPayoutField": 0,
+      "multiplier": 400,
+      "quoteEpoch": 1791470478,
+      "quoteSpot": 50828,
+      "rawMoveBreakEvenBpsBeforeExitCosts": 0.5,
+      "rawMoveBreakEvenFractionBeforeExitCosts": 0.00005,
+      "symbol": "RB100"
+    },
+    {
+      "askPrice": 1,
+      "commission": 0.02,
+      "commissionPerUnitStake": 0.02,
+      "contractType": "MULTUP",
+      "grossPayoutField": 0,
+      "multiplier": 400,
+      "quoteEpoch": 1791470479,
+      "quoteSpot": 65245,
+      "rawMoveBreakEvenBpsBeforeExitCosts": 0.5,
+      "rawMoveBreakEvenFractionBeforeExitCosts": 0.00005,
+      "symbol": "RB200"
+    },
+    {
+      "askPrice": 1,
+      "commission": 0.02,
+      "commissionPerUnitStake": 0.02,
+      "contractType": "MULTDOWN",
+      "grossPayoutField": 0,
+      "multiplier": 400,
+      "quoteEpoch": 1791470481,
+      "quoteSpot": 65245,
+      "rawMoveBreakEvenBpsBeforeExitCosts": 0.5,
+      "rawMoveBreakEvenFractionBeforeExitCosts": 0.00005,
+      "symbol": "RB200"
+    }
+  ],
+  "kind": "read-only-product-capability-and-payout-feasibility-probe",
+  "limitations": [
+    "The public Options catalogue is not proof of availability on CFD platforms, in every jurisdiction, or for every account.",
+    "Proposals are unauthenticated point-in-time indications and were not purchased.",
+    "Multiplier proposals have no fixed expiry or binary payout; realistic historical P/L needs exit pricing and processing evidence.",
+    "A point history response establishes only point availability, not complete coverage."
+  ],
+  "ordersAuthorized": false,
+  "requestBudget": {
+    "boundedRequestsActuallyMade": 9,
+    "noRetries": true,
+    "plannedMaximumRequests": 9
+  },
+  "requestCounts": {
+    "activeSymbols": 1,
+    "contractsFor": 2,
+    "history": 1,
+    "proposals": 5
+  },
+  "schemaVersion": 1
+}

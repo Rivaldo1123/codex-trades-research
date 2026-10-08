@@ -82,6 +82,41 @@ Reproduce the offline audit with the ignored raw archive and v1 final ledger:
 The audit command makes no network request, authenticates no account, and cannot
 place an order.
 
+## Product capability and payout feasibility gate
+
+The separate
+[`product-capability-and-payout-feasibility-2026-10-08.md`](feasibility/product-capability-and-payout-feasibility-2026-10-08.md)
+tests whether any of the audit's bounded alternatives is ready for a strategy
+experiment. Its machine-readable companion records every documented fact,
+inference, unknown, break-even calculation, and falsification cap. The original
+audit, result files, and 12,012-row ledger remain unchanged.
+
+The study compares exactly three mechanisms:
+
+1. Range Break boundary state and resets;
+2. Skew Step's published asymmetric increment distribution; and
+3. Drift/Volatility Switch persistent clock-time regimes.
+
+The current decision is `NONE_JUSTIFY_FURTHER_RESEARCH`. Range Break's public
+Options capability was limited to no-expiry multipliers and contained a
+`contracts_for`/proposal multiplier disagreement; historical point ticks do not
+contain closing economics. Skew Step 5's published distribution has zero raw
+expected increment before costs, and the official Skew Step 4 tables conflict.
+Regime-switch CFDs require bid/ask, dynamic-spread, margin, and close-processing
+evidence that was not available through the public Options catalogue/history.
+No result is positive, and no candidate is ready for search or Demo.
+
+The immutable bounded probe made nine unauthenticated public requests with no
+retry and no buy path. Verify it locally without making a network request:
+
+    node src/product-feasibility-probe-cli.js --verify
+    node --test test/product-feasibility-probe.test.js
+
+A new public probe is deliberately opt-in and must use
+`--collect --output NEW_PATH`; it is not the recommended next action. The
+conditional micro-experiment ranking in the report is a capability-gate order,
+not a recommendation to trade or optimize.
+
 ## Historical expansion
 
 The first expansion target is the exact 90-day UTC interval

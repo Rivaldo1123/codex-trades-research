@@ -49,6 +49,34 @@ Deriv product or strategy is unprofitable. See the
 and the original engineering report in `research/results/`. The original v1
 artifacts remain unchanged; the v2 audit is a separate versioned evaluation.
 
+## Read-only product feasibility gate
+
+The follow-up
+[`product capability and payout feasibility study`](research/feasibility/product-capability-and-payout-feasibility-2026-10-08.md)
+preserves that audit conclusion and stops expansion of the rejected short-tick
+indicator search. It compares three genuinely different mechanisms—Range Break
+boundary state, Skew Step's published asymmetric distribution, and
+Drift/Volatility Switch latent regimes—using official sources and one bounded,
+unauthenticated nine-request public probe. It started no collector or search,
+placed no order, and used no paid service.
+
+The decision is `NONE_JUSTIFY_FURTHER_RESEARCH`. Range Break ranks first only
+for a possible future product-metadata and close-economics reconciliation: its
+public `contracts_for` multiplier range contradicted the proposal validator,
+and point ticks cannot reproduce multiplier exits. Skew Step 5's published raw
+increment expectation is zero before costs, while the published Skew Step 4
+tables are inconsistent. The regime products require historical bid/ask and
+dynamic-spread evidence not present in the current public Options data. These
+are feasibility findings, not claims that any product is profitable or
+unprofitable.
+
+Verify the saved probe offline (the default command does not repeat it):
+
+```powershell
+node src/product-feasibility-probe-cli.js --verify
+node --test test/product-feasibility-probe.test.js
+```
+
 The authorized 90-day expansion is checkpointed but incomplete. On 2026-10-08
 the public backfill stopped itself after all eight bounded `ticks_history`
 rate-limit retries: this invocation stored 250,000 rows across 250 pages, the

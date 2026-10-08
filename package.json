@@ -24,6 +24,7 @@
     "research:run": "node src/strategy-search-cli.js run",
     "research:status": "node src/strategy-search-cli.js status",
     "research:contract-audit": "node src/contract-audit-probe-cli.js",
+    "research:product-feasibility": "node src/product-feasibility-probe-cli.js",
     "research:audit": "node src/experiment-audit-cli.js",
     "data:pipeline": "node src/data-cli.js pipeline",
     "data:live": "node src/live-data-cli.js run",
