@@ -1,0 +1,1977 @@
+{
+  "auditCode": {
+    "commit": "4cf6b1c976c77f587733305ed33aa36b86988694",
+    "trackedWorktreeDirty": false
+  },
+  "contractModelConclusion": {
+    "supportedSearchProduct": {
+      "contractTypes": [
+        "CALL",
+        "PUT"
+      ],
+      "durationUnit": "ticks",
+      "durations": [
+        1,
+        2,
+        3,
+        5,
+        7,
+        10
+      ],
+      "productProbeEvidence": {
+        "path": "research/data-availability-2026-10-08.md",
+        "sha256": "903654361dad6676d12abf974b7e0b7771dca95da1cd88fa72f68586dc3e86f5",
+        "type": "Unauthenticated point-in-time contracts_for observation"
+      },
+      "symbol": "1HZ100V"
+    },
+    "sufficientlyAccurateForNarrowScreen": true,
+    "sufficientlyAccurateForHistoricalExecutableProfit": false,
+    "unresolvedAssumptions": [
+      "Historical account-specific proposal prices and executable payouts were not recorded.",
+      "Proposal expiry, requotes, rejected purchases, cancellations, refunds, and broker corrections are not simulated.",
+      "Processing delays beyond the frozen one-to-three-tick grid are not tested.",
+      "Public history is assumed to match settlement ticks; this is corroborated by 99 UI observations but not guaranteed for every anomaly."
+    ],
+    "verified": [
+      "Signals use raw ticks and only information available at the decision epoch.",
+      "Entry is the delayed future tick and expiry is duration ticks after entry.",
+      "Strict CALL/PUT ties lose the stake in simulation and recorded UI observations.",
+      "Gross payout is kept distinct from net win profit per unit staked.",
+      "No decision, entry, or settlement crosses a source gap or chronological window.",
+      "Minute-spaced decisions cannot overlap at the searched delays and durations; a separate sequential engine matches vectorized counts."
+    ]
+  },
+  "datasetSliceAudit": {
+    "checks": "Independent chunk checksum, row count, bounds, ordering, duplicate rejection, stable relevant manifest, and exact chronological content hash.",
+    "contentSha256": "8e3196f7d9faba44791fea5e0da1db797dd779355b656419e39667c7752a6d69",
+    "coverage": 0.9999972993827161,
+    "expectedSeconds": 2592000,
+    "fromEpoch": 1788667200,
+    "manifestSnapshotSha256": "40dbfbd1058e1a1c8f292547c6c1b73d509c8106006d822c743bd0f2c846768e",
+    "missingRanges": [
+      {
+        "fromEpoch": 1789085201,
+        "missingSeconds": 7,
+        "toEpochExclusive": 1789085208
+      }
+    ],
+    "missingSeconds": 7,
+    "observedGenuineSeconds": 2591993,
+    "selectedChunks": 2594,
+    "sliceManifestSha256": "a1e3d1834337c127013a2d24d5952a3cc3516bce96ae2991e154a692ffe78383",
+    "symbol": "1HZ100V",
+    "toEpochExclusive": 1791259200
+  },
+  "defects": [
+    {
+      "affectedFiles": [
+        "src/forward-replay.js",
+        "src/strategy-search-cli.js"
+      ],
+      "affectedResults": "v1 checkpoint resumability and exact manifest provenance; not the independently reverified fixed-slice counts.",
+      "correction": "Added independent content- and relevant-slice hashing without rewriting v1.",
+      "id": "AUDIT-001",
+      "reproducibleExample": "Append a non-overlapping older chunk: whole-manifest hash changes while fixed-slice content hash does not.",
+      "severity": "high",
+      "title": "Mutable whole-manifest hash used as dataset identity"
+    },
+    {
+      "affectedFiles": [
+        "src/strategy-search-engine.js"
+      ],
+      "affectedResults": "v1 p-values/bootstrap interpretation; base and payout-stress arithmetic are unaffected.",
+      "correction": "Added ratio-of-sums day-cluster inference and three-day moving-block sensitivity for the v1 top 20.",
+      "id": "AUDIT-002",
+      "reproducibleExample": "A one-trade day and a 100-trade day receive equal weight in v1 despite targeting return per stake.",
+      "severity": "medium",
+      "title": "Inference did not target trade-weighted profit per stake"
+    },
+    {
+      "affectedFiles": [
+        "src/strategy-search-engine.js",
+        "research/results/development-screen-v1-summary.json"
+      ],
+      "affectedResults": "Rejection-reason wording only.",
+      "correction": "Audit reports evaluated bootstrap/neighbor counts separately from non-shortlisting.",
+      "id": "AUDIT-003",
+      "reproducibleExample": "12,012 rows carry a bootstrap failed-or-not-shortlisted label, but only 20 contain a bootstrap result.",
+      "severity": "medium",
+      "title": "Non-evaluation and evaluated failure shared one label"
+    },
+    {
+      "affectedFiles": [
+        "src/strategy-search-engine.js",
+        "data/research/development-screen-v1/ledger.final.jsonl"
+      ],
+      "affectedResults": "Persisted worst-stress field for no-trade scenarios; qualification remained fail-closed.",
+      "correction": "Independent validation reconstructs the non-finite sentinel from scenario counts and records the affected row count without rewriting v1.",
+      "id": "AUDIT-004",
+      "reproducibleExample": "JSON.stringify({ minimum: -Infinity }) produces {\"minimum\":null}.",
+      "severity": "low",
+      "title": "JSON encoded negative-infinity no-trade minima as null"
+    }
+  ],
+  "generatedAtUtc": "2026-10-08T14:16:45.459Z",
+  "historicalCollection": {
+    "archive": {
+      "coverageDaysAcrossAllIntervals": 34.726851851851855,
+      "firstEpoch": 1788417200,
+      "intervals": 4,
+      "lastEpoch": 1791417599,
+      "totalRows": 2952114
+    },
+    "cursorEpoch": 1788417199,
+    "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+    "fromEpoch": 1783483200,
+    "lastError": "Historical request exhausted 8 bounded retries: Deriv API error RateLimit: You have reached the rate limit for ticks_history.",
+    "pagesFetchedThisInvocation": 250,
+    "processAlive": false,
+    "remainingOlderSecondsBeforeTarget": 4934000,
+    "resumeCommand": "node src/historical-backfill-cli.js --from 1783483200 --to 1791259200",
+    "rowsStoredThisInvocation": 250000,
+    "state": "FAILED",
+    "statusFileSha256": "53775308222af594ce8eb08e2ebe22cdbc8c65d58cb9a7bc25863cba40f6ab44",
+    "toEpochExclusive": 1791259200,
+    "updatedAt": "2026-10-08T14:04:30.034Z"
+  },
+  "kind": "development-screen-v1-independent-audit-v2",
+  "ledgerAudit": {
+    "accountingChecksPassed": 12012,
+    "baseAt095Meets002": 103,
+    "baseAt095NonNegative": 211,
+    "configurationHashesUnique": 12012,
+    "familyCoverage": [
+      {
+        "activeCalendarDays": {
+          "maximum": 30,
+          "median": 30,
+          "minimum": 30
+        },
+        "baseAt095NonNegative": 8,
+        "baseMeetsFrozenThreshold": 0,
+        "baseNegative": 2000,
+        "configurations": 2000,
+        "contractTypes": [
+          "CALL",
+          "PUT"
+        ],
+        "durationConfigurationCounts": {
+          "1": 325,
+          "2": 337,
+          "3": 331,
+          "5": 340,
+          "7": 339,
+          "10": 328
+        },
+        "durationTicks": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          10
+        ],
+        "failureCounts": {
+          "base_expectancy_below_minimum": 2000,
+          "day_block_bootstrap_failed_or_not_shortlisted": 2000,
+          "losing_streak_exceeded": 687,
+          "maximum_drawdown_exceeded": 1855,
+          "multiple_testing_adjusted_evidence_failed": 2000,
+          "nearby_setting_stability_failed_or_not_shortlisted": 2000,
+          "stress_expectancy_below_minimum": 2000,
+          "stress_not_positive_in_every_window_and_delay": 2000,
+          "too_few_total_trades": 279,
+          "too_few_trades_in_window": 149
+        },
+        "family": "channel_breakout",
+        "historicalWindows": [
+          {
+            "id": "dev-early",
+            "fromEpochInclusive": 1788667200,
+            "toEpochExclusive": 1789531200,
+            "fromUtc": "2026-09-06T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-16T04:00:00.000Z"
+          },
+          {
+            "id": "dev-middle",
+            "fromEpochInclusive": 1789531200,
+            "toEpochExclusive": 1790395200,
+            "fromUtc": "2026-09-16T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-26T04:00:00.000Z"
+          },
+          {
+            "id": "dev-late",
+            "fromEpochInclusive": 1790395200,
+            "toEpochExclusive": 1791259200,
+            "fromUtc": "2026-09-26T04:00:00.000Z",
+            "toUtcExclusive": "2026-10-06T04:00:00.000Z"
+          }
+        ],
+        "hypothesis": "A move beyond the prior tick high/low continues.",
+        "parameterValues": {
+          "durationTicks": [
+            1,
+            2,
+            3,
+            5,
+            7,
+            10
+          ],
+          "lookbackTicks": [
+            5,
+            8,
+            10,
+            15,
+            20,
+            30,
+            45,
+            60,
+            90,
+            120,
+            180,
+            240
+          ],
+          "minimumVolatilityBps": [
+            0,
+            0.25,
+            0.5
+          ],
+          "thresholdBps": [
+            0,
+            0.05,
+            0.1,
+            0.25,
+            0.5,
+            1,
+            2,
+            3
+          ],
+          "volatilityWindow": [
+            10,
+            30,
+            60
+          ]
+        },
+        "stressFailsFrozenThreshold": 2000,
+        "tradeCount": {
+          "maximum": 20565,
+          "median": 4432,
+          "minimum": 221
+        },
+        "uniqueOutcomeCountSignatures": 539
+      },
+      {
+        "activeCalendarDays": {
+          "maximum": 30,
+          "median": 30,
+          "minimum": 30
+        },
+        "baseAt095NonNegative": 0,
+        "baseMeetsFrozenThreshold": 0,
+        "baseNegative": 2000,
+        "configurations": 2000,
+        "contractTypes": [
+          "CALL",
+          "PUT"
+        ],
+        "durationConfigurationCounts": {
+          "1": 329,
+          "2": 343,
+          "3": 334,
+          "5": 325,
+          "7": 337,
+          "10": 332
+        },
+        "durationTicks": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          10
+        ],
+        "failureCounts": {
+          "base_expectancy_below_minimum": 2000,
+          "day_block_bootstrap_failed_or_not_shortlisted": 2000,
+          "losing_streak_exceeded": 1750,
+          "maximum_drawdown_exceeded": 2000,
+          "multiple_testing_adjusted_evidence_failed": 2000,
+          "nearby_setting_stability_failed_or_not_shortlisted": 2000,
+          "stress_expectancy_below_minimum": 2000,
+          "stress_not_positive_in_every_window_and_delay": 2000
+        },
+        "family": "momentum_reversion",
+        "historicalWindows": [
+          {
+            "id": "dev-early",
+            "fromEpochInclusive": 1788667200,
+            "toEpochExclusive": 1789531200,
+            "fromUtc": "2026-09-06T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-16T04:00:00.000Z"
+          },
+          {
+            "id": "dev-middle",
+            "fromEpochInclusive": 1789531200,
+            "toEpochExclusive": 1790395200,
+            "fromUtc": "2026-09-16T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-26T04:00:00.000Z"
+          },
+          {
+            "id": "dev-late",
+            "fromEpochInclusive": 1790395200,
+            "toEpochExclusive": 1791259200,
+            "fromUtc": "2026-09-26T04:00:00.000Z",
+            "toUtcExclusive": "2026-10-06T04:00:00.000Z"
+          }
+        ],
+        "hypothesis": "A signed lookback price change reverses.",
+        "parameterValues": {
+          "durationTicks": [
+            1,
+            2,
+            3,
+            5,
+            7,
+            10
+          ],
+          "lookbackTicks": [
+            1,
+            2,
+            3,
+            5,
+            8,
+            13,
+            21,
+            34,
+            55,
+            89
+          ],
+          "minimumVolatilityBps": [
+            0,
+            0.25,
+            0.5
+          ],
+          "thresholdBps": [
+            0,
+            0.05,
+            0.1,
+            0.25,
+            0.5,
+            1,
+            2,
+            3
+          ],
+          "volatilityWindow": [
+            10,
+            30,
+            60
+          ]
+        },
+        "stressFailsFrozenThreshold": 2000,
+        "tradeCount": {
+          "maximum": 43101,
+          "median": 41031,
+          "minimum": 3943
+        },
+        "uniqueOutcomeCountSignatures": 734
+      },
+      {
+        "activeCalendarDays": {
+          "maximum": 30,
+          "median": 30,
+          "minimum": 30
+        },
+        "baseAt095NonNegative": 0,
+        "baseMeetsFrozenThreshold": 0,
+        "baseNegative": 2000,
+        "configurations": 2000,
+        "contractTypes": [
+          "CALL",
+          "PUT"
+        ],
+        "durationConfigurationCounts": {
+          "1": 312,
+          "2": 334,
+          "3": 307,
+          "5": 349,
+          "7": 361,
+          "10": 337
+        },
+        "durationTicks": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          10
+        ],
+        "failureCounts": {
+          "base_expectancy_below_minimum": 2000,
+          "day_block_bootstrap_failed_or_not_shortlisted": 2000,
+          "losing_streak_exceeded": 1792,
+          "maximum_drawdown_exceeded": 2000,
+          "multiple_testing_adjusted_evidence_failed": 2000,
+          "nearby_setting_stability_failed_or_not_shortlisted": 2000,
+          "stress_expectancy_below_minimum": 2000,
+          "stress_not_positive_in_every_window_and_delay": 2000
+        },
+        "family": "momentum_trend",
+        "historicalWindows": [
+          {
+            "id": "dev-early",
+            "fromEpochInclusive": 1788667200,
+            "toEpochExclusive": 1789531200,
+            "fromUtc": "2026-09-06T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-16T04:00:00.000Z"
+          },
+          {
+            "id": "dev-middle",
+            "fromEpochInclusive": 1789531200,
+            "toEpochExclusive": 1790395200,
+            "fromUtc": "2026-09-16T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-26T04:00:00.000Z"
+          },
+          {
+            "id": "dev-late",
+            "fromEpochInclusive": 1790395200,
+            "toEpochExclusive": 1791259200,
+            "fromUtc": "2026-09-26T04:00:00.000Z",
+            "toUtcExclusive": "2026-10-06T04:00:00.000Z"
+          }
+        ],
+        "hypothesis": "A signed lookback price change continues.",
+        "parameterValues": {
+          "durationTicks": [
+            1,
+            2,
+            3,
+            5,
+            7,
+            10
+          ],
+          "lookbackTicks": [
+            1,
+            2,
+            3,
+            5,
+            8,
+            13,
+            21,
+            34,
+            55,
+            89
+          ],
+          "minimumVolatilityBps": [
+            0,
+            0.25,
+            0.5
+          ],
+          "thresholdBps": [
+            0,
+            0.05,
+            0.1,
+            0.25,
+            0.5,
+            1,
+            2,
+            3
+          ],
+          "volatilityWindow": [
+            10,
+            30,
+            60
+          ]
+        },
+        "stressFailsFrozenThreshold": 2000,
+        "tradeCount": {
+          "maximum": 43101,
+          "median": 41031,
+          "minimum": 3943
+        },
+        "uniqueOutcomeCountSignatures": 731
+      },
+      {
+        "activeCalendarDays": {
+          "maximum": 30,
+          "median": 30,
+          "minimum": 30
+        },
+        "baseAt095NonNegative": 0,
+        "baseMeetsFrozenThreshold": 0,
+        "baseNegative": 2000,
+        "configurations": 2000,
+        "contractTypes": [
+          "CALL",
+          "PUT"
+        ],
+        "durationConfigurationCounts": {
+          "1": 363,
+          "2": 322,
+          "3": 320,
+          "5": 348,
+          "7": 329,
+          "10": 318
+        },
+        "durationTicks": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          10
+        ],
+        "failureCounts": {
+          "base_expectancy_below_minimum": 2000,
+          "day_block_bootstrap_failed_or_not_shortlisted": 2000,
+          "losing_streak_exceeded": 1830,
+          "maximum_drawdown_exceeded": 2000,
+          "multiple_testing_adjusted_evidence_failed": 2000,
+          "nearby_setting_stability_failed_or_not_shortlisted": 2000,
+          "stress_expectancy_below_minimum": 2000,
+          "stress_not_positive_in_every_window_and_delay": 2000
+        },
+        "family": "sma_reversion",
+        "historicalWindows": [
+          {
+            "id": "dev-early",
+            "fromEpochInclusive": 1788667200,
+            "toEpochExclusive": 1789531200,
+            "fromUtc": "2026-09-06T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-16T04:00:00.000Z"
+          },
+          {
+            "id": "dev-middle",
+            "fromEpochInclusive": 1789531200,
+            "toEpochExclusive": 1790395200,
+            "fromUtc": "2026-09-16T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-26T04:00:00.000Z"
+          },
+          {
+            "id": "dev-late",
+            "fromEpochInclusive": 1790395200,
+            "toEpochExclusive": 1791259200,
+            "fromUtc": "2026-09-26T04:00:00.000Z",
+            "toUtcExclusive": "2026-10-06T04:00:00.000Z"
+          }
+        ],
+        "hypothesis": "A positive/negative fast-versus-slow price-level separation reverses.",
+        "parameterValues": {
+          "durationTicks": [
+            1,
+            2,
+            3,
+            5,
+            7,
+            10
+          ],
+          "fastWindow": [
+            3,
+            5,
+            8,
+            10,
+            15,
+            20,
+            30,
+            45
+          ],
+          "minimumVolatilityBps": [
+            0,
+            0.25,
+            0.5
+          ],
+          "slowWindow": [
+            20,
+            30,
+            45,
+            60,
+            90,
+            120,
+            180,
+            240
+          ],
+          "thresholdBps": [
+            0,
+            0.1,
+            0.25,
+            0.5,
+            1,
+            2
+          ],
+          "volatilityWindow": [
+            10,
+            30,
+            60
+          ]
+        },
+        "stressFailsFrozenThreshold": 2000,
+        "tradeCount": {
+          "maximum": 43196,
+          "median": 41357,
+          "minimum": 3575
+        },
+        "uniqueOutcomeCountSignatures": 1462
+      },
+      {
+        "activeCalendarDays": {
+          "maximum": 30,
+          "median": 30,
+          "minimum": 30
+        },
+        "baseAt095NonNegative": 0,
+        "baseMeetsFrozenThreshold": 0,
+        "baseNegative": 2000,
+        "configurations": 2000,
+        "contractTypes": [
+          "CALL",
+          "PUT"
+        ],
+        "durationConfigurationCounts": {
+          "1": 328,
+          "2": 322,
+          "3": 331,
+          "5": 325,
+          "7": 374,
+          "10": 320
+        },
+        "durationTicks": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          10
+        ],
+        "failureCounts": {
+          "base_expectancy_below_minimum": 2000,
+          "day_block_bootstrap_failed_or_not_shortlisted": 2000,
+          "losing_streak_exceeded": 1869,
+          "maximum_drawdown_exceeded": 2000,
+          "multiple_testing_adjusted_evidence_failed": 2000,
+          "nearby_setting_stability_failed_or_not_shortlisted": 2000,
+          "stress_expectancy_below_minimum": 2000,
+          "stress_not_positive_in_every_window_and_delay": 2000
+        },
+        "family": "sma_trend",
+        "historicalWindows": [
+          {
+            "id": "dev-early",
+            "fromEpochInclusive": 1788667200,
+            "toEpochExclusive": 1789531200,
+            "fromUtc": "2026-09-06T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-16T04:00:00.000Z"
+          },
+          {
+            "id": "dev-middle",
+            "fromEpochInclusive": 1789531200,
+            "toEpochExclusive": 1790395200,
+            "fromUtc": "2026-09-16T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-26T04:00:00.000Z"
+          },
+          {
+            "id": "dev-late",
+            "fromEpochInclusive": 1790395200,
+            "toEpochExclusive": 1791259200,
+            "fromUtc": "2026-09-26T04:00:00.000Z",
+            "toUtcExclusive": "2026-10-06T04:00:00.000Z"
+          }
+        ],
+        "hypothesis": "A positive/negative fast-versus-slow price-level separation continues.",
+        "parameterValues": {
+          "durationTicks": [
+            1,
+            2,
+            3,
+            5,
+            7,
+            10
+          ],
+          "fastWindow": [
+            3,
+            5,
+            8,
+            10,
+            15,
+            20,
+            30,
+            45
+          ],
+          "minimumVolatilityBps": [
+            0,
+            0.25,
+            0.5
+          ],
+          "slowWindow": [
+            20,
+            30,
+            45,
+            60,
+            90,
+            120,
+            180,
+            240
+          ],
+          "thresholdBps": [
+            0,
+            0.1,
+            0.25,
+            0.5,
+            1,
+            2
+          ],
+          "volatilityWindow": [
+            10,
+            30,
+            60
+          ]
+        },
+        "stressFailsFrozenThreshold": 2000,
+        "tradeCount": {
+          "maximum": 43196,
+          "median": 41315,
+          "minimum": 3575
+        },
+        "uniqueOutcomeCountSignatures": 1451
+      },
+      {
+        "activeCalendarDays": {
+          "maximum": 30,
+          "median": 30,
+          "minimum": 30
+        },
+        "baseAt095NonNegative": 0,
+        "baseMeetsFrozenThreshold": 0,
+        "baseNegative": 12,
+        "configurations": 12,
+        "contractTypes": [
+          "CALL",
+          "PUT"
+        ],
+        "durationConfigurationCounts": {
+          "1": 2,
+          "2": 2,
+          "3": 2,
+          "5": 2,
+          "7": 2,
+          "10": 2
+        },
+        "durationTicks": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          10
+        ],
+        "failureCounts": {
+          "base_expectancy_below_minimum": 12,
+          "day_block_bootstrap_failed_or_not_shortlisted": 12,
+          "losing_streak_exceeded": 12,
+          "maximum_drawdown_exceeded": 12,
+          "multiple_testing_adjusted_evidence_failed": 12,
+          "nearby_setting_stability_failed_or_not_shortlisted": 12,
+          "stress_expectancy_below_minimum": 12,
+          "stress_not_positive_in_every_window_and_delay": 12
+        },
+        "family": "unconditional_baseline",
+        "historicalWindows": [
+          {
+            "id": "dev-early",
+            "fromEpochInclusive": 1788667200,
+            "toEpochExclusive": 1789531200,
+            "fromUtc": "2026-09-06T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-16T04:00:00.000Z"
+          },
+          {
+            "id": "dev-middle",
+            "fromEpochInclusive": 1789531200,
+            "toEpochExclusive": 1790395200,
+            "fromUtc": "2026-09-16T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-26T04:00:00.000Z"
+          },
+          {
+            "id": "dev-late",
+            "fromEpochInclusive": 1790395200,
+            "toEpochExclusive": 1791259200,
+            "fromUtc": "2026-09-26T04:00:00.000Z",
+            "toUtcExclusive": "2026-10-06T04:00:00.000Z"
+          }
+        ],
+        "hypothesis": "Persistent unconditional upward or downward tick bias.",
+        "parameterValues": {
+          "direction": [
+            "fall",
+            "rise"
+          ],
+          "durationTicks": [
+            1,
+            2,
+            3,
+            5,
+            7,
+            10
+          ]
+        },
+        "stressFailsFrozenThreshold": 12,
+        "tradeCount": {
+          "maximum": 43200,
+          "median": 43200,
+          "minimum": 43200
+        },
+        "uniqueOutcomeCountSignatures": 12
+      },
+      {
+        "activeCalendarDays": {
+          "maximum": 30,
+          "median": 30,
+          "minimum": 0
+        },
+        "baseAt095NonNegative": 203,
+        "baseMeetsFrozenThreshold": 52,
+        "baseNegative": 1875,
+        "configurations": 2000,
+        "contractTypes": [
+          "CALL",
+          "PUT"
+        ],
+        "durationConfigurationCounts": {
+          "1": 344,
+          "2": 325,
+          "3": 325,
+          "5": 333,
+          "7": 339,
+          "10": 334
+        },
+        "durationTicks": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          10
+        ],
+        "failureCounts": {
+          "base_expectancy_below_minimum": 1948,
+          "day_block_bootstrap_failed_or_not_shortlisted": 2000,
+          "losing_streak_exceeded": 942,
+          "maximum_drawdown_exceeded": 1697,
+          "multiple_testing_adjusted_evidence_failed": 2000,
+          "nearby_setting_stability_failed_or_not_shortlisted": 2000,
+          "stress_expectancy_below_minimum": 2000,
+          "stress_not_positive_in_every_window_and_delay": 2000,
+          "too_few_active_days": 121,
+          "too_few_total_trades": 327,
+          "too_few_trades_in_window": 290
+        },
+        "family": "zscore_reversion",
+        "historicalWindows": [
+          {
+            "id": "dev-early",
+            "fromEpochInclusive": 1788667200,
+            "toEpochExclusive": 1789531200,
+            "fromUtc": "2026-09-06T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-16T04:00:00.000Z"
+          },
+          {
+            "id": "dev-middle",
+            "fromEpochInclusive": 1789531200,
+            "toEpochExclusive": 1790395200,
+            "fromUtc": "2026-09-16T04:00:00.000Z",
+            "toUtcExclusive": "2026-09-26T04:00:00.000Z"
+          },
+          {
+            "id": "dev-late",
+            "fromEpochInclusive": 1790395200,
+            "toEpochExclusive": 1791259200,
+            "fromUtc": "2026-09-26T04:00:00.000Z",
+            "toUtcExclusive": "2026-10-06T04:00:00.000Z"
+          }
+        ],
+        "hypothesis": "A standardized price-level deviation reverts toward its rolling mean.",
+        "parameterValues": {
+          "durationTicks": [
+            1,
+            2,
+            3,
+            5,
+            7,
+            10
+          ],
+          "lookbackTicks": [
+            5,
+            8,
+            10,
+            15,
+            20,
+            30,
+            45,
+            60,
+            90,
+            120,
+            180,
+            240
+          ],
+          "minimumVolatilityBps": [
+            0,
+            0.25,
+            0.5
+          ],
+          "thresholdZ": [
+            0.5,
+            0.75,
+            1,
+            1.25,
+            1.5,
+            1.75,
+            2,
+            2.25,
+            2.5,
+            3
+          ],
+          "volatilityWindow": [
+            10,
+            30,
+            60
+          ]
+        },
+        "stressFailsFrozenThreshold": 2000,
+        "tradeCount": {
+          "maximum": 34286,
+          "median": 9908,
+          "minimum": 0
+        },
+        "uniqueOutcomeCountSignatures": 799
+      }
+    ],
+    "ledgerSha256": "23da90a773cdffb77c1f71187083985f4cf2916a38eb477875dfbdffe58dccd3",
+    "provenance": {
+      "codeCommit": "0512ed7823e33264a27cd34b7376986b57a04fd6",
+      "datasetManifestSha256": "da4b901cde363a48d92e2d2ecafabb12a20fdae69c07300fcb070da6ea22599c",
+      "protocolSha256": "c7cd08b94f8d6155f16fb3f6af4b7276c3a343f972b123c647d0ffdd47ccb6e2"
+    },
+    "qualificationQuestions": {
+      "baseModelLost": 11931,
+      "baseModelNonNegative": 81,
+      "baseModelMissedPracticalThreshold": 11960,
+      "conservativeStressMissedPracticalThreshold": 12012,
+      "conservativeStressNonPositiveInAnyWindowOrDelay": 12012,
+      "multiplicityAdjustedEvidencePassed": 0,
+      "originalBootstrapEvaluated": 20,
+      "originalBootstrapLowerBoundPositive": 0,
+      "operationalOrSampleFailures": {
+        "drawdownFailed": 11564,
+        "losingStreakFailed": 8882,
+        "minimumTotalTradesFailed": 606,
+        "minimumWindowTradesFailed": 439,
+        "minimumActiveDaysFailed": 121
+      }
+    },
+    "records": 12012,
+    "severeMinimumEncodedAsNull": 84,
+    "stressMinimumEncodedAsNull": 84,
+    "trialIdsUnique": 12012,
+    "uniqueOutcomeCountSignatures": 5728
+  },
+  "noTradingActions": true,
+  "originalVsCorrected": {
+    "correctedTop20EvidencePasses": 0,
+    "fullFrozenBatchRerunJustified": false,
+    "materialOutcomeChange": false,
+    "originalDevelopmentQualified": 0,
+    "reason": "All 12,012 fail deterministic 0.80 stress consistency; scenario counts and top-20 replays match, while corrected inference also yields zero passes."
+  },
+  "recommendation": {
+    "decision": "STOP_EXPANDING_THE_SAME_1HZ100V_SHORT_TICK_TECHNICAL_INDICATOR_APPROACH",
+    "nextUseOfMoreData": "Replication and null calibration only, not automatic parameter expansion."
+  },
+  "recordedObservationAudit": {
+    "browserArchiveSlice": {
+      "checks": "Independent chunk checksum, row count, bounds, ordering, duplicate rejection, stable relevant manifest, and exact chronological content hash.",
+      "contentSha256": "4312c1fbfbc5ff39ce797ac26b92c748f70fa18a513e5edf7f25840d6363cdd0",
+      "coverage": 1,
+      "expectedSeconds": 3914,
+      "fromEpoch": 1791330063,
+      "manifestSnapshotSha256": "40dbfbd1058e1a1c8f292547c6c1b73d509c8106006d822c743bd0f2c846768e",
+      "missingRanges": [],
+      "missingSeconds": 0,
+      "observedGenuineSeconds": 3914,
+      "selectedChunks": 131,
+      "sliceManifestSha256": "096d2c7894d5f6cc396d344c0dbcea44e0f21db997587a0f7526244c6936b228",
+      "symbol": "1HZ100V",
+      "toEpochExclusive": 1791333977
+    },
+    "browserObservations": {
+      "accountingMatches": 99,
+      "directionCounts": {
+        "rise": 78,
+        "fall": 21
+      },
+      "durationCounts": {
+        "1": 85,
+        "5": 14
+      },
+      "eligibleSettlementRecords": 0,
+      "fileEvidence": [
+        {
+          "file": "2026-10-06T23-41-05Z.json",
+          "fileSha256": "74a4a4d64ff1651a65482746b6eaed1781c988a70305f9ac4064d3e344cbc1b3",
+          "transactions": 4,
+          "variantId": "one-tick-rise-unconditional"
+        },
+        {
+          "file": "2026-10-06T23-46-33Z.json",
+          "fileSha256": "49ec7f2222bf568dc0806440487a986ffee4323eeae51db755ff4a3dec1fb854",
+          "transactions": 40,
+          "variantId": "one-tick-rise-unconditional"
+        },
+        {
+          "file": "2026-10-07T00-14-35Z.json",
+          "fileSha256": "c5a62da6bc769da4266aa0e539b51762423a0d44f7fa36a3024a4aec1a093ef3",
+          "transactions": 20,
+          "variantId": "one-tick-rise-unconditional"
+        },
+        {
+          "file": "2026-10-07T00-28-35Z.json",
+          "fileSha256": "2a61c7ae4464c4ea5629788b4f541853f0c4e63ac102f71924cd5823af408eb8",
+          "transactions": 21,
+          "variantId": "one-tick-fall-unconditional"
+        },
+        {
+          "file": "2026-10-07T00-44-23Z.json",
+          "fileSha256": "9c667f3358c9b72d9e3b86ab02e3b3e5d299fd7be8abeaa99a729386b13c7816",
+          "transactions": 14,
+          "variantId": "five-tick-rise-unconditional"
+        }
+      ],
+      "losses": 41,
+      "records": 99,
+      "ties": 3,
+      "timingAndSpotsMatch": 99,
+      "wins": 58,
+      "evidenceClass": "Recorded Bot Builder UI observations corroborated by public ticks; missing account/contract identity prevents settlement-evidence eligibility."
+    },
+    "guardedApiObservation": {
+      "accountingMatches": true,
+      "accountIdentityPresent": false,
+      "contractIdentityPresent": true,
+      "evidenceFileSha256": "574ddcc24d290a395513c78766b95448578195450d4fb75b783acd63c5451c1a",
+      "evidenceGateEligible": false,
+      "sameJournalTrade": true,
+      "settledRecords": 1,
+      "strategyHashPresent": false,
+      "timingReconstructionPossible": false
+    }
+  },
+  "reviewedBaseline": {
+    "originalMutableManifestSha256": "da4b901cde363a48d92e2d2ecafabb12a20fdae69c07300fcb070da6ea22599c",
+    "productAvailabilityReportSha256": "903654361dad6676d12abf974b7e0b7771dca95da1cd88fa72f68586dc3e86f5",
+    "protocolPath": "research/protocols/development-screen-v1.json",
+    "protocolSha256": "c7cd08b94f8d6155f16fb3f6af4b7276c3a343f972b123c647d0ffdd47ccb6e2",
+    "resultCommit": "5d93aaf097e45edd74853d41245d446322c397ea",
+    "searchCodeCommit": "0512ed7823e33264a27cd34b7376986b57a04fd6",
+    "summaryPath": "research/results/development-screen-v1-summary.json",
+    "summarySha256": "fe94ebbe52a9ed7947e7e34e90136d05c28d9afee0a2a1fdcf5dd8401f9db2cd"
+  },
+  "schemaVersion": 2,
+  "searchCoverageConclusion": {
+    "configurations": 12012,
+    "genuinelyDifferentDirectionalFamilies": 7,
+    "independentObservations": "Unknown; at most 30 calendar-day clusters were used for inference.",
+    "signalTransformations": 5,
+    "uniqueOutcomeCountSignatures": 5728
+  },
+  "sources": [
+    {
+      "title": "Deriv trading terms",
+      "url": "https://deriv.com/terms-and-conditions/trading-terms",
+      "use": "next-tick entry rule and pricing bias"
+    },
+    {
+      "title": "Deriv Synthetic Indices",
+      "url": "https://deriv.com/markets/derived-indices/synthetic-indices",
+      "use": "RNG, tick cadence, instrument mechanisms, and technical-analysis limitation"
+    },
+    {
+      "title": "Deriv Price Proposal API",
+      "url": "https://developers.deriv.com/docs/trading/proposal/",
+      "use": "tick versus clock duration units and public proposal semantics"
+    },
+    {
+      "title": "Deriv contracts_for schema",
+      "url": "https://raw.githubusercontent.com/deriv-com/deriv-api-schemas/master/schemas/contracts_for_response.schema.json",
+      "use": "contract type, expiry type, and duration capability fields"
+    },
+    {
+      "title": "Deriv open-contract schema",
+      "url": "https://raw.githubusercontent.com/deriv-com/deriv-api-schemas/master/schemas/proposal_open_contract_response.schema.json",
+      "use": "entry/exit, profit, payout, status, cancellation, and tick stream fields"
+    },
+    {
+      "title": "How to Trade Synthetic Indices",
+      "url": "https://docs.deriv.com/marketing/2025/ebook-synthetics-en-hq.pdf",
+      "use": "worked five-tick entry/exit and gross-versus-net payout example"
+    },
+    {
+      "title": "White (2000), A Reality Check for Data Snooping",
+      "url": "https://doi.org/10.1111/1468-0262.00152",
+      "use": "full-search data-snooping context"
+    },
+    {
+      "title": "Politis and Romano (1994), The Stationary Bootstrap",
+      "url": "https://doi.org/10.1080/01621459.1994.10476870",
+      "use": "dependence-aware resampling context"
+    },
+    {
+      "title": "Hansen (2005), A Test for Superior Predictive Ability",
+      "url": "https://doi.org/10.1198/073500105000000063",
+      "use": "multiple-strategy predictive-ability context"
+    },
+    {
+      "title": "Bailey et al., The Probability of Backtest Overfitting",
+      "url": "https://escholarship.org/uc/item/4w1110bb",
+      "use": "selection-overfitting and repeated-search context"
+    }
+  ],
+  "sourceAccessDate": "2026-10-08",
+  "statisticalConclusion": {
+    "deterministicRulesCorrectlyImplementedAsWritten": true,
+    "fullyJustifiedByThirtyDays": false,
+    "inferentialRulesFullyAlignedWithReportedEstimand": false,
+    "notes": [
+      "Economic, stress, sample, and operational thresholds match the frozen protocol.",
+      "Bonferroni direction is correct and conservative if raw p-values are valid.",
+      "The 30-day independence/tail assumptions and original equal-day estimand are not established.",
+      "Calendar coverage is fixed at 30 UTC days with a 20-active-day minimum; no separate first-to-last-trade elapsed-duration rule exists.",
+      "Nearby robustness uses normalized parameter distance within sampled grids, not a predeclared one-coordinate neighborhood."
+    ]
+  },
+  "targetedStatisticalAudit": {
+    "correctedBootstrapLowerBoundPositive": 0,
+    "correctedCombinedEvidencePassed": 0,
+    "correctedMultiplicityAdjustedEvidencePassed": 0,
+    "scope": "The predefined v1 top 20 only; this is a post-hoc sensitivity audit, not a new qualification gate.",
+    "strategies": [
+      {
+        "configurationHash": "d2629ff69aac64021027d151336052cf5dbd55e37bb85881cab7719a32dc3f44",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.07886022333461683,
+          "rawOneSidedPValue": 0.9996365985041581,
+          "standardError": 0.020868901435100347,
+          "tStatistic": -3.7788392254313043,
+          "totalNetProfit": -204.7999999999999,
+          "totalTrades": 2597
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.12088323353293413,
+          "repetitions": 20000,
+          "seed": 20261008
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.12407072585497042,
+          "repetitions": 20000,
+          "seed": 873840410
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:d2629ff69aac6402",
+        "worstStressAverageProfitPerUnit": -0.08946135831381731
+      },
+      {
+        "configurationHash": "fbea049f995b7fb07733ac05ec4047f60b2907520aac773c45fd87caa36369b6",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.07886022333461683,
+          "rawOneSidedPValue": 0.9996365985041581,
+          "standardError": 0.020868901435100347,
+          "tStatistic": -3.7788392254313043,
+          "totalNetProfit": -204.7999999999999,
+          "totalTrades": 2597
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.12112036336109004,
+          "repetitions": 20000,
+          "seed": 20261009
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.12467996714862652,
+          "repetitions": 20000,
+          "seed": 832058422
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:fbea049f995b7fb0",
+        "worstStressAverageProfitPerUnit": -0.08946135831381731
+      },
+      {
+        "configurationHash": "9ded971861ff45f6b30f69339540c54f6757252a4f7cfa21e2599a0d5187ec6f",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.05322834645669289,
+          "rawOneSidedPValue": 0.957378083696607,
+          "standardError": 0.02987197965553693,
+          "tStatistic": -1.7818821206523796,
+          "totalNetProfit": -67.59999999999997,
+          "totalTrades": 1270
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.12395437262357412,
+          "repetitions": 20000,
+          "seed": 20261010
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.11773197315715928,
+          "repetitions": 20000,
+          "seed": 3109495933
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:9ded971861ff45f6",
+        "worstStressAverageProfitPerUnit": -0.09150943396226412
+      },
+      {
+        "configurationHash": "c36cb78efbb2398d23bf3af4cdc0b4258ef0d83a146af152e005466ae5e784b8",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.05322834645669289,
+          "rawOneSidedPValue": 0.957378083696607,
+          "standardError": 0.02987197965553693,
+          "tStatistic": -1.7818821206523796,
+          "totalNetProfit": -67.59999999999997,
+          "totalTrades": 1270
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.1261586802827965,
+          "repetitions": 20000,
+          "seed": 20261011
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.11804751917329318,
+          "repetitions": 20000,
+          "seed": 3129930441
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:c36cb78efbb2398d",
+        "worstStressAverageProfitPerUnit": -0.09150943396226412
+      },
+      {
+        "configurationHash": "b3312105f706c479f11f0eaf137f894b03ebe8496cf1812244449e86a9d0f02f",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.05322834645669289,
+          "rawOneSidedPValue": 0.957378083696607,
+          "standardError": 0.02987197965553693,
+          "tStatistic": -1.7818821206523796,
+          "totalNetProfit": -67.59999999999997,
+          "totalTrades": 1270
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.12523364485981306,
+          "repetitions": 20000,
+          "seed": 20261012
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.11773541478487123,
+          "repetitions": 20000,
+          "seed": 1724049591
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:b3312105f706c479",
+        "worstStressAverageProfitPerUnit": -0.09150943396226412
+      },
+      {
+        "configurationHash": "8fd1bec4ff32d28f8fab0be87f38a7302a840e94419d5fbd2a26d0ce47318289",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.07590551181102358,
+          "rawOneSidedPValue": 0.995955402758975,
+          "standardError": 0.02669220456884969,
+          "tStatistic": -2.8437333310267956,
+          "totalNetProfit": -96.39999999999995,
+          "totalTrades": 1270
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.13737541528239208,
+          "repetitions": 20000,
+          "seed": 20261013
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.1339821855579578,
+          "repetitions": 20000,
+          "seed": 1394245973
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:8fd1bec4ff32d28f",
+        "worstStressAverageProfitPerUnit": -0.09776674937965255
+      },
+      {
+        "configurationHash": "fd16c15af52b495c94a2fb98c3fe3dda60e52f177a4da1052e8b254fec66daf4",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.07590551181102358,
+          "rawOneSidedPValue": 0.995955402758975,
+          "standardError": 0.02669220456884969,
+          "tStatistic": -2.8437333310267956,
+          "totalNetProfit": -96.39999999999995,
+          "totalTrades": 1270
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.13633540372670805,
+          "repetitions": 20000,
+          "seed": 20261014
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.13372647691720638,
+          "repetitions": 20000,
+          "seed": 2663304046
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:fd16c15af52b495c",
+        "worstStressAverageProfitPerUnit": -0.09776674937965255
+      },
+      {
+        "configurationHash": "5ea75c4009b189ae4348e5a8ed3dff058b8148f0862e20a922ee26b7d741311e",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.07590551181102358,
+          "rawOneSidedPValue": 0.995955402758975,
+          "standardError": 0.02669220456884969,
+          "tStatistic": -2.8437333310267956,
+          "totalNetProfit": -96.39999999999995,
+          "totalTrades": 1270
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.13571984435797663,
+          "repetitions": 20000,
+          "seed": 20261015
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.13479344040986216,
+          "repetitions": 20000,
+          "seed": 3893089915
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:5ea75c4009b189ae",
+        "worstStressAverageProfitPerUnit": -0.09776674937965255
+      },
+      {
+        "configurationHash": "2c743f3cbc262dc0bdd1a2495853bfcceee201c7767a5b4f237bcffa5c827c3b",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 24,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": 3.947459643111668e-17,
+          "rawOneSidedPValue": 0.5,
+          "standardError": 0.1550273987523791,
+          "tStatistic": 2.546298057556158e-16,
+          "totalNetProfit": 1.7763568394002505e-15,
+          "totalTrades": 45
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.2894736842105263,
+          "repetitions": 20000,
+          "seed": 20261016
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.425,
+          "repetitions": 20000,
+          "seed": 3362156642
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:2c743f3cbc262dc0",
+        "worstStressAverageProfitPerUnit": -0.09999999999999999
+      },
+      {
+        "configurationHash": "ed193ba2edc8e53e2b51d798f8a1a3a61253ec243ce664c51a6cc7037d6629ec",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 24,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": 3.947459643111668e-17,
+          "rawOneSidedPValue": 0.5,
+          "standardError": 0.1550273987523791,
+          "tStatistic": 2.546298057556158e-16,
+          "totalNetProfit": 1.7763568394002505e-15,
+          "totalTrades": 45
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.2894736842105263,
+          "repetitions": 20000,
+          "seed": 20261017
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.41249999999999987,
+          "repetitions": 20000,
+          "seed": 1949389954
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "zscore_reversion:ed193ba2edc8e53e",
+        "worstStressAverageProfitPerUnit": -0.09999999999999999
+      },
+      {
+        "configurationHash": "982fc5545c4f6a497d95eba696ec7afcd57a25cac46edea2a1e102a8e5b10179",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.09972801450589298,
+          "rawOneSidedPValue": 0.9999999999997956,
+          "standardError": 0.00804413487812606,
+          "tStatistic": -12.397605959725698,
+          "totalNetProfit": -1649.9999999999993,
+          "totalTrades": 16545
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.11612086122670522,
+          "repetitions": 20000,
+          "seed": 20261018
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.11791735491356044,
+          "repetitions": 20000,
+          "seed": 1173136732
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "sma_trend:982fc5545c4f6a49",
+        "worstStressAverageProfitPerUnit": -0.10329067641681901
+      },
+      {
+        "configurationHash": "fa09a4bbd082b0ca6a247ad8a0bab8e463d61b4ef4c4f3e84652527f5b07291f",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.09972801450589298,
+          "rawOneSidedPValue": 0.9999999999997956,
+          "standardError": 0.00804413487812606,
+          "tStatistic": -12.397605959725698,
+          "totalNetProfit": -1649.9999999999993,
+          "totalTrades": 16545
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.11604307355356815,
+          "repetitions": 20000,
+          "seed": 20261019
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.11809577398921708,
+          "repetitions": 20000,
+          "seed": 618445316
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "sma_trend:fa09a4bbd082b0ca",
+        "worstStressAverageProfitPerUnit": -0.10329067641681901
+      },
+      {
+        "configurationHash": "d3dd47a4fa43bedc567f298030df8477fb9d301c02185524c7c586d9c474949f",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.10031581163590425,
+          "rawOneSidedPValue": 1,
+          "standardError": 0.004012185557217654,
+          "tStatistic": -25.00278469310643,
+          "totalNetProfit": -4288.199999999999,
+          "totalTrades": 42747
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.1087113064621715,
+          "repetitions": 20000,
+          "seed": 20261020
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.1097445400093222,
+          "repetitions": 20000,
+          "seed": 3021320024
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "momentum_reversion:d3dd47a4fa43bedc",
+        "worstStressAverageProfitPerUnit": -0.1053045186640471
+      },
+      {
+        "configurationHash": "8ccd0582bc81a086e1d299cdf63a2fd2191d07f50d3bd4e5043ee2f42471d3e1",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.10031581163590425,
+          "rawOneSidedPValue": 1,
+          "standardError": 0.004012185557217654,
+          "tStatistic": -25.00278469310643,
+          "totalNetProfit": -4288.199999999999,
+          "totalTrades": 42747
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.10847568527562915,
+          "repetitions": 20000,
+          "seed": 20261021
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.10960243111906398,
+          "repetitions": 20000,
+          "seed": 3513721049
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "momentum_reversion:8ccd0582bc81a086",
+        "worstStressAverageProfitPerUnit": -0.1053045186640471
+      },
+      {
+        "configurationHash": "6113e59669dba201b4ea10442a0d7883c865f8d8e066c18be364fb511917b543",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.10031581163590425,
+          "rawOneSidedPValue": 1,
+          "standardError": 0.004012185557217654,
+          "tStatistic": -25.00278469310643,
+          "totalNetProfit": -4288.199999999999,
+          "totalTrades": 42747
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.10846315789473684,
+          "repetitions": 20000,
+          "seed": 20261022
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.10968845677832544,
+          "repetitions": 20000,
+          "seed": 970768915
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "momentum_reversion:6113e59669dba201",
+        "worstStressAverageProfitPerUnit": -0.1053045186640471
+      },
+      {
+        "configurationHash": "a1ae666a9da8fe475dd83d9ab3384d2eb58a7c22caa34915e093511f7cc3ce69",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.10031581163590425,
+          "rawOneSidedPValue": 1,
+          "standardError": 0.004012185557217654,
+          "tStatistic": -25.00278469310643,
+          "totalNetProfit": -4288.199999999999,
+          "totalTrades": 42747
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.10839587571017745,
+          "repetitions": 20000,
+          "seed": 20261023
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.10968290345173644,
+          "repetitions": 20000,
+          "seed": 26503967
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "momentum_reversion:a1ae666a9da8fe47",
+        "worstStressAverageProfitPerUnit": -0.1053045186640471
+      },
+      {
+        "configurationHash": "99656b68ac0a86c399bc45db305e0bb4ca485e0955f4fd375b60c6f477ff2eed",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.10038094342284719,
+          "rawOneSidedPValue": 1,
+          "standardError": 0.004045208088983442,
+          "tStatistic": -24.814778675099717,
+          "totalNetProfit": -4268.799999999999,
+          "totalTrades": 42526
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.10865060015003754,
+          "repetitions": 20000,
+          "seed": 20261024
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.10988246243792094,
+          "repetitions": 20000,
+          "seed": 4161284922
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "momentum_reversion:99656b68ac0a86c3",
+        "worstStressAverageProfitPerUnit": -0.1053045186640471
+      },
+      {
+        "configurationHash": "3421bbc421f3d0793698de58edaf279ecd7ef918efca7699eda19f165a5566bc",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.10038094342284719,
+          "rawOneSidedPValue": 1,
+          "standardError": 0.004045208088983442,
+          "tStatistic": -24.814778675099717,
+          "totalNetProfit": -4268.799999999999,
+          "totalTrades": 42526
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.10850453669315027,
+          "repetitions": 20000,
+          "seed": 20261025
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.1097792904696462,
+          "repetitions": 20000,
+          "seed": 203924530
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "momentum_reversion:3421bbc421f3d079",
+        "worstStressAverageProfitPerUnit": -0.1053045186640471
+      },
+      {
+        "configurationHash": "3f1a4dab9d1c61ebf5db565243baa204c39f4125f3c902b4d018f044c059c40e",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.10038094342284719,
+          "rawOneSidedPValue": 1,
+          "standardError": 0.004045208088983442,
+          "tStatistic": -24.814778675099717,
+          "totalNetProfit": -4268.799999999999,
+          "totalTrades": 42526
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.10855697625403961,
+          "repetitions": 20000,
+          "seed": 20261026
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.10995559979479812,
+          "repetitions": 20000,
+          "seed": 632803637
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "momentum_reversion:3f1a4dab9d1c61eb",
+        "worstStressAverageProfitPerUnit": -0.1053045186640471
+      },
+      {
+        "configurationHash": "ebe3c59083b301beebdf2ec06a9ace7a1fffa396117cac1620815a0a4adb296e",
+        "correctedClusteredRatioTest": {
+          "activeUtcDayClusters": 30,
+          "adjustedPValueBonferroni": 1,
+          "assumptions": [
+            "UTC-day clusters are mutually independent for the Student-t approximation.",
+            "The ratio-estimator cluster influence has a finite second moment."
+          ],
+          "averageNetProfitPerUnitStaked": -0.1003368578646954,
+          "rawOneSidedPValue": 1,
+          "standardError": 0.004007399712389217,
+          "tStatistic": -25.03789615857272,
+          "totalNetProfit": -4289.199999999999,
+          "totalTrades": 42748
+        },
+        "correctedMovingThreeDayBlockBootstrap": {
+          "assumptions": [
+            "Circular moving blocks of UTC days approximate the relevant serial dependence.",
+            "Thirty calendar days are enough to estimate the requested tail; this is weak for 99% bounds."
+          ],
+          "blockLengthDays": 3,
+          "confidence": 0.99,
+          "lowerBound": -0.1084324400102806,
+          "repetitions": 20000,
+          "seed": 20261027
+        },
+        "originalBonferroniAdjustedPValue": 1,
+        "originalIndependentDayBootstrap": {
+          "block": "UTC calendar day",
+          "confidence": 0.99,
+          "lowerBound": -0.10985339601066266,
+          "repetitions": 20000,
+          "seed": 525696376
+        },
+        "activityMatchesOriginal": true,
+        "drawdownMatchesOriginal": true,
+        "scenarioCountsMatchOriginal": true,
+        "strategyId": "momentum_reversion:ebe3c59083b301be",
+        "worstStressAverageProfitPerUnit": -0.1053672910966112
+      }
+    ],
+    "targetedConfigurations": 20
+  }
+}
