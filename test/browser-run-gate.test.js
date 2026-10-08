@@ -124,6 +124,24 @@ test("conflicting duplicate evidence fails the integrity gate", () => {
   assert.ok(result.failedRequirementCodes.includes("browser_evidence_integrity"));
 });
 
+test("zero valid settlements is a failed evidence-integrity requirement", () => {
+  const report = browserReport();
+  report.evidenceAudit = {
+    conflictingIdentities: 0,
+    status: "NO_VALID_SETTLEMENTS",
+    valid: true,
+  };
+  report.byStrategyHash = {};
+  const result = evaluateBrowserRunGate({
+    browserReport: report,
+    flowBacktestReport: flowReport(),
+    now,
+    policy: { ...DEFAULT_BROWSER_GATE_POLICY, enabled: true },
+  });
+  assert.equal(result.decision, "WAIT");
+  assert.ok(result.failedRequirementCodes.includes("browser_evidence_integrity"));
+});
+
 test("enabled evaluator can advance only to an internal signal check", () => {
   const result = evaluateBrowserRunGate({
     browserReport: browserReport(),

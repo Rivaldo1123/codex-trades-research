@@ -1,23 +1,27 @@
 {
   "kind": "strategy-search-benchmark",
-  "generatedAt": "2026-10-08T12:54:48.081Z",
+  "generatedAt": "2026-10-08T13:10:10.735Z",
   "batchId": "development-screen-v1",
   "protocolSha256": "c7cd08b94f8d6155f16fb3f6af4b7276c3a343f972b123c647d0ffdd47ccb6e2",
+  "code": {
+    "commit": "0512ed7823e33264a27cd34b7376986b57a04fd6",
+    "trackedWorktreeDirty": false
+  },
   "sampleConfigurations": 200,
   "uniquePlannedConfigurations": 12012,
   "evaluationWindowsPerConfiguration": 3,
   "stressScenariosPerWindow": 9,
   "plannedBacktestRuns": 324324,
-  "elapsedEvaluationSeconds": 2.6023080000000007,
-  "secondsPerConfiguration": 0.013011540000000004,
-  "expectedEvaluationSeconds": 156.29461848000005,
-  "expectedTotalSeconds": 169.45303888000007,
+  "elapsedEvaluationSeconds": 3.1406592999999994,
+  "secondsPerConfiguration": 0.0157032965,
+  "expectedEvaluationSeconds": 188.62799755799998,
+  "expectedTotalSeconds": 209.96261105799996,
   "recommendedWorkerCount": 1,
   "rationale": "One worker shares the cached feature arrays and stays within the 4 GB host; process workers would duplicate the archive and cache.",
   "preparation": {
-    "archiveAuditSeconds": 12.5367272,
-    "featureBuildSeconds": 0.6216931999999997,
-    "totalPreparationSeconds": 13.158420399999999
+    "archiveAuditSeconds": 20.7789818,
+    "featureBuildSeconds": 0.5556316999999981,
+    "totalPreparationSeconds": 21.3346135
   },
   "dataset": {
     "symbol": "1HZ100V",
@@ -43,10 +47,10 @@
     "featureBytes": 74131220
   },
   "memory": {
-    "rss": 235061248,
-    "heapTotal": 82632704,
-    "heapUsed": 29698072,
-    "external": 100436530,
-    "arrayBuffers": 98042673
+    "rss": 236244992,
+    "heapTotal": 82894848,
+    "heapUsed": 29508384,
+    "external": 100436571,
+    "arrayBuffers": 98042714
   }
 }

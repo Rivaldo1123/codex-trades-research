@@ -37,6 +37,12 @@ default policy. Its legacy 99 rows lack account ID, contract ID, settlement
 status, and an exact strategy hash, so they now count as zero eligible
 settlements. This is deliberate evidence rejection, not data deletion.
 
+The completed v1 screen evaluated all 12,012 configurations and 324,324
+window/stress runs with zero failed trials. None passed the frozen development
+rules; the recorded outcome is `NO_RELIABLE_EDGE_FOUND`. See
+[`research/results/development-screen-v1-summary.md`](research/results/development-screen-v1-summary.md)
+and the full engineering audit in `research/results/`.
+
 ## Run
 
 Node.js 22 or newer is required. No third-party packages are needed.

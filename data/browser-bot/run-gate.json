@@ -1,9 +1,10 @@
 {
-  "generatedAt": "2026-10-07T02:41:51.914Z",
+  "generatedAt": "2026-10-08T13:12:55.916Z",
   "modules": {
     "liveSavedWorkspace": "Codex Browser Learning - One-Shot Gate",
     "validatedConditionalXml": "dbot/Codex_Browser_Learning_OneTick_Fall_Signal.xml",
-    "browserVariantId": "one-tick-fall-signal"
+    "browserVariantId": "one-tick-fall-signal",
+    "expectedStrategyHash": "4f07eb7f474d5031fb558b799c22ae0329b6a1b918da024bb384a51250e2b270"
   },
   "mode": "Deriv Demo only",
   "decision": "WAIT",
@@ -11,11 +12,12 @@
   "eligibleForSignalCheck": false,
   "evidence": {
     "apiOneTickDirectionalGateTest": {
-      "averageProfitPerDollarStake": -0.05839793281653748,
-      "losses": 3709,
-      "netProfitPerDollarStake": -429.4000000000001,
-      "observations": 7353,
+      "averageProfitPerDollarStake": -0.057617525286934625,
+      "losses": 9617,
+      "netProfitPerDollarStake": -1099.3999999999996,
+      "observations": 19081,
       "parameters": {
+        "cadenceSeconds": 1,
         "entryDelayTicks": 1,
         "fastWindow": 10,
         "horizonTicks": 1,
@@ -24,10 +26,10 @@
         "slowWindow": 20,
         "direction": "fall"
       },
-      "winRate": 0.4955800353597171,
-      "wins": 3644
+      "winRate": 0.4959907761647712,
+      "wins": 9464
     },
-    "archiveAgeHours": 0.19080944444444445,
+    "archiveAgeHours": 13.21581,
     "browser": {
       "averageLoss": null,
       "averageWin": null,
@@ -39,12 +41,29 @@
     }
   },
   "failedRequirementCodes": [
+    "legacy_gate_retired",
+    "browser_evidence_integrity",
     "browser_sample_size",
     "browser_confidence_above_break_even",
     "browser_profit_factor",
-    "api_test_edge"
+    "api_test_edge",
+    "api_archive_freshness"
   ],
   "requirements": [
+    {
+      "actual": false,
+      "code": "legacy_gate_retired",
+      "explanation": "The old browser-flow gate is retired. A new frozen candidate must use the shared gap-aware research qualification path.",
+      "pass": false,
+      "required": true
+    },
+    {
+      "actual": "NO_VALID_SETTLEMENTS",
+      "code": "browser_evidence_integrity",
+      "explanation": "Only non-conflicting account+contract identities bound to an exact strategy hash may count.",
+      "pass": false,
+      "required": "VALID"
+    },
     {
       "actual": null,
       "code": "browser_sample_size",
@@ -67,24 +86,24 @@
       "required": 1.1
     },
     {
-      "actual": 7353,
+      "actual": 19081,
       "code": "api_test_sample_size",
       "explanation": "The independent untouched API test must contain enough one-tick observations.",
       "pass": true,
       "required": 5000
     },
     {
-      "actual": 0.4955800353597171,
+      "actual": 0.4959907761647712,
       "code": "api_test_edge",
       "explanation": "The exact Fall-only 10/20 SMA flow must clear payout break-even by the safety margin and have positive simulated profit on the untouched test segment.",
       "pass": false,
       "required": null
     },
     {
-      "actual": 0.19080944444444445,
+      "actual": 13.21581,
       "code": "api_archive_freshness",
       "explanation": "Do not arm the browser bot from a stale tick archive.",
-      "pass": true,
+      "pass": false,
       "required": 6
     }
   ],

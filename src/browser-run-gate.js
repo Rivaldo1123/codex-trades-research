@@ -82,7 +82,8 @@ export function evaluateBrowserRunGate({
     requirement(
       "browser_evidence_integrity",
       browserReport?.evidenceAudit?.valid === true &&
-        browserReport?.evidenceAudit?.conflictingIdentities === 0,
+        browserReport?.evidenceAudit?.conflictingIdentities === 0 &&
+        browserReport?.evidenceAudit?.status === "VALID",
       browserReport?.evidenceAudit?.status ?? null,
       "VALID",
       "Only non-conflicting account+contract identities bound to an exact strategy hash may count.",
