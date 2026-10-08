@@ -44,6 +44,44 @@ chunk checksum, verifies the exact known source gap, and rejects a checkpoint
 from another code commit, protocol, or dataset manifest. Re-running the same
 command resumes only missing configuration hashes.
 
+## Independent v2 audit
+
+The original v1 ledger and result files remain unchanged. The separate
+[`development-screen-v1-independent-audit-v2.md`](audits/development-screen-v1-independent-audit-v2.md)
+and machine-readable JSON audit reproduce all 12,012 ledger rows, independently
+hash the fixed evaluated slice, reconstruct 99 recorded Bot Builder observations,
+and replay the predefined top 20 with a trade-weighted clustered test and a
+three-day moving-block sensitivity check.
+
+The audit confirms zero qualified configurations, but narrows the conclusion:
+the result applies to 1HZ100V Rise/Fall, 1–10-tick durations, fixed unit stakes,
+the five signal transformations represented by seven directional families, and
+the exposed 30-day development interval. It does not test other symbols,
+clock-duration products, every strategy hypothesis, or historical executable
+account quotes. No positive result survived independent validation.
+
+Confirmed audit defects are versioned rather than backfilled into v1:
+
+- the original dataset identity hashed a mutable whole archive manifest instead
+  of retaining an immutable fixed-slice snapshot;
+- the original t test/bootstrap averaged active-day ratios instead of directly
+  targeting aggregate profit per unit staked, and resampled days independently;
+- evaluated failures and non-shortlisting shared ambiguous reason labels; and
+- 84 no-trade minima used negative infinity internally and serialized as JSON
+  `null`.
+
+None changes the deterministic result that all 12,012 configurations failed at
+least one conservative 0.80-payout window/delay. The audit deliberately did not
+launch a new large search.
+
+Reproduce the offline audit with the ignored raw archive and v1 final ledger:
+
+    node --test
+    node src/experiment-audit-cli.js
+
+The audit command makes no network request, authenticates no account, and cannot
+place an order.
+
 ## Historical expansion
 
 The first expansion target is the exact 90-day UTC interval
@@ -66,6 +104,13 @@ the existing 30-day 1HZ100V archive to 90 days is approximately 5,184 requests,
 8.8 hours, and about 24 MB of additional compressed ticks plus a small
 manifest. Expansion to 6–12 months should begin only after the 90-day archive
 passes its row-level audit.
+
+As of the v2 audit on 2026-10-08, no collector process is active. The bounded
+90-day invocation stopped after 250 pages/250,000 stored rows when Deriv's
+public `ticks_history` endpoint exhausted all eight rate-limit retries. Its
+cursor is checkpointed at `1788417199`, with about 4,934,000 older target
+seconds still to request. Resume with the same command only after the rate limit
+clears; do not treat the present archive as complete 90-day evidence.
 
 ## Fresh-checkout safety
 

@@ -13,6 +13,22 @@ function directionFromVariant(variantId) {
   return null;
 }
 
+function finiteNumber(value, label) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Recorded transaction has an invalid ${label}.`);
+  }
+  return parsed;
+}
+
+function hasEligibleSettlementIdentity(transaction) {
+  const accountId = transaction?.accountId;
+  return (typeof accountId === "string" || Number.isSafeInteger(accountId)) &&
+    Number.isSafeInteger(Number(transaction?.contractId)) &&
+    new Set(["won", "lost"]).has(transaction?.status) &&
+    /^[a-f0-9]{64}$/.test(transaction?.strategyHash ?? "");
+}
+
 export function reconstructRecordedTransaction({
   direction,
   durationTicks,
@@ -28,20 +44,24 @@ export function reconstructRecordedTransaction({
   if (!Number.isSafeInteger(purchaseEpoch)) {
     throw new Error("Recorded transaction timestamp is invalid.");
   }
+  const buyPrice = finiteNumber(transaction?.buyPrice, "buy price");
+  const entrySpot = finiteNumber(transaction?.entrySpot, "entry spot");
+  const exitSpot = finiteNumber(transaction?.exitSpot, "exit spot");
+  const profit = finiteNumber(transaction?.profit, "profit");
   const entryEpoch = purchaseEpoch + 1;
   const exitEpoch = entryEpoch + durationTicks;
   const archivedEntrySpot = quotesByEpoch.get(entryEpoch);
   const archivedExitSpot = quotesByEpoch.get(exitEpoch);
-  const entryMatches = archivedEntrySpot === Number(transaction.entrySpot);
-  const exitMatches = archivedExitSpot === Number(transaction.exitSpot);
-  const tie = Number(transaction.exitSpot) === Number(transaction.entrySpot);
+  const entryMatches = archivedEntrySpot === entrySpot;
+  const exitMatches = archivedExitSpot === exitSpot;
+  const tie = exitSpot === entrySpot;
   const won = direction === "rise"
-    ? Number(transaction.exitSpot) > Number(transaction.entrySpot)
-    : Number(transaction.exitSpot) < Number(transaction.entrySpot);
+    ? exitSpot > entrySpot
+    : exitSpot < entrySpot;
   const expectedProfit = won ? 0.9 : -1;
   return {
     accountingMatches:
-      Number(transaction.buyPrice) === 1 && Number(transaction.profit) === expectedProfit,
+      buyPrice === 1 && profit === expectedProfit,
     archivedEntrySpot: archivedEntrySpot ?? null,
     archivedExitSpot: archivedExitSpot ?? null,
     entryEpoch,
@@ -49,6 +69,7 @@ export function reconstructRecordedTransaction({
     exitEpoch,
     exitMatches,
     expectedProfit,
+    identityEligible: hasEligibleSettlementIdentity(transaction),
     purchaseEpoch,
     tie,
     timingAndSpotsMatch: entryMatches && exitMatches,
@@ -101,6 +122,17 @@ export function auditRecordedBrowserRuns(runs, quotesByEpoch) {
   }
   return {
     accountingMatches: details.filter((item) => item.accountingMatches).length,
+    directionCounts: Object.fromEntries(
+      [...Map.groupBy(details, (item) => item.direction).entries()]
+        .map(([direction, items]) => [direction, items.length]),
+    ),
+    durationCounts: Object.fromEntries(
+      [...Map.groupBy(details, (item) => item.durationTicks).entries()]
+        .sort(([left], [right]) => left - right)
+        .map(([duration, items]) => [String(duration), items.length]),
+    ),
+    eligibleSettlementRecords:
+      details.filter((item) => item.identityEligible).length,
     fileEvidence: runs.map(({ file, fileSha256, transactions, variantId }) => ({
       file,
       fileSha256,

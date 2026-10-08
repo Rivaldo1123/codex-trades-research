@@ -39,9 +39,28 @@ settlements. This is deliberate evidence rejection, not data deletion.
 
 The completed v1 screen evaluated all 12,012 configurations and 324,324
 window/stress runs with zero failed trials. None passed the frozen development
-rules; the recorded outcome is `NO_RELIABLE_EDGE_FOUND`. See
+rules; the recorded outcome is `NO_RELIABLE_EDGE_FOUND` for that narrow screen.
+An independent v2 audit reproduced the scenario counts and found no qualifying
+candidate, while also identifying provenance, inference, and reporting defects
+that limit the broader interpretation. It does **not** establish that every
+Deriv product or strategy is unprofitable. See the
+[`independent audit`](research/audits/development-screen-v1-independent-audit-v2.md),
 [`research/results/development-screen-v1-summary.md`](research/results/development-screen-v1-summary.md)
-and the full engineering audit in `research/results/`.
+and the original engineering report in `research/results/`. The original v1
+artifacts remain unchanged; the v2 audit is a separate versioned evaluation.
+
+The authorized 90-day expansion is checkpointed but incomplete. On 2026-10-08
+the public backfill stopped itself after all eight bounded `ticks_history`
+rate-limit retries: this invocation stored 250,000 rows across 250 pages, the
+cursor is `1788417199`, and no collector process remains active. Approximately
+4,934,000 older target seconds remain. After the public limit clears, resume
+without changing the frozen boundaries or starting a duplicate:
+
+```powershell
+node src/historical-backfill-cli.js --from 1783483200 --to 1791259200
+```
+
+The present archive is not represented as a completed 90-day evaluation.
 
 ## Run
 
@@ -97,10 +116,11 @@ forward test. This is an ordinary background process, not a Windows or Codex
 schedule, so a reboot would interrupt it.
 
 The earlier 14-day forward collector failed on a Windows status-file rename;
-its frozen v2 protocol remains an incomplete record. A new `--forward-only`
-public collector is running for the user's same-day pilot window
+its frozen v2 protocol remains an incomplete record. The later `--forward-only`
+public collector ran for the user's same-day pilot window
 `[2026-10-07T17:00:00Z, 2026-10-08T00:00:00Z)` (8 pm New York cutoff).
-Its local watchdog checks process health without Codex usage. The exact safety
+That pilot is complete; its saved local watchdog evidence required no Codex
+usage. The exact safety
 boundaries and post-capture instructions are in
 [`data/market/forward-runbook-2026-10-07-v3-pilot.md`](data/market/forward-runbook-2026-10-07-v3-pilot.md).
 The 19:03 UTC rate-limit interruption will remain in its audit. If the clean

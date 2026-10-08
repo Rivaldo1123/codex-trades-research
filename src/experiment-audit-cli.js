@@ -29,6 +29,11 @@ import {
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const protocolPath = path.join(projectRoot, "research", "protocols", "development-screen-v1.json");
 const summaryPath = path.join(projectRoot, "research", "results", "development-screen-v1-summary.json");
+const dataAvailabilityReportPath = path.join(
+  projectRoot,
+  "research",
+  "data-availability-2026-10-08.md",
+);
 const ledgerPath = path.join(projectRoot, "data", "research", "development-screen-v1", "ledger.final.jsonl");
 const outputJsonPath = path.join(projectRoot, "research", "audits", "development-screen-v1-independent-audit-v2.json");
 const outputMarkdownPath = path.join(projectRoot, "research", "audits", "development-screen-v1-independent-audit-v2.md");
@@ -351,8 +356,17 @@ function runTargetedStatisticalAudit({ cache, protocol, summary, targetRecords }
       config: original.configuration,
       protocol,
     });
-    if (!sameScenarioCounts(original.evaluation.scenarios, reevaluated.scenarios)) {
-      throw new Error(`Targeted replay changed scenario counts for ${item.strategyId}.`);
+    const scenarioCountsMatchOriginal = sameScenarioCounts(
+      original.evaluation.scenarios,
+      reevaluated.scenarios,
+    );
+    const activityMatchesOriginal = JSON.stringify(original.evaluation.activity) ===
+      JSON.stringify(reevaluated.activity);
+    const drawdownMatchesOriginal = JSON.stringify(original.evaluation.drawdown) ===
+      JSON.stringify(reevaluated.drawdown);
+    if (!scenarioCountsMatchOriginal || !activityMatchesOriginal ||
+        !drawdownMatchesOriginal) {
+      throw new Error(`Targeted replay changed deterministic fields for ${item.strategyId}.`);
     }
     const blocks = reevaluated.uncertainty.utcDayOutcomeBlocks;
     const ratioTest = clusteredRatioTTest(blocks, {
@@ -373,7 +387,9 @@ function runTargetedStatisticalAudit({ cache, protocol, summary, targetRecords }
       originalBonferroniAdjustedPValue:
         original.evaluation.uncertainty.adjustedPValueBonferroni,
       originalIndependentDayBootstrap: original.evaluation.dayBlockBootstrap,
-      scenarioCountsMatchOriginal: true,
+      activityMatchesOriginal,
+      drawdownMatchesOriginal,
+      scenarioCountsMatchOriginal,
       strategyId: item.strategyId,
       worstStressAverageProfitPerUnit:
         original.evaluation.minimumStressAverageProfitPerDollarStaked,
@@ -431,9 +447,16 @@ async function auditBrowserObservations() {
     guardedApiObservation: {
       accountingMatches:
         bought?.buyPrice === 1 && settled?.status === "won" && settled?.profit === 0.9,
+      accountIdentityPresent: apiEvents.some((event) =>
+        typeof event.accountId === "string" || Number.isSafeInteger(event.accountId)),
       contractIdentityPresent: Number.isSafeInteger(bought?.contractId),
       evidenceFileSha256: digest(apiBytes),
+      evidenceGateEligible: false,
+      sameJournalTrade:
+        typeof bought?.tradeId === "string" && bought.tradeId === settled?.tradeId,
       settledRecords: settled ? 1 : 0,
+      strategyHashPresent: apiEvents.some((event) =>
+        /^[a-f0-9]{64}$/.test(event.strategyHash ?? "")),
       timingReconstructionPossible: false,
     },
   };
@@ -495,7 +518,9 @@ function writeAuditMarkdown(audit) {
     "",
     "## Contract and simulator verification",
     "",
-    `- All ${audit.recordedObservationAudit.browserObservations.records} recorded Bot Builder observations matched archive entry at purchase+1 tick and exit at entry+duration; ${audit.recordedObservationAudit.browserObservations.accountingMatches} reproduced +0.90/-1 accounting, including ${audit.recordedObservationAudit.browserObservations.ties} strict-comparison ties as losses. These rows remain ineligible as broker-settlement evidence because identity fields are missing.`,
+    `- All ${audit.recordedObservationAudit.browserObservations.records} recorded Bot Builder observations (${audit.recordedObservationAudit.browserObservations.durationCounts["1"] ?? 0} one-tick and ${audit.recordedObservationAudit.browserObservations.durationCounts["5"] ?? 0} five-tick) matched archive entry at purchase+1 tick and exit at entry+duration; ${audit.recordedObservationAudit.browserObservations.accountingMatches} reproduced +0.90/-1 accounting, including ${audit.recordedObservationAudit.browserObservations.ties} strict-comparison ties as losses. Zero have the account, contract, settlement-status, and exact-strategy identity required to count as broker-settlement evidence.`,
+    `- The separate guarded API journal contains ${audit.recordedObservationAudit.guardedApiObservation.settledRecords} bought/settled Demo chain with a purchase contract ID and +0.90 accounting. It lacks account identity, exact strategy hash, entry spot, and reconstructable entry timing, so it is an observed journal settlement but not eligible strategy evidence or simulator-parity proof.`,
+    "- The saved unauthenticated `contracts_for` probe on 2026-10-08 reported 1HZ100V CALL/PUT tick contracts spanning 1–10 ticks. This is a point-in-time product observation, not proof of historical availability or prices. Tick and clock durations remain distinct API units.",
     "- Official terms define Digital Options entry as the next tick after server processing. Deriv's worked 5-tick example shows start, entry one second later, and exit five ticks after entry. The manual fixture and shared-engine parity tests reproduce this convention.",
     "- The search used raw ticks, not candles. Indicators include the known decision tick, never a future tick; outcomes require complete signal-to-settlement presence and stay inside one chronological window.",
     "- At one decision per 60 seconds and a maximum 3-tick delay plus 10-tick duration, modeled positions cannot overlap on the audited one-second symbol. Vectorized outcomes matched the separate sequential reference engine.",
@@ -513,6 +538,7 @@ function writeAuditMarkdown(audit) {
     `For the original top-ranked configuration, the corrected 0.80 clustered ratio estimate is ${top.correctedClusteredRatioTest.averageNetProfitPerUnitStaked.toFixed(6)} and its 99% moving three-day-block lower bound is ${top.correctedMovingThreeDayBlockBootstrap.lowerBound.toFixed(6)}.`,
     "",
     "Bonferroni controls family-wise error regardless of dependence between configurations if each raw p-value is valid; here the weak point is the 30-cluster Student-t approximation, not the direction of the adjustment. A 99% tail estimate from only 30 days is intrinsically coarse. The neighboring-setting rule was implemented as normalized numeric distance within a hash-subsampled grid, not a predeclared one-coordinate adjacency graph, so it is supporting diagnostics rather than strong independent confirmation.",
+    "Net expectancy and profit factor were independently reconstructed from win/loss/tie counts. Maximum drawdown and longest losing streak use chronological delay-1 trades at the base +0.90 payout; a four-trade hand fixture verifies both. The fixed dataset spans 30 UTC days and requires 20 active days, but there is no separate first-trade-to-last-trade elapsed-duration rule. Fixed $1 stakes and minute-spaced decisions cap simulated concurrent exposure at one stake unit.",
     "",
     "## What the 12,012 configurations covered",
     "",
@@ -560,6 +586,7 @@ function writeAuditMarkdown(audit) {
 
 const protocolBytes = await readFile(protocolPath);
 const summaryBytes = await readFile(summaryPath);
+const dataAvailabilityReportBytes = await readFile(dataAvailabilityReportPath);
 const protocol = JSON.parse(protocolBytes);
 const summary = JSON.parse(summaryBytes);
 const ledger = await auditLedger(protocol, summary);
@@ -597,8 +624,33 @@ const historicalCollection = await historicalCollectionStatus();
 const audit = {
   auditCode: codeState(),
   contractModelConclusion: {
+    supportedSearchProduct: {
+      contractTypes: ["CALL", "PUT"],
+      durationUnit: "ticks",
+      durations: protocol.parameterRanges.durationsTicks,
+      productProbeEvidence: {
+        path: path.relative(projectRoot, dataAvailabilityReportPath).replaceAll("\\", "/"),
+        sha256: digest(dataAvailabilityReportBytes),
+        type: "Unauthenticated point-in-time contracts_for observation",
+      },
+      symbol: protocol.dataset.symbol,
+    },
     sufficientlyAccurateForNarrowScreen: true,
     sufficientlyAccurateForHistoricalExecutableProfit: false,
+    unresolvedAssumptions: [
+      "Historical account-specific proposal prices and executable payouts were not recorded.",
+      "Proposal expiry, requotes, rejected purchases, cancellations, refunds, and broker corrections are not simulated.",
+      "Processing delays beyond the frozen one-to-three-tick grid are not tested.",
+      "Public history is assumed to match settlement ticks; this is corroborated by 99 UI observations but not guaranteed for every anomaly.",
+    ],
+    verified: [
+      "Signals use raw ticks and only information available at the decision epoch.",
+      "Entry is the delayed future tick and expiry is duration ticks after entry.",
+      "Strict CALL/PUT ties lose the stake in simulation and recorded UI observations.",
+      "Gross payout is kept distinct from net win profit per unit staked.",
+      "No decision, entry, or settlement crosses a source gap or chronological window.",
+      "Minute-spaced decisions cannot overlap at the searched delays and durations; a separate sequential engine matches vectorized counts.",
+    ],
   },
   datasetSliceAudit: dataset.audit,
   defects: [
@@ -659,6 +711,7 @@ const audit = {
   recordedObservationAudit,
   reviewedBaseline: {
     originalMutableManifestSha256: summary.dataset.manifestSha256,
+    productAvailabilityReportSha256: digest(dataAvailabilityReportBytes),
     protocolPath: path.relative(projectRoot, protocolPath).replaceAll("\\", "/"),
     protocolSha256: digest(protocolBytes),
     resultCommit: "5d93aaf097e45edd74853d41245d446322c397ea",
@@ -720,7 +773,13 @@ const audit = {
       url: "https://doi.org/10.1198/073500105000000063",
       use: "multiple-strategy predictive-ability context",
     },
+    {
+      title: "Bailey et al., The Probability of Backtest Overfitting",
+      url: "https://escholarship.org/uc/item/4w1110bb",
+      use: "selection-overfitting and repeated-search context",
+    },
   ],
+  sourceAccessDate: "2026-10-08",
   statisticalConclusion: {
     deterministicRulesCorrectlyImplementedAsWritten: true,
     fullyJustifiedByThirtyDays: false,
@@ -729,6 +788,8 @@ const audit = {
       "Economic, stress, sample, and operational thresholds match the frozen protocol.",
       "Bonferroni direction is correct and conservative if raw p-values are valid.",
       "The 30-day independence/tail assumptions and original equal-day estimand are not established.",
+      "Calendar coverage is fixed at 30 UTC days with a 20-active-day minimum; no separate first-to-last-trade elapsed-duration rule exists.",
+      "Nearby robustness uses normalized parameter distance within sampled grids, not a predeclared one-coordinate neighborhood.",
     ],
   },
   targetedStatisticalAudit,

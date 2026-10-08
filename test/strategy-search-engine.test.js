@@ -66,6 +66,50 @@ test("cached search evaluation is causal, sequential, and split bounded", () => 
   );
 });
 
+test("base accounting, drawdown and losing streak match a four-trade fixture", () => {
+  const protocol = smallProtocol();
+  const fromEpoch = 1_700_000_040;
+  protocol.dataset.fromEpochInclusive = fromEpoch;
+  protocol.dataset.toEpochExclusive = fromEpoch + 240;
+  protocol.evaluationWindows = [{
+    fromEpochInclusive: fromEpoch,
+    id: "fixture",
+    toEpochExclusive: fromEpoch + 240,
+  }];
+  const quotes = new Float64Array(240).fill(100);
+  for (const [decisionOffset, settlement] of [
+    [0, 99],
+    [60, 99],
+    [120, 101],
+    [180, 99],
+  ]) {
+    quotes[decisionOffset + 2] = settlement;
+  }
+  const evaluation = evaluateSearchConfiguration({
+    cache: buildSearchFeatureCache({
+      present: new Uint8Array(240).fill(1),
+      protocol,
+      quotes,
+    }),
+    config: {
+      direction: "rise",
+      durationTicks: 1,
+      family: "unconditional_baseline",
+    },
+    protocol,
+  });
+  assert.deepEqual(
+    { losses: evaluation.base.losses, trades: evaluation.base.trades,
+      wins: evaluation.base.wins },
+    { losses: 3, trades: 4, wins: 1 },
+  );
+  assert.ok(Math.abs(evaluation.base.netProfit - (-2.1)) < 1e-12);
+  assert.ok(Math.abs(evaluation.base.averageProfitPerDollarStaked - (-0.525)) < 1e-12);
+  assert.ok(Math.abs(evaluation.base.profitFactor - 0.3) < 1e-12);
+  assert.ok(Math.abs(evaluation.drawdown.maximumDrawdownStakeUnits - 2.1) < 1e-12);
+  assert.equal(evaluation.drawdown.longestLosingStreak, 2);
+});
+
 test("a genuine gap invalidates crossing outcomes instead of inventing prices", () => {
   const protocol = smallProtocol();
   const slots =

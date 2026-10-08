@@ -25,6 +25,7 @@ test("five-tick recorded contract enters next tick and exits five ticks later", 
   assert.equal(result.exitEpoch, purchaseEpoch + 6);
   assert.equal(result.timingAndSpotsMatch, true);
   assert.equal(result.accountingMatches, true);
+  assert.equal(result.identityEligible, false);
 });
 
 test("strict Rise/Fall records a tie as a full stake loss", () => {
@@ -49,4 +50,19 @@ test("strict Rise/Fall records a tie as a full stake loss", () => {
   assert.equal(result.won, false);
   assert.equal(result.expectedProfit, -1);
   assert.equal(result.accountingMatches, true);
+});
+
+test("recorded reconstruction rejects non-numeric settlement fields", () => {
+  assert.throws(() => reconstructRecordedTransaction({
+    direction: "rise",
+    durationTicks: 1,
+    quotesByEpoch: new Map(),
+    transaction: {
+      buyPrice: 1,
+      entrySpot: "not-a-number",
+      exitSpot: 101,
+      profit: 0.9,
+      timestamp: "2026-10-08T00:00:00.000Z",
+    },
+  }), /invalid entry spot/);
 });
