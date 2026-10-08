@@ -1,6 +1,6 @@
 # Independent audit of development screen v1
 
-Generated from audit tooling commit `4cf6b1c976c77f587733305ed33aa36b86988694`. Reviewed search commit `0512ed7823e33264a27cd34b7376986b57a04fd6` and result commit `5d93aaf097e45edd74853d41245d446322c397ea`.
+Generated from audit tooling commit `5cdf73fd3339f048e9c72369714d366d64451241`. Reviewed search commit `0512ed7823e33264a27cd34b7376986b57a04fd6` and result commit `5d93aaf097e45edd74853d41245d446322c397ea`.
 
 ## Direct conclusion
 
@@ -36,6 +36,8 @@ These defects affect provenance and strength of inference. They do not change th
 - The saved unauthenticated `contracts_for` probe on 2026-10-08 reported 1HZ100V CALL/PUT tick contracts spanning 1–10 ticks. This is a point-in-time product observation, not proof of historical availability or prices. Tick and clock durations remain distinct API units.
 - Official terms define Digital Options entry as the next tick after server processing. Deriv's worked 5-tick example shows start, entry one second later, and exit five ticks after entry. The manual fixture and shared-engine parity tests reproduce this convention.
 - The search used raw ticks, not candles. Indicators include the known decision tick, never a future tick; outcomes require complete signal-to-settlement presence and stay inside one chronological window.
+- Indicator warm-up cannot cross a chronological-window boundary or genuine source gap; any label whose decision-to-expiry path crosses either boundary is excluded rather than purged data being reused.
+- The audited 1HZ100V instrument is a documented one-second variant. Deriv documents ordinary Volatility Indices at one tick every two seconds; v1 delays and durations are tick counts, so its elapsed-time behavior and conclusions do not transfer silently to those instruments.
 - At one decision per 60 seconds and a maximum 3-tick delay plus 10-tick duration, modeled positions cannot overlap on the audited one-second symbol. Vectorized outcomes matched the separate sequential reference engine.
 - Gross payout and net profit are distinct: the v1 values +0.90/+0.80/+0.70 are net win profits per $1 stake; a loss or strict tie is -$1.
 

@@ -1,6 +1,6 @@
 {
   "auditCode": {
-    "commit": "4cf6b1c976c77f587733305ed33aa36b86988694",
+    "commit": "5cdf73fd3339f048e9c72369714d366d64451241",
     "trackedWorktreeDirty": false
   },
   "contractModelConclusion": {
@@ -35,11 +35,13 @@
     ],
     "verified": [
       "Signals use raw ticks and only information available at the decision epoch.",
+      "Indicator warm-up and outcome labels cannot cross source gaps or chronological-window boundaries.",
       "Entry is the delayed future tick and expiry is duration ticks after entry.",
       "Strict CALL/PUT ties lose the stake in simulation and recorded UI observations.",
       "Gross payout is kept distinct from net win profit per unit staked.",
       "No decision, entry, or settlement crosses a source gap or chronological window.",
-      "Minute-spaced decisions cannot overlap at the searched delays and durations; a separate sequential engine matches vectorized counts."
+      "Minute-spaced decisions cannot overlap at the searched delays and durations; a separate sequential engine matches vectorized counts.",
+      "The searched 1HZ100V cadence is one tick per second; ordinary two-second Volatility variants were not evaluated."
     ]
   },
   "datasetSliceAudit": {
@@ -112,7 +114,7 @@
       "title": "JSON encoded negative-infinity no-trade minima as null"
     }
   ],
-  "generatedAtUtc": "2026-10-08T14:16:45.459Z",
+  "generatedAtUtc": "2026-10-08T14:18:54.505Z",
   "historicalCollection": {
     "archive": {
       "coverageDaysAcrossAllIntervals": 34.726851851851855,
