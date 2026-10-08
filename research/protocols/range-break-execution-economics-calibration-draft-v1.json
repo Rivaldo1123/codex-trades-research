@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "kind": "range-break-execution-economics-calibration-protocol",
+  "protocolId": "range-break-execution-economics-calibration-draft-v1",
+  "status": "DRAFT_NOT_AUTHORIZED",
+  "ordersAuthorized": false,
+  "purpose": "Acquire the minimum contract-specific demo evidence needed to determine whether RB100 multiplier entry, valuation, closing, commission, delay, and stop-out economics can be modeled. This is execution calibration, not strategy validation.",
+  "researchInferenceAllowed": false,
+  "product": {
+    "environment": "DEMO_ONLY",
+    "symbol": "RB100",
+    "contractTypes": [
+      "MULTUP",
+      "MULTDOWN"
+    ],
+    "stakeUsd": 1,
+    "multiplier": 400,
+    "expiryType": "no_expiry"
+  },
+  "maximumScopeIfSeparatelyAuthorized": {
+    "contracts": 2,
+    "directions": [
+      "MULTUP",
+      "MULTDOWN"
+    ],
+    "maximumOpenContracts": 1,
+    "maximumAggregateLossUsd": 2,
+    "observationSecondsPerContract": 60,
+    "automaticRetry": false,
+    "martingale": false,
+    "strategySignalUsed": false
+  },
+  "prerequisites": [
+    "A new version explicitly changes ordersAuthorized to true after direct human authorization for this calibration only.",
+    "The account and endpoint are independently verified as Demo immediately before execution.",
+    "The current contracts_for and proposal terms are captured and any changed multiplier or minimum-stake terms stop the run.",
+    "A durable intent containing account, symbol, direction, stake, currency, multiplier, and timing is written before purchase.",
+    "Restart reconciliation and one-open-contract enforcement pass offline tests for this product before any request can buy."
+  ],
+  "requiredEvidence": [
+    "timestamped proposal request and response, with quote-validity fields",
+    "purchase request timing, broker contract identity, actual entry price and entry tick",
+    "every proposal_open_contract update including bid price, current spot, profit, commission, stop-out state, and server timestamps",
+    "fixed-time close request and response, processing delay, exit tick, exit price, and any slippage",
+    "terminal statement/profit record and final account balance",
+    "disconnects, rejections, corrections, cancellations, and unresolved states"
+  ],
+  "successCondition": "Both predefined directions reconcile end to end and expose enough authoritative fields to reproduce every reported account-currency change without inferred fills or invented charges.",
+  "failureConditions": [
+    "Any required economic field is unavailable or has unresolved units.",
+    "A purchase, close, or settlement identity cannot be reconciled uniquely.",
+    "Connectivity is lost or local durable recording fails.",
+    "Current product terms differ from the frozen request.",
+    "The loss or concurrency limit would be exceeded."
+  ],
+  "permittedConclusion": "EXECUTION_MODEL_FEASIBLE or INSUFFICIENT_EXECUTION_DATA only. Profitability, predictability, strategy qualification, and deployment readiness cannot be inferred from this calibration.",
+  "currentDecision": "DO_NOT_RUN_WITHOUT_A_SEPARATE_EXPLICIT_AUTHORIZATION_AND_VERSIONED_IMPLEMENTATION"
+}

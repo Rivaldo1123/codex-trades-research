@@ -56,9 +56,11 @@ strongest mechanism worth resolving, but it is not yet a testable net-profit
 hypothesis: product limits conflict and historical contract-specific close
 values, commission semantics, processing delay and stop-out paths are missing.
 No new strategy search or midpoint-only profitability backtest was run. The
-single next evidence step is to resolve those terms and establish a legitimate
-timestamped entry-and-close valuation source; if that cannot be done, stop this
-direction rather than add indicators.
+completed public observation confirmed that unauthenticated ticks and entry
+proposals do not provide the contract-specific close path needed to resolve
+those terms. The Range Break strategy branch therefore stops unless a
+separately authorized execution-economics calibration supplies legitimate
+timestamped entry, valuation, close, charge, and settlement records.
 
 ### Connectivity-loss incident and Range Break observation
 
@@ -86,26 +88,52 @@ produced mixed stakes, mixed horizons, and overlapping exposure.
 
 The frozen
 [`range-break-observation-v2`](research/protocols/range-break-observation-v2.json)
-protocol is the next bounded evidence step. It runs for at most one hour, records
-at most 5,000 public RB100 ticks and 12 indicative MULTUP/MULTDOWN proposals,
-uses at most 18 public requests including bounded reconnects, and stores an
-immutable checksummed local session. It has no authentication or order path:
+protocol completed its one-hour bounded run on 2026-10-08. It recorded 3,598
+continuous one-second RB100 ticks and all 12 indicative MULTUP/MULTDOWN
+proposals with no failures, reconnects, duplicate/conflicting epochs, or
+orders. It used 14 of at most 18 public requests. The independent tick-summary
+calculation and artifact hashes passed; no strategy calculation was generated.
+The compact [assessment](research/audits/range-break-observer-v2-completion-2026-10-08.md),
+[machine result](research/audits/range-break-observer-v2-completion-2026-10-08.json),
+and [artifact inventory](research/reproducibility/range-break-observation-v2-artifact-inventory.json)
+preserve the result.
+
+The observation reproduced the product conflict: the same endpoint advertised
+20–100x but repeatedly accepted 400x proposals. It observed a stable `0.02`
+commission field and one 109-point downward break, but neither fact supplies
+commission units, an executable fill, the open-contract bid/close path, or
+terminal accounting. The result is therefore
+`SPECIFICATION_CONFLICT + INSUFFICIENT_EXECUTION_DATA`, with
+`NO_GO_FOR_STRATEGY_OR_PROFIT_EXPERIMENT`. It is not a failed profitability
+test and does not establish that Range Break or all Deriv strategies are
+unprofitable.
+
+Recompute the assessment offline when the exact ignored 439,221-byte raw JSONL
+is present:
 
 ```powershell
-node src/range-break-observer-cli.js run
 node src/range-break-observer-cli.js status
+node src/range-break-observation-audit-cli.js `
+  --manifest research/evidence/range-break-observation-v2-manifest-2026-10-08.json `
+  --raw data/range-break-observer/2026-10-08T22-44-56-825Z-fbde1edd-dc72-48ff-b69d-747cc52d7f57.jsonl
 ```
 
-This observer measures capability, cadence, interruptions, point-price paths,
-and indicative proposal fields. It does not observe fills, early-close values,
-settlements, or historical executable profitability. Its output therefore
-cannot authorize Bot Builder or API execution.
+The tracked manifest identifies the exact raw SHA-256. A public checkout lacks
+that ignored raw file and can inspect only the compact assessment; downloading
+a new window would not reproduce this observation. The assessor is offline and
+cannot authenticate, start a collector/search, or place an order.
 
 The original v1 observation attempt is preserved in a separate
 [`engineering-incident record`](research/audits/range-break-observer-v1-interruption-2026-10-08.md).
 Its proposal connection went idle and closed before the second snapshot pair.
 V2 uses one fresh bounded connection per pair, with no retries and no increase
 to the public-message ceiling.
+
+The only finite follow-up is the
+[two-contract execution-economics calibration draft](research/protocols/range-break-execution-economics-calibration-draft-v1.json).
+It remains `DRAFT_NOT_AUTHORIZED`, cannot execute anything, and permits only an
+execution-model feasibility conclusion if separately reviewed and authorized.
+No Range Break strategy implementation or new demo validation was created.
 
 ## Frozen substantial strategy screen
 
@@ -345,11 +373,14 @@ no restart-on-error, and at most four settled contracts per Run. The XML also
 cannot enforce Deriv's account selector, which is an unresolved parity and
 safety limitation rather than a current operating instruction.
 
-The live browser workspace is saved in Deriv Bot as **Codex Browser Learning -
-One-Shot Gate**. Automatic `Trade again` is disabled and both restart-on-error
-settings are off, so one click can produce at most one Demo contract. Its
-purchase block remains the rejected one-tick Rise baseline. The external gate
-is not eligible, so the saved workspace must not be Run.
+The browser workspace was saved in Deriv Bot as **Codex Browser Learning -
+One-Shot Gate** with automatic `Trade again` and both restart-on-error settings
+disabled. The 2026-10-08 connectivity incident demonstrated that a live browser
+workspace can lose or diverge from those intended values after interruption;
+it produced mixed stakes, horizons, and overlapping exposure. Therefore the
+workspace itself is not an enforceable one-shot or deployment gate. Its
+purchase logic remains unqualified, so it must stay stopped and must not be
+used for another run.
 
 [`dbot/Codex_Browser_Learning_OneTick_Rise.xml`](dbot/Codex_Browser_Learning_OneTick_Rise.xml)
 is an archived schema-validated conditional experiment. It adds a 10/20-tick SMA Rise condition:

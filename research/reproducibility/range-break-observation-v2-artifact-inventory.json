@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "kind": "range-break-observation-v2-artifact-inventory",
+  "sessionId": "2026-10-08T22-44-56-825Z-fbde1edd-dc72-48ff-b69d-747cc52d7f57",
+  "decision": "NO_GO_FOR_STRATEGY_OR_PROFIT_EXPERIMENT",
+  "artifacts": [
+    {
+      "id": "observation-protocol",
+      "path": "research/protocols/range-break-observation-v2.json",
+      "bytes": 1855,
+      "sha256": "7f20c58f71f34619cf94a2653109f3b69bd7ad52dfb2d0b09c0501d3786ef381",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "sanitized-manifest",
+      "path": "research/evidence/range-break-observation-v2-manifest-2026-10-08.json",
+      "bytes": 1046,
+      "sha256": "9053ecd5b7b912a30928c9e4f4c5a498437f28f8c3a78f44f572754e9dc987ab",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "completion-assessment-json",
+      "path": "research/audits/range-break-observer-v2-completion-2026-10-08.json",
+      "bytes": 6981,
+      "sha256": "3c53cc77a5fbac8cecd8e806b58ceacfc11849b765c0ccd7d455cc43c6c01a07",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "completion-assessment-markdown",
+      "path": "research/audits/range-break-observer-v2-completion-2026-10-08.md",
+      "bytes": 6627,
+      "sha256": "73167133d232c0a4ccf22f6be206da4b6ebc56dedd4baffcaa8b7fa1b844b467",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "offline-assessor",
+      "path": "src/range-break-observation-audit.js",
+      "bytes": 26792,
+      "sha256": "253e222f035a16500c5afec1dc46e7e7c219eb863828e9376348383dceccf3d2",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "offline-assessor-cli",
+      "path": "src/range-break-observation-audit-cli.js",
+      "bytes": 3246,
+      "sha256": "2d143b18fa871209a4f613b37c74d3a99b44ca82dd2799e535416aec945aa49a",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "execution-economics-calibration-draft",
+      "path": "research/protocols/range-break-execution-economics-calibration-draft-v1.json",
+      "bytes": 3157,
+      "sha256": "43480428cef987a3ae61bcd31facd83120809972ba389a203ee3774ff3f0f9a2",
+      "availability": "PUBLIC_TRACKED",
+      "ordersAuthorized": false
+    },
+    {
+      "id": "raw-observation-jsonl",
+      "path": "data/range-break-observer/2026-10-08T22-44-56-825Z-fbde1edd-dc72-48ff-b69d-747cc52d7f57.jsonl",
+      "bytes": 439221,
+      "sha256": "7066d4e0c1bd2fe8c994745e760aecb4dc3a862c630018165d8db0ed6c1e6eb9",
+      "availability": "LOCAL_IGNORED_PRESENT_AT_ASSESSMENT"
+    }
+  ],
+  "reproducibility": {
+    "publicCheckout": "Can verify the compact tracked files and inspect the recorded hashes, calculations, classifications, and safety decision. It cannot independently recompute the observation without the exact raw JSONL.",
+    "localWithRaw": "Can independently recalculate tick cadence/counts, verify protocol and raw hashes, validate proposal structure, and reproduce the compact assessment.",
+    "notReproduced": [
+      "No strategy signals or profitability calculation were generated.",
+      "No executable quote, fill, sell valuation, settlement, or account P/L was observed.",
+      "Downloading a new tick window cannot restore this timestamped observation."
+    ],
+    "localCommand": "node src/range-break-observation-audit-cli.js --manifest research/evidence/range-break-observation-v2-manifest-2026-10-08.json --raw data/range-break-observer/2026-10-08T22-44-56-825Z-fbde1edd-dc72-48ff-b69d-747cc52d7f57.jsonl"
+  },
+  "safety": {
+    "authenticated": false,
+    "ordersPlaced": 0,
+    "executionAuthorized": false,
+    "startsCollector": false,
+    "startsStrategySearch": false
+  },
+  "preservation": {
+    "original12012LedgerModified": false,
+    "previousAuditModified": false,
+    "previousFeasibilityReportsModified": false,
+    "reservedHoldoutOpened": false
+  }
+}

@@ -11,7 +11,8 @@ The project keeps five evidence classes separate:
 1. Public market-data collection is unauthenticated and never places orders.
 2. Historical simulations use public prices plus explicitly assumed payouts and
    delays; they are not observed contract profit.
-3. Deriv Bot XML is a disarmed configuration artifact.
+3. Deriv Bot XML is archived and execution-unapproved. This is a deployment
+   classification, not proof that an imported XML is technically inert.
 4. Authenticated demo execution is a separately guarded action and is not
    authorized by the research commands.
 5. Actual settlements count only when account identity, contract identity,
@@ -160,13 +161,26 @@ is positive or independently validated, and no candidate is ready for Demo.
 The original immutable probe made nine unauthenticated public requests. The v2
 reconciliation made exactly three more, without retry or a buy path, and
 confirmed that the same RB100 environment advertised 20–100x, rejected 20x,
-and accepted 400x. This remains a conflict, not a capability workaround. Verify
-the saved evidence and current decision locally without making a network
-request:
+and accepted 400x. The later one-hour
+[`range-break-boundary-observation-v2`](protocols/range-break-observation-v2.json)
+used 14 bounded public requests and completed with 3,598 contiguous one-second
+ticks, 12 proposals, no failures and no orders. Its
+[`completion assessment`](audits/range-break-observer-v2-completion-2026-10-08.md)
+confirmed the metadata conflict and the absence of authenticated open-contract
+close economics. It did not test a strategy or calculate executable profit.
+
+The downstream decision is consequently
+`NO_GO_FOR_STRATEGY_OR_PROFIT_EXPERIMENT`: no shadow profit replay, Bot XML, or
+demo validation was created. A
+[`DRAFT_NOT_AUTHORIZED` calibration](protocols/range-break-execution-economics-calibration-draft-v1.json)
+defines the smallest possible future execution-data step without authorizing
+it. Verify the saved evidence and current decision locally without making a
+network request:
 
     node src/product-feasibility-probe-cli.js --verify
     node src/range-break-reconciliation-cli.js --verify
     node src/feasibility-calculations-cli.js
+    node src/range-break-observation-audit-cli.js --manifest research/evidence/range-break-observation-v2-manifest-2026-10-08.json --raw data/range-break-observer/2026-10-08T22-44-56-825Z-fbde1edd-dc72-48ff-b69d-747cc52d7f57.jsonl
     node src/research-status-cli.js
     node src/research-status-cli.js --strict=public
     node --test test/product-feasibility-probe.test.js test/feasibility-addendum.test.js test/research-status.test.js

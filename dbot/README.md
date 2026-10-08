@@ -1,20 +1,24 @@
 # Archived Deriv Bot files
 
-Every XML file in this directory is a preserved, disarmed experimental artifact.
-The machine-readable [`archive-registry.json`](archive-registry.json) records
-its size, SHA-256 and `executionAuthorized: false`. None is a current deployment
-candidate, and the current research decision does not authorize importing or
-running any of them. A future candidate must be a new version whose exact hash
-is bound to qualifying evidence and execution assumptions.
+Every XML file in this directory is a preserved, **execution-unapproved**
+experimental artifact. The `disarmed` label in the historical
+[`archive-registry.json`](archive-registry.json) is an evidence/deployment
+status, not a technical guarantee that an imported XML contains no enabled
+purchase block. Several preserved files are executable workspace formats and
+must not be imported or Run. The registry records their size, SHA-256 and
+`executionAuthorized: false`; none is a current deployment candidate. A future
+candidate must be a new version whose exact hash is bound to qualifying
+evidence and execution assumptions.
 
 `Codex_DEMO_Guarded_SMA.xml` is a preserved Deriv Bot workspace for the
 Volatility 100 (1s) Index. It uses a fixed USD 1 stake, five-tick Rise/Fall
 contracts, 20/50 tick SMAs, no martingale, no restart-on-error, and stops after
 at most four settled contracts in a run.
 
-The XML cannot force Deriv's account selector to stay on Demo. That limitation
-would require an explicit human check in any separately qualified future use;
-it is not permission to import or press **Run** now.
+The XML cannot force Deriv's account selector to stay on Demo or provide the
+repository executor's durable reconciliation guarantees. Those limitations
+would require explicit resolution in any separately qualified future use; they
+are not permission to import or press **Run** now.
 
 `Codex_Browser_Learning_OneTick_Rise.xml` is a schema-validated conditional
 one-tick Rise research experiment. It buys one fixed USD 1 Demo contract only when its 10-tick SMA is

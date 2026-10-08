@@ -1,0 +1,30 @@
+{
+  "authenticated": false,
+  "classification": "OBSERVATION_ONLY_NO_PROFIT_CONCLUSION",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "kind": "range-break-observation-manifest",
+  "ordersPlaced": 0,
+  "protocolId": "range-break-boundary-observation-v2",
+  "protocolSha256": "7f20c58f71f34619cf94a2653109f3b69bd7ad52dfb2d0b09c0501d3786ef381",
+  "rawFile": "2026-10-08T22-44-56-825Z-fbde1edd-dc72-48ff-b69d-747cc52d7f57.jsonl",
+  "rawSha256": "7066d4e0c1bd2fe8c994745e760aecb4dc3a862c630018165d8db0ed6c1e6eb9",
+  "schemaVersion": 1,
+  "sessionId": "2026-10-08T22-44-56-825Z-fbde1edd-dc72-48ff-b69d-747cc52d7f57",
+  "summary": {
+    "conflictingSameEpoch": 0,
+    "duplicateSameEpoch": 0,
+    "firstTickEpoch": 1791499499,
+    "lastTickEpoch": 1791503096,
+    "nonMonotonicTicks": 0,
+    "proposalFailures": 0,
+    "proposalConnections": 6,
+    "proposalSnapshots": 12,
+    "reconnects": 0,
+    "sourceDiscontinuities": 0,
+    "tickDeltaHistogram": {
+      "1": 3597
+    },
+    "ticks": 3598,
+    "uniqueEpochs": 3598
+  }
+}

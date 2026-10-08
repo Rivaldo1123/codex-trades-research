@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "kind": "range-break-observation-assessment",
+  "protocolId": "range-break-boundary-observation-v2",
+  "sessionId": "2026-10-08T22-44-56-825Z-fbde1edd-dc72-48ff-b69d-747cc52d7f57",
+  "artifacts": {
+    "manifestBytes": 1046,
+    "manifestSha256": "9053ecd5b7b912a30928c9e4f4c5a498437f28f8c3a78f44f572754e9dc987ab",
+    "protocolBytes": 1855,
+    "protocolSha256": "7f20c58f71f34619cf94a2653109f3b69bd7ad52dfb2d0b09c0501d3786ef381",
+    "rawBytes": 439221,
+    "rawSha256": "7066d4e0c1bd2fe8c994745e760aecb4dc3a862c630018165d8db0ed6c1e6eb9"
+  },
+  "integrity": {
+    "independentStrategyRegeneration": false,
+    "independentTickSummaryCalculation": true,
+    "manifestMatchesRaw": true,
+    "manifestMatchesProtocol": true,
+    "rawSummaryReproduced": true,
+    "state": "VERIFIED_COMPLETE_OBSERVATION"
+  },
+  "safety": {
+    "authenticated": false,
+    "demoExecutionAuthorized": false,
+    "ordersPlaced": 0,
+    "strategySearchAuthorized": false
+  },
+  "coverage": {
+    "elapsedSeconds": 3600.416,
+    "endedAtUtc": "2026-10-08T23:44:57.241Z",
+    "proposalSnapshots": 12,
+    "startedAtUtc": "2026-10-08T22:44:56.825Z",
+    "tickSummary": {
+      "conflictingSameEpoch": 0,
+      "duplicateSameEpoch": 0,
+      "firstTickEpoch": 1791499499,
+      "lastTickEpoch": 1791503096,
+      "nonMonotonicTicks": 0,
+      "proposalFailures": 0,
+      "proposalConnections": 6,
+      "proposalSnapshots": 12,
+      "reconnects": 0,
+      "sourceDiscontinuities": 0,
+      "tickDeltaHistogram": {
+        "1": 3597
+      },
+      "ticks": 3598,
+      "uniqueEpochs": 3598
+    }
+  },
+  "requestAccounting": {
+    "capabilityRequests": 1,
+    "proposalRequests": 12,
+    "tickSubscriptionRequests": 1,
+    "totalRequests": 14,
+    "maximumPermitted": 18,
+    "proposalConnections": 6
+  },
+  "capability": {
+    "acceptedProposalMultiplier": 400,
+    "advertisedIncludesAccepted": false,
+    "advertisedTerms": {
+      "MULTUP": {
+        "expiryType": "no_expiry",
+        "maximumDuration": "0",
+        "minimumDuration": "0",
+        "multiplierRange": [
+          20,
+          40,
+          60,
+          80,
+          100
+        ]
+      },
+      "MULTDOWN": {
+        "expiryType": "no_expiry",
+        "maximumDuration": "0",
+        "minimumDuration": "0",
+        "multiplierRange": [
+          20,
+          40,
+          60,
+          80,
+          100
+        ]
+      }
+    },
+    "contractTypes": [
+      "MULTUP",
+      "MULTDOWN"
+    ],
+    "product": "RB100"
+  },
+  "indicativeEconomics": {
+    "askPrices": [
+      1
+    ],
+    "commissionFields": [
+      0.02
+    ],
+    "conditionalThresholds": [
+      {
+        "basisPointsIfCommissionIsAccountCurrency": 0.5,
+        "basisPointsIfCommissionIsPercentOfNotional": 2,
+        "commissionField": 0.02,
+        "pointMoveRangeIfCommissionIsAccountCurrency": {
+          "maximum": 2.5593,
+          "minimum": 2.5527
+        }
+      }
+    ],
+    "payoutFields": [
+      0
+    ],
+    "stopOutDistanceBasisPoints": {
+      "maximum": 24.51890202207678,
+      "minimum": 24.502416971641605
+    },
+    "warning": "The threshold is valid only if commission is denominated in account currency. It excludes exit valuation, spread, processing delay, slippage, rejection, and path-dependent stop-out effects."
+  },
+  "pricePathDiagnostic": {
+    "endingQuote": 51094,
+    "maximumAbsoluteTickMove": 109,
+    "largestTickMove": {
+      "basisPoints": -21.30654052152156,
+      "fromEpoch": 1791500286,
+      "fromQuote": 51158,
+      "fromUtc": "2026-10-08T22:58:06.000Z",
+      "pointMove": -109,
+      "toEpoch": 1791500287,
+      "toQuote": 51049,
+      "toUtc": "2026-10-08T22:58:07.000Z"
+    },
+    "maximumQuote": 51189,
+    "minimumQuote": 51049,
+    "negativeMoves": 1779,
+    "netPointMove": -69,
+    "positiveMoves": 1818,
+    "priceRangePoints": 140,
+    "startingQuote": 51163,
+    "zeroMoves": 0
+  },
+  "officialSources": [
+    {
+      "accessedOn": "2026-10-08",
+      "claim": "Range Break oscillates between boundaries and creates a new range after a break, with average frequencies based on 100 or 200 boundary hits; the page's indicator language is a product statement, not performance evidence.",
+      "url": "https://deriv.com/markets/derived-indices/synthetic-indices"
+    },
+    {
+      "accessedOn": "2026-10-08",
+      "claim": "contracts_for is an unauthenticated public capability endpoint.",
+      "url": "https://developers.deriv.com/docs/data/contracts-for/"
+    },
+    {
+      "accessedOn": "2026-10-08",
+      "claim": "proposal supplies an unauthenticated indicative contract proposal.",
+      "url": "https://developers.deriv.com/docs/trading/proposal/"
+    },
+    {
+      "accessedOn": "2026-10-08",
+      "claim": "proposal_open_contract requires authentication and an existing contract identity for contract-specific valuation fields.",
+      "url": "https://developers.deriv.com/comparison/proposal-open-contract/"
+    },
+    {
+      "accessedOn": "2026-10-08",
+      "claim": "The documented workflow purchases before monitoring proposal_open_contract.",
+      "url": "https://developers.deriv.com/docs/workflows/"
+    },
+    {
+      "accessedOn": "2026-10-08",
+      "claim": "Trading terms separately describe multiplier commission and Range Break CFD server-processing/next-tick exit treatment; they do not establish that the observed Options API multiplier has identical close mechanics.",
+      "url": "https://docs.deriv.com/tnc/trading-terms.pdf"
+    }
+  ],
+  "missingForNetReplay": [
+    "observable upper/lower boundary, boundary-hit count, and reset state at decision time",
+    "authoritative commission units and complete charging formula",
+    "timestamped executable account entry quote and actual fill",
+    "timestamped early-close/sell valuation across the holding path",
+    "quote validity, rejection, and server processing-delay observations",
+    "slippage and any spread or close-price adjustment",
+    "actual stop-out, cancellation, correction, and settlement events"
+  ],
+  "classifications": [
+    "SPECIFICATION_CONFLICT",
+    "INSUFFICIENT_EXECUTION_DATA"
+  ],
+  "stageDecisions": [
+    {
+      "id": "public-capability-observation",
+      "state": "COMPLETED_AND_LOCALLY_VERIFIED"
+    },
+    {
+      "id": "cost-complete-shadow-profit-experiment",
+      "state": "NOT_RUN_STOP_CONDITION_INSUFFICIENT_EXECUTION_DATA"
+    },
+    {
+      "id": "range-break-strategy-implementation",
+      "state": "NOT_CREATED_NO_QUALIFIED_CANDIDATE"
+    },
+    {
+      "id": "operational-demo-check",
+      "state": "NOT_RUN_NOT_AUTHORIZED_AND_NO_CANDIDATE"
+    },
+    {
+      "id": "prospective-strategy-validation",
+      "state": "NOT_STARTED_NO_DEVELOPMENT_CANDIDATE"
+    }
+  ],
+  "decision": "NO_GO_FOR_STRATEGY_OR_PROFIT_EXPERIMENT",
+  "conclusion": "The completed public observation verifies cadence, capability responses, and indicative entry proposals only. It cannot support a cost-complete replay, strategy qualification, or demo execution."
+}

@@ -29,6 +29,7 @@
     "research:range-break-reconcile": "node src/range-break-reconciliation-cli.js --verify",
     "research:range-break-observe": "node src/range-break-observer-cli.js run",
     "research:range-break-observer-status": "node src/range-break-observer-cli.js status",
+    "research:range-break-assess": "node src/range-break-observation-audit-cli.js",
     "research:feasibility-calculate": "node src/feasibility-calculations-cli.js",
     "research:decision-status": "node src/research-status-cli.js",
     "research:verify-public": "node src/research-status-cli.js --strict=public",
