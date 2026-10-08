@@ -60,6 +60,47 @@ single next evidence step is to resolve those terms and establish a legitimate
 timestamped entry-and-close valuation source; if that cannot be done, stop this
 direction rather than add indicators.
 
+### Connectivity-loss incident and Range Break observation
+
+A browser Bot session that loses connectivity is not a continuous experiment.
+Do not reconstruct its counters from memory or restart it under the same session
+identity. The read-only incident command retrieves covered demo statement buys,
+checks every available broker contract, reports open or unresolved identities,
+and saves the result only under ignored `data/demo/incidents/`. It cannot buy,
+sell, cancel, or qualify a strategy:
+
+```powershell
+node src/demo-incident-reconcile-cli.js `
+  --from 2026-10-08T21:45:00Z --to now `
+  --output data/demo/incidents/connectivity-loss-2026-10-08.json
+```
+
+Broker records recovered by time are explicitly unbound to the browser
+workspace's exact configuration unless that identity was durably recorded at
+purchase time. They can reconcile cash outcomes, but cannot become strategy
+validation evidence after the fact. The 2026-10-08 connectivity incident is
+preserved in a sanitized
+[`audit record`](research/audits/demo-connectivity-incident-2026-10-08.md): its
+positive demo accounting total was rejected because the restarted browser
+produced mixed stakes, mixed horizons, and overlapping exposure.
+
+The frozen
+[`range-break-observation-v1`](research/protocols/range-break-observation-v1.json)
+protocol is the next bounded evidence step. It runs for at most one hour, records
+at most 5,000 public RB100 ticks and 12 indicative MULTUP/MULTDOWN proposals,
+uses at most 18 public requests including bounded reconnects, and stores an
+immutable checksummed local session. It has no authentication or order path:
+
+```powershell
+node src/range-break-observer-cli.js run
+node src/range-break-observer-cli.js status
+```
+
+This observer measures capability, cadence, interruptions, point-price paths,
+and indicative proposal fields. It does not observe fills, early-close values,
+settlements, or historical executable profitability. Its output therefore
+cannot authorize Bot Builder or API execution.
+
 ## Frozen substantial strategy screen
 
 The current structured programme is documented in

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "kind": "demo-browser-connectivity-incident-audit",
+  "issuedAtUtc": "2026-10-08T22:37:46.000Z",
+  "reviewedCommit": "fd556f47d6db84098d1f640e21521426281a1908",
+  "incidentDisposition": "ABORTED_CONNECTIVITY_LOSS",
+  "strategyEvidenceEligible": false,
+  "executionAuthorizedByThisRecord": false,
+  "brokerObservation": {
+    "environment": "Deriv demo Options account",
+    "intervalUtc": "[2026-10-08T21:45:00Z, 2026-10-08T22:36:12Z]",
+    "purchases": 12,
+    "terminalContracts": 12,
+    "openContractsAtFinalCheck": 0,
+    "aggregateDemoProfitUsd": 8.51,
+    "stakeCounts": {
+      "1": 8,
+      "2": 3,
+      "4": 1
+    },
+    "observedDurationCountsSeconds": {
+      "6": 4,
+      "300": 8
+    },
+    "sixSecondGroupDemoProfitUsd": 5.21,
+    "fiveMinuteGroupDemoProfitUsd": 3.3
+  },
+  "verifiedDefectsInThisRun": [
+    "Four six-second CALL contracts used stakes USD 2, 4, 2, and 2 instead of the intended fixed USD 1 stake.",
+    "Those four contracts began while a five-minute contract remained open, contradicting the intended one-open-contract sequencing.",
+    "The browser workspace did not durably bind all purchases to one exact strategy/configuration identity across the disconnect and restart."
+  ],
+  "evidence": {
+    "localIgnoredPath": "data/demo/incidents/connectivity-loss-2026-10-08-closed.json",
+    "bytes": 8137,
+    "sha256": "c648cdabd3ffcac08abff044190fb9f52839f998cfbf8e843dbee2a89a1c5ebd",
+    "containsSensitiveBrokerIdentities": true,
+    "trackedInGit": false
+  },
+  "stopVerification": {
+    "userReportedBrowserStop": true,
+    "browserUiIndependentlyVerified": false,
+    "browserUiBlocker": "Chrome automation repeatedly failed while loading its request-header policy.",
+    "brokerSnapshotAfterStop": "All 12 observed purchases terminal and portfolio empty.",
+    "stabilityCheck": {
+      "observedAtUtc": "2026-10-08T22:37:45.425Z",
+      "purchases": 12,
+      "terminalContracts": 12,
+      "openContracts": 0,
+      "localIgnoredPath": "data/demo/incidents/connectivity-loss-2026-10-08-stability-check.json",
+      "sha256": "c70a7f3045f2bcc42f50ca0f7e95f8725cde3db69aa06ab5b2d3bcb97f545fff"
+    }
+  },
+  "localSafetyState": {
+    "apiDemoExecutionEnabled": false,
+    "deploymentGate": "BLOCKED_NO_QUALIFIED_CANDIDATE",
+    "realEndpointAllowed": false
+  },
+  "interpretation": "The USD 8.51 aggregate is incident accounting only. Mixed stakes, mixed horizons, overlapping exposure, restart ambiguity, and absent exact strategy binding make it ineligible for performance or qualification evidence.",
+  "nextEvidenceStep": "Run the frozen public-only RB100 observation protocol. Do not resume Bot Builder execution or infer profitability from public proposals."
+}
