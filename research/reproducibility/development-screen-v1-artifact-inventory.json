@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "kind": "development-screen-v1-artifact-inventory",
+  "reviewedCommit": "5a5886e0fd4c2cc4f11c19003ca327b45d79301e",
+  "observedAtUtc": "2026-10-08T16:20:00Z",
+  "artifacts": [
+    {
+      "id": "decision-matrix",
+      "path": "research/feasibility/evidence-blocker-matrix-v2-2026-10-08.json",
+      "format": "json",
+      "bytes": 24022,
+      "sha256": "09b2968438455c4a2c441f13eacb8abac25e58b947bc2908ad402aada38becee",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "development-protocol",
+      "path": "research/protocols/development-screen-v1.json",
+      "format": "json",
+      "bytes": 5826,
+      "sha256": "c7cd08b94f8d6155f16fb3f6af4b7276c3a343f972b123c647d0ffdd47ccb6e2",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package", "development-reproduction"]
+    },
+    {
+      "id": "development-summary",
+      "path": "research/results/development-screen-v1-summary.json",
+      "format": "json",
+      "bytes": 428134,
+      "sha256": "fe94ebbe52a9ed7947e7e34e90136d05c28d9afee0a2a1fdcf5dd8401f9db2cd",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package", "development-reproduction"]
+    },
+    {
+      "id": "independent-audit-markdown",
+      "path": "research/audits/development-screen-v1-independent-audit-v2.md",
+      "format": "markdown",
+      "bytes": 17389,
+      "sha256": "b9b007dd264833db9c4f6cc0f886f9e037af0934f461c6b94c2e43cd321bb10f",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "independent-audit-json",
+      "path": "research/audits/development-screen-v1-independent-audit-v2.json",
+      "format": "json",
+      "bytes": 71159,
+      "sha256": "3b66f7e3484f56d8d6a0178fe91ae14219b1b3bcd085dacf261901dc8853e9c1",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package", "development-reproduction"]
+    },
+    {
+      "id": "feasibility-v1-markdown",
+      "path": "research/feasibility/product-capability-and-payout-feasibility-2026-10-08.md",
+      "format": "markdown",
+      "bytes": 15481,
+      "sha256": "28141f5039014178da93e8a8b425aa5a81b3ad9a0030e335243eaa4ab6e8fbb3",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "feasibility-v1-json",
+      "path": "research/feasibility/product-capability-and-payout-feasibility-2026-10-08.json",
+      "format": "json",
+      "bytes": 17052,
+      "sha256": "9565bdb4b61dbcf0cf935a6ea33ef34d044cf10106ba671518c67248c7cb861a",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "product-feasibility-probe-v1",
+      "path": "research/evidence/product-feasibility-public-probe-2026-10-08-v1.json",
+      "format": "json",
+      "bytes": 5673,
+      "sha256": "9a70b7e72fe006b6eb1ebbf644f121b86ab836985749fc0cfefeff82bdc9c51a",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "range-break-probe-v2",
+      "path": "research/evidence/range-break-reconciliation-public-probe-2026-10-08-v2.json",
+      "format": "json",
+      "bytes": 5730,
+      "sha256": "27ed7b0a176ca7158f163f905fe5febd62541c0a2da07d0b92b2f0ab22031ba2",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "feasibility-protocol-v2",
+      "path": "research/protocols/feasibility-addendum-v2.md",
+      "format": "markdown",
+      "bytes": 3525,
+      "sha256": "6ae3d8143d3b9bed8f74b6b81073406b112301c5071628719ec0c9abcf2cb390",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "feasibility-addendum-v2",
+      "path": "research/feasibility/product-capability-and-payout-feasibility-addendum-v2-2026-10-08.md",
+      "format": "markdown",
+      "bytes": 15586,
+      "sha256": "05cf343b67a661b71981372ef1b69a9a4d5fae9e6268625b2360e6456a0f55b8",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "next-decision-v2",
+      "path": "research/feasibility/next-decision-v2-2026-10-08.md",
+      "format": "markdown",
+      "bytes": 2680,
+      "sha256": "a6a45602a1cf7acdb38b1262994b2e4b3c11a1d2b5f5ff4be91e678e4729ecf1",
+      "availability": "PUBLIC_TRACKED",
+      "requiredFor": ["public-package"]
+    },
+    {
+      "id": "development-ledger",
+      "path": "data/research/development-screen-v1/ledger.final.jsonl",
+      "format": "jsonl",
+      "bytes": 115485863,
+      "sha256": "23da90a773cdffb77c1f71187083985f4cf2916a38eb477875dfbdffe58dccd3",
+      "availability": "LOCAL_IGNORED_AVAILABLE_AT_INVENTORY",
+      "requiredFor": ["development-reproduction"]
+    }
+  ],
+  "developmentScreen": {
+    "batchId": "development-screen-v1",
+    "reportedOutcome": "NO_RELIABLE_EDGE_FOUND",
+    "evaluatedSlice": {
+      "symbol": "1HZ100V",
+      "fromEpoch": 1788667200,
+      "toEpochExclusive": 1791259200,
+      "expectedSeconds": 2592000,
+      "observedGenuineSeconds": 2591993,
+      "missingSeconds": 7,
+      "missingRanges": [
+        {
+          "fromEpoch": 1789085201,
+          "toEpochExclusive": 1789085208,
+          "missingSeconds": 7
+        }
+      ],
+      "selectedChunks": 2594,
+      "contentSha256": "8e3196f7d9faba44791fea5e0da1db797dd779355b656419e39667c7752a6d69",
+      "sliceManifestSha256": "a1e3d1834337c127013a2d24d5952a3cc3516bce96ae2991e154a692ffe78383",
+      "manifestPath": "data/market/1HZ100V/manifest.json",
+      "availability": "LOCAL_IGNORED_AVAILABLE_AT_INVENTORY"
+    }
+  },
+  "localArchiveSnapshot": {
+    "manifestPath": "data/market/1HZ100V/manifest.json",
+    "manifestBytes": 1179827,
+    "manifestSha256": "40dbfbd1058e1a1c8f292547c6c1b73d509c8106006d822c743bd0f2c846768e",
+    "rawDirectory": "data/market/1HZ100V/raw",
+    "chunks": 3215,
+    "compressedBytes": 13109455,
+    "rowsAcrossAllChunks": 2952114,
+    "firstEpoch": 1788417200,
+    "lastEpoch": 1791417599,
+    "warning": "This mutable archive snapshot includes data outside the evaluated slice. Independent verification keys the fixed slice by its descriptor and content hashes, not this whole-manifest hash."
+  },
+  "historicalExpansionCheckpoint": {
+    "path": "data/market/historical-backfill-status.json",
+    "bytes": 1055,
+    "sha256": "53775308222af594ce8eb08e2ebe22cdbc8c65d58cb9a7bc25863cba40f6ab44",
+    "availability": "LOCAL_IGNORED_AVAILABLE_AT_INVENTORY",
+    "reportedState": "FAILED",
+    "warning": "The checkpoint is a historical snapshot. Current process state is not inferred from it."
+  },
+  "distribution": {
+    "largeArtifactsCommitted": false,
+    "accountRecordsIncluded": false,
+    "marketDataSource": "Deriv public ticks_history and a public live tick subscription",
+    "dataRedistributionRightsReviewed": false,
+    "publicDownloadAvailable": false
+  }
+}

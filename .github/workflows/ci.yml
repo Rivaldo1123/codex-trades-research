@@ -16,5 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Verify tracked public research evidence
+        run: node src/research-status-cli.js --strict=public
       - name: Verify tests are credential-free and offline
         run: node --test

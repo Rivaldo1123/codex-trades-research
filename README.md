@@ -74,7 +74,7 @@ trading implementation is ready.
 | Evidence layer | Current verified status |
 |---|---|
 | Software correctness | Offline regression coverage passes locally; this validates code invariants, not profitability. Hosted CI status must be checked separately. |
-| Development research | The frozen 12,012-configuration 1HZ100V screen found no qualifying candidate within its narrow scope. |
+| Development research | The tracked summary reports that the frozen 12,012-configuration 1HZ100V screen found no qualifying candidate within its narrow scope. Local status separately reports whether its ignored ledger and raw archive were actually verified or reproduced. |
 | Historical execution validation | Absent: public point prices are not historical account-specific executable quotes or settlements. |
 | Prospective validation | Not started for a qualified candidate; the earlier calendar range is `NOT_ASSIGNED`, not an untouched holdout by date alone. |
 | Demo implementation | No qualified implementation exists. Existing XML is archived experimental material and the browser gate is `WAIT`. |
@@ -91,8 +91,18 @@ node src/product-feasibility-probe-cli.js --verify
 node src/range-break-reconciliation-cli.js --verify
 node src/feasibility-calculations-cli.js
 node src/research-status-cli.js
+node src/research-status-cli.js --strict=public
 node --test test/product-feasibility-probe.test.js test/feasibility-addendum.test.js test/research-status.test.js
 ```
+
+Normal status reports limitations and exits successfully. `--strict=public`
+fails on required tracked-evidence problems while allowing the large ignored
+ledger/archive to be absent. `--strict=reproduction` requires those local
+artifacts, independently recomputes ledger accounting and published totals, and
+verifies the fixed market-data slice. It still does not claim a full strategy
+signal rerun. See the
+[`research reproducibility guide`](research/REPRODUCIBILITY.md) and
+[`machine-readable artifact inventory`](research/reproducibility/development-screen-v1-artifact-inventory.json).
 
 The authorized 90-day expansion is checkpointed but incomplete. On 2026-10-08
 the public backfill stopped itself after all eight bounded `ticks_history`
@@ -119,6 +129,7 @@ node src/cli.js symbols
 node src/cli.js snapshot
 node src/strategy-search-cli.js status
 node src/research-status-cli.js
+node src/research-status-cli.js --strict=public
 ```
 
 `node src/cli.js snapshot` downloads recent one-minute candles, calculates a 20/50

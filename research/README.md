@@ -21,15 +21,14 @@ Legacy browser rows missing those identities remain on disk but contribute zero
 eligible observations. Reimporting an identical settlement cannot increase the
 count, and conflicting duplicates invalidate that identity.
 
-## Reproduce or resume the frozen development screen
+## Verify the frozen development screen
 
 Node.js 24 was used; Node.js 22 or newer is supported. The commands need no
 package installation and no credentials.
 
     node --test
-    node src/strategy-search-cli.js benchmark --count 200
-    node src/strategy-search-cli.js run
     node src/strategy-search-cli.js status
+    node src/research-status-cli.js --strict=public
 
 The frozen protocol is
 research/protocols/development-screen-v1.json. It declares 12,012 unique
@@ -43,6 +42,15 @@ The main command refuses tracked uncommitted code, validates every selected raw
 chunk checksum, verifies the exact known source gap, and rejects a checkpoint
 from another code commit, protocol, or dataset manifest. Re-running the same
 command resumes only missing configuration hashes.
+
+Do not rerun the search merely to verify the published package. The
+[`reproducibility guide`](REPRODUCIBILITY.md) defines public-checkout and local
+reproduction levels, required hashes and sizes, strict exit codes, restoration
+steps, and the known limit on a bit-for-bit strategy replay. The
+[`artifact inventory`](reproducibility/development-screen-v1-artifact-inventory.json)
+is machine-readable. A public clone normally lacks the ignored ledger and raw
+archive; that is reported as limited reproducibility, not a reproduced run or
+unexpected corruption.
 
 ## Independent v2 audit
 
@@ -74,13 +82,15 @@ None changes the deterministic result that all 12,012 configurations failed at
 least one conservative 0.80-payout window/delay. The audit deliberately did not
 launch a new large search.
 
-Reproduce the offline audit with the ignored raw archive and v1 final ledger:
+Verify and recompute the saved ledger summary with the ignored raw archive and
+v1 final ledger:
 
     node --test
-    node src/experiment-audit-cli.js
+    node src/research-status-cli.js --strict=reproduction
 
-The audit command makes no network request, authenticates no account, and cannot
-place an order.
+This command makes no network request, authenticates no account, and cannot
+place an order. It independently checks all saved scenario accounting and the
+fixed tick slice, but does not regenerate all strategy signals from prices.
 
 ## Product capability and payout feasibility gate
 
@@ -125,6 +135,7 @@ request:
     node src/range-break-reconciliation-cli.js --verify
     node src/feasibility-calculations-cli.js
     node src/research-status-cli.js
+    node src/research-status-cli.js --strict=public
     node --test test/product-feasibility-probe.test.js test/feasibility-addendum.test.js test/research-status.test.js
 
 A new public probe is deliberately opt-in and is not the recommended next

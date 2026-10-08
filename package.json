@@ -28,6 +28,8 @@
     "research:range-break-reconcile": "node src/range-break-reconciliation-cli.js --verify",
     "research:feasibility-calculate": "node src/feasibility-calculations-cli.js",
     "research:decision-status": "node src/research-status-cli.js",
+    "research:verify-public": "node src/research-status-cli.js --strict=public",
+    "research:verify-reproduction": "node src/research-status-cli.js --strict=reproduction",
     "research:audit": "node src/experiment-audit-cli.js",
     "data:pipeline": "node src/data-cli.js pipeline",
     "data:live": "node src/live-data-cli.js run",
