@@ -57,5 +57,5 @@
     "realEndpointAllowed": false
   },
   "interpretation": "The USD 8.51 aggregate is incident accounting only. Mixed stakes, mixed horizons, overlapping exposure, restart ambiguity, and absent exact strategy binding make it ineligible for performance or qualification evidence.",
-  "nextEvidenceStep": "Run the frozen public-only RB100 observation protocol. Do not resume Bot Builder execution or infer profitability from public proposals."
+  "nextEvidenceStep": "Run the frozen public-only RB100 observation v2 protocol. Do not resume Bot Builder execution or infer profitability from public proposals."
 }

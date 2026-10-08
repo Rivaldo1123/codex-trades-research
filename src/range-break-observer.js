@@ -77,6 +77,19 @@ export function validateRangeBreakObservationProtocol(protocol) {
       expectedTotal > 24) {
     throw new Error("Range Break observation request budget is inconsistent or exceeds 24 requests.");
   }
+  if (protocol.protocolId === "range-break-boundary-observation-v2") {
+    const connections = protocol.proposalConnectionPolicy;
+    const expectedConnections = Math.ceil(
+      protocol.maximumProposalSnapshots / protocol.proposalTerms.contractTypes.length,
+    );
+    if (connections?.mode !== "NEW_CONNECTION_PER_SNAPSHOT_CYCLE" ||
+        connections.maximumConnections !== expectedConnections ||
+        connections.retriesPerCycle !== 0) {
+      throw new Error("Range Break v2 proposal connection policy is inconsistent.");
+    }
+  } else if (protocol.protocolId !== "range-break-boundary-observation-v1") {
+    throw new Error("Unknown Range Break observation protocol identity.");
+  }
   return protocol;
 }
 
@@ -105,6 +118,7 @@ export function createRangeBreakObservationState(protocol) {
     lastTickEpoch: null,
     nonMonotonicTicks: 0,
     proposalFailures: 0,
+    proposalConnections: 0,
     proposalSnapshots: 0,
     reconnects: 0,
     sourceDiscontinuities: 0,
@@ -148,6 +162,79 @@ export function observationStateSummary(state) {
     ...summary
   } = state;
   return { ...summary };
+}
+
+export async function observeRangeBreakProposalCycles({
+  clientFactory,
+  now = () => new Date().toISOString(),
+  protocol,
+  signal,
+  state,
+  wait,
+  writeObservation,
+}) {
+  validateRangeBreakObservationProtocol(protocol);
+  if (protocol.protocolId !== "range-break-boundary-observation-v2") {
+    throw new Error("Bounded proposal-cycle observation requires the v2 protocol.");
+  }
+  if (typeof clientFactory !== "function" || typeof wait !== "function" ||
+      typeof writeObservation !== "function") {
+    throw new Error("Proposal-cycle observation requires injected client, wait, and writer functions.");
+  }
+  let capabilityCaptured = false;
+  while (!signal?.aborted &&
+      state.proposalSnapshots < protocol.maximumProposalSnapshots) {
+    const client = clientFactory();
+    state.proposalConnections += 1;
+    if (state.proposalConnections >
+        protocol.proposalConnectionPolicy.maximumConnections) {
+      throw new Error("Range Break proposal connection budget was exhausted.");
+    }
+    try {
+      await client.connect();
+      if (!capabilityCaptured) {
+        const capability = await client.request(
+          { contracts_for: protocol.symbol },
+          "contracts_for",
+          30_000,
+        );
+        await writeObservation({
+          observedAtUtc: now(),
+          response: sanitizePublicObservation(capability),
+          type: "capability",
+        });
+        capabilityCaptured = true;
+      }
+      for (const contractType of protocol.proposalTerms.contractTypes) {
+        if (signal?.aborted ||
+            state.proposalSnapshots >= protocol.maximumProposalSnapshots) break;
+        const request = rangeBreakObservationProposalRequest(protocol, contractType);
+        const response = await client.request(request, "proposal", 30_000);
+        state.proposalSnapshots += 1;
+        await writeObservation({
+          contractType,
+          observedAtUtc: now(),
+          request,
+          response: sanitizePublicObservation(response),
+          type: "indicative_proposal",
+        });
+      }
+    } catch (error) {
+      state.proposalFailures += 1;
+      await writeObservation({
+        error: error.message,
+        observedAtUtc: now(),
+        proposalConnection: state.proposalConnections,
+        type: "proposal_cycle_failure",
+      });
+      throw error;
+    } finally {
+      client.close();
+    }
+    if (state.proposalSnapshots >= protocol.maximumProposalSnapshots ||
+        signal?.aborted) break;
+    await wait(protocol.proposalIntervalSeconds * 1000, signal);
+  }
 }
 
 export function observationHash(value) {

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "kind": "range-break-observation-protocol",
+  "protocolId": "range-break-boundary-observation-v2",
+  "amendsWithoutReplacing": "research/protocols/range-break-observation-v1.json",
+  "frozenAtUtc": "2026-10-08T22:41:00.000Z",
+  "classification": "OBSERVATION_ONLY_NOT_STRATEGY_VALIDATION",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "authenticated": false,
+  "ordersAuthorized": false,
+  "symbol": "RB100",
+  "durationSeconds": 3600,
+  "maximumTicks": 5000,
+  "maximumReconnects": 4,
+  "proposalIntervalSeconds": 300,
+  "maximumProposalSnapshots": 12,
+  "proposalTerms": {
+    "amount": 1,
+    "basis": "stake",
+    "contractTypes": [
+      "MULTUP",
+      "MULTDOWN"
+    ],
+    "currency": "USD",
+    "multiplier": 400
+  },
+  "proposalConnectionPolicy": {
+    "mode": "NEW_CONNECTION_PER_SNAPSHOT_CYCLE",
+    "maximumConnections": 6,
+    "retriesPerCycle": 0,
+    "reason": "The v1 public proposal connection was closed while idle before its second five-minute snapshot. V2 opens one bounded connection for each two-quote cycle instead of retrying an ambiguous request."
+  },
+  "requestBudget": {
+    "capabilityRequests": 1,
+    "maximumTickSubscriptionRequests": 5,
+    "maximumProposalRequests": 12,
+    "maximumTotalRequests": 18
+  },
+  "cadenceAssumption": "NONE_DISCOVER_FROM_OBSERVATIONS",
+  "inferenceBoundary": "Recorded ticks and indicative public proposals may support capability, cadence, and price-path diagnostics only. They are not fills, sales, settlements, or historical executable profitability evidence.",
+  "stoppingConditions": [
+    "Stop at 3600 elapsed seconds.",
+    "Stop after 5000 ticks.",
+    "Stop proposal capture after 12 point quotes.",
+    "Stop the tick branch after more than four reconnects.",
+    "Never authenticate, buy, sell, cancel, or retry an order."
+  ]
+}

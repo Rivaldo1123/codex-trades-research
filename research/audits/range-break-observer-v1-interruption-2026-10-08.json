@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "range-break-observer-engineering-incident",
+  "issuedAtUtc": "2026-10-08T22:41:00.000Z",
+  "protocolId": "range-break-boundary-observation-v1",
+  "classification": "FAILED_OBSERVER_ENGINEERING_NOT_RESEARCH_RESULT",
+  "strategyEvidenceEligible": false,
+  "executionAuthorizedByThisRecord": false,
+  "session": {
+    "sessionId": "2026-10-08T22-31-59-496Z-0324bd1c-3d11-4771-9eb1-306ef9bb418d",
+    "startedAtUtc": "2026-10-08T22:31:59.496Z",
+    "stoppedAtUtc": "2026-10-08T22:40:38.644Z",
+    "ticks": 507,
+    "capabilityResponses": 1,
+    "successfulProposalResponses": 2,
+    "failedProposalSnapshots": 2,
+    "ordersPlaced": 0
+  },
+  "defect": {
+    "symptom": "The second five-minute MULTUP/MULTDOWN snapshot pair failed with 'Connect to Deriv before making a request.'",
+    "cause": "V1 kept one public proposal WebSocket idle between snapshot cycles. Deriv closed it before the second cycle, and V1 did not establish a fresh bounded connection.",
+    "effect": "Continuing would have retained healthy tick data but mostly failed proposal snapshots. No profitability conclusion can be drawn.",
+    "resolution": "V2 opens one connection for each two-proposal cycle, permits six connections, has zero retries per cycle, and preserves the same 18-message request ceiling."
+  },
+  "evidence": {
+    "localIgnoredPath": "data/range-break-observer/2026-10-08T22-31-59-496Z-0324bd1c-3d11-4771-9eb1-306ef9bb418d.jsonl",
+    "bytes": 63607,
+    "sha256": "bf76c1d218bbbd09c5888abc06765ba27dc42525f680659620f59fea7a62e507",
+    "trackedInGit": false
+  },
+  "supersededBy": "research/protocols/range-break-observation-v2.json"
+}

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   createRangeBreakObservationState,
   observationStateSummary,
+  observeRangeBreakProposalCycles,
   observeRangeBreakTick,
   rangeBreakObservationProposalRequest,
   sanitizePublicObservation,
@@ -15,7 +16,7 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const protocol = JSON.parse(await readFile(
-  path.join(root, "research", "protocols", "range-break-observation-v1.json"),
+  path.join(root, "research", "protocols", "range-break-observation-v2.json"),
   "utf8",
 ));
 
@@ -24,6 +25,8 @@ test("Range Break protocol is public, order-free, and bounded to 24 requests", (
   assert.equal(protocol.requestBudget.maximumTotalRequests, 18);
   assert.equal(protocol.authenticated, false);
   assert.equal(protocol.ordersAuthorized, false);
+  assert.equal(protocol.proposalConnectionPolicy.maximumConnections, 6);
+  assert.equal(protocol.proposalConnectionPolicy.retriesPerCycle, 0);
   const request = rangeBreakObservationProposalRequest(protocol, "MULTUP");
   assert.deepEqual(request, {
     amount: 1,
@@ -36,6 +39,35 @@ test("Range Break protocol is public, order-free, and bounded to 24 requests", (
   });
   assert.equal("buy" in request, false);
   assert.equal("sell" in request, false);
+});
+
+test("v1 remains valid evidence while v2 rejects an expanded connection policy", async () => {
+  const v1 = JSON.parse(await readFile(
+    path.join(root, "research", "protocols", "range-break-observation-v1.json"),
+    "utf8",
+  ));
+  assert.equal(validateRangeBreakObservationProtocol(v1), v1);
+  assert.throws(() => validateRangeBreakObservationProtocol({
+    ...protocol,
+    proposalConnectionPolicy: {
+      ...protocol.proposalConnectionPolicy,
+      maximumConnections: 7,
+    },
+  }), /connection policy/);
+});
+
+test("v1 live interruption is preserved as an engineering failure, not a strategy result", async () => {
+  const audit = JSON.parse(await readFile(
+    path.join(root, "research", "audits", "range-break-observer-v1-interruption-2026-10-08.json"),
+    "utf8",
+  ));
+  assert.equal(audit.classification, "FAILED_OBSERVER_ENGINEERING_NOT_RESEARCH_RESULT");
+  assert.equal(audit.strategyEvidenceEligible, false);
+  assert.equal(audit.executionAuthorizedByThisRecord, false);
+  assert.equal(audit.session.ordersPlaced, 0);
+  assert.equal(audit.session.successfulProposalResponses, 2);
+  assert.equal(audit.session.failedProposalSnapshots, 2);
+  assert.equal(audit.supersededBy, "research/protocols/range-break-observation-v2.json");
 });
 
 test("protocol validation rejects authentication, order authorization, and budget expansion", () => {
@@ -86,4 +118,55 @@ test("sanitization removes transient quote IDs and rejects any order-bearing con
     () => sanitizePublicObservation({ buy: "proposal-id" }),
     /forbidden order field buy/,
   );
+});
+
+test("v2 opens a fresh proposal client for each snapshot cycle without retrying", async () => {
+  const controller = new AbortController();
+  const state = createRangeBreakObservationState(protocol);
+  const clients = [];
+  const records = [];
+  let requestNumber = 0;
+  await observeRangeBreakProposalCycles({
+    clientFactory() {
+      const client = {
+        closed: false,
+        connected: false,
+        async connect() {
+          this.connected = true;
+        },
+        close() {
+          this.closed = true;
+        },
+        async request(request, expectedType) {
+          assert.equal(this.connected, true);
+          requestNumber += 1;
+          if (request.contracts_for) {
+            return { msg_type: "contracts_for", contracts_for: { available: [] } };
+          }
+          if (state.proposalSnapshots === 3) controller.abort();
+          return {
+            msg_type: expectedType,
+            proposal: { ask_price: 1, id: `quote-${requestNumber}` },
+          };
+        },
+      };
+      clients.push(client);
+      return client;
+    },
+    now: () => "2026-10-08T22:41:00.000Z",
+    protocol,
+    signal: controller.signal,
+    state,
+    wait: async () => {},
+    writeObservation: async (record) => records.push(record),
+  });
+
+  assert.equal(clients.length, 2);
+  assert.equal(clients.every((client) => client.closed), true);
+  assert.equal(state.proposalConnections, 2);
+  assert.equal(state.proposalSnapshots, 4);
+  assert.equal(state.proposalFailures, 0);
+  assert.equal(records.filter((record) => record.type === "capability").length, 1);
+  assert.equal(records.filter((record) => record.type === "indicative_proposal").length, 4);
+  assert.equal(JSON.stringify(records).includes("quote-"), false);
 });

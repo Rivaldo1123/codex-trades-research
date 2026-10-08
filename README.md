@@ -85,7 +85,7 @@ positive demo accounting total was rejected because the restarted browser
 produced mixed stakes, mixed horizons, and overlapping exposure.
 
 The frozen
-[`range-break-observation-v1`](research/protocols/range-break-observation-v1.json)
+[`range-break-observation-v2`](research/protocols/range-break-observation-v2.json)
 protocol is the next bounded evidence step. It runs for at most one hour, records
 at most 5,000 public RB100 ticks and 12 indicative MULTUP/MULTDOWN proposals,
 uses at most 18 public requests including bounded reconnects, and stores an
@@ -100,6 +100,12 @@ This observer measures capability, cadence, interruptions, point-price paths,
 and indicative proposal fields. It does not observe fills, early-close values,
 settlements, or historical executable profitability. Its output therefore
 cannot authorize Bot Builder or API execution.
+
+The original v1 observation attempt is preserved in a separate
+[`engineering-incident record`](research/audits/range-break-observer-v1-interruption-2026-10-08.md).
+Its proposal connection went idle and closed before the second snapshot pair.
+V2 uses one fresh bounded connection per pair, with no retries and no increase
+to the public-message ceiling.
 
 ## Frozen substantial strategy screen
 

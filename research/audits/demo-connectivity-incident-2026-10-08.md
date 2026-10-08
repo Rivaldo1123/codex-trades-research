@@ -50,7 +50,7 @@ the observed contracts would have lost under another classification.
 
 The replacement activity is not another trading bot. It is the frozen,
 unauthenticated, public-only
-[`range-break-boundary-observation-v1`](../protocols/range-break-observation-v1.json)
+[`range-break-boundary-observation-v2`](../protocols/range-break-observation-v2.json)
 session. It records RB100 ticks and a small number of sanitized indicative
 MULTUP/MULTDOWN proposals under a strict 18-request ceiling. It cannot buy,
 sell, cancel, authenticate, or authorize deployment. Public proposals remain

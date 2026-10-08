@@ -18,9 +18,8 @@ import {
   createRangeBreakObservationState,
   observationHash,
   observationStateSummary,
+  observeRangeBreakProposalCycles,
   observeRangeBreakTick,
-  rangeBreakObservationProposalRequest,
-  sanitizePublicObservation,
   validateRangeBreakObservationProtocol,
 } from "./range-break-observer.js";
 
@@ -29,7 +28,7 @@ const protocolPath = path.join(
   projectRoot,
   "research",
   "protocols",
-  "range-break-observation-v1.json",
+  "range-break-observation-v2.json",
 );
 const observationDirectory = path.join(projectRoot, "data", "range-break-observer");
 const statusPath = path.join(observationDirectory, "status.json");
@@ -95,7 +94,6 @@ async function run() {
   let writeChain = Promise.resolve();
   let statusChain = Promise.resolve();
   let fatalError = null;
-  let proposalClient = null;
   const status = {
     authenticated: false,
     endpoint: PUBLIC_ENDPOINT,
@@ -190,54 +188,15 @@ async function run() {
       }
     })();
 
-    const proposalTask = (async () => {
-      proposalClient = new DerivPublicClient(protocol.endpoint);
-      await proposalClient.connect();
-      const capability = await proposalClient.request(
-        { contracts_for: protocol.symbol },
-        "contracts_for",
-        30_000,
-      );
-      await writeObservation({
-        observedAtUtc: new Date().toISOString(),
-        response: sanitizePublicObservation(capability),
-        type: "capability",
-      });
-      while (!controller.signal.aborted &&
-          observationState.proposalSnapshots < protocol.maximumProposalSnapshots) {
-        for (const contractType of protocol.proposalTerms.contractTypes) {
-          if (controller.signal.aborted ||
-              observationState.proposalSnapshots >= protocol.maximumProposalSnapshots) break;
-          const request = rangeBreakObservationProposalRequest(protocol, contractType);
-          try {
-            const response = await proposalClient.request(request, "proposal", 30_000);
-            observationState.proposalSnapshots += 1;
-            await writeObservation({
-              contractType,
-              observedAtUtc: new Date().toISOString(),
-              request,
-              response: sanitizePublicObservation(response),
-              type: "indicative_proposal",
-            });
-          } catch (error) {
-            observationState.proposalFailures += 1;
-            observationState.proposalSnapshots += 1;
-            await writeObservation({
-              contractType,
-              error: error.message,
-              observedAtUtc: new Date().toISOString(),
-              request,
-              type: "indicative_proposal_failure",
-            });
-            if (/rate\s*limit/i.test(error.message)) return;
-          }
-        }
-        if (observationState.proposalSnapshots >= protocol.maximumProposalSnapshots) break;
-        await delay(protocol.proposalIntervalSeconds * 1000, undefined, {
-          signal: controller.signal,
-        }).catch(() => {});
-      }
-    })();
+    const proposalTask = observeRangeBreakProposalCycles({
+      clientFactory: () => new DerivPublicClient(protocol.endpoint),
+      protocol,
+      signal: controller.signal,
+      state: observationState,
+      wait: (milliseconds, signal) => delay(milliseconds, undefined, { signal })
+        .catch(() => {}),
+      writeObservation,
+    });
 
     await Promise.all([tickTask, proposalTask]);
     await writeChain;
@@ -249,7 +208,6 @@ async function run() {
     status.lastError = error.message;
   } finally {
     controller.abort();
-    proposalClient?.close();
     clearTimeout(stopTimer);
     clearInterval(statusTimer);
     process.removeListener("SIGINT", stopForSignal);
