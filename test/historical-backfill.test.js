@@ -1,13 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { DerivPublicClient } from "../src/deriv-public.js";
 import {
+  MAX_HISTORICAL_RETRIES,
   auditHistoricalWindow,
+  historicalBackoffMs,
   nextHistoricalCursor,
   parseBackfillArgs,
   validateHistoricalPage,
 } from "../src/historical-backfill-cli.js";
-import { DerivPublicClient } from "../src/deriv-public.js";
+
+test("historical retry schedule is finite and capped", () => {
+  assert.equal(MAX_HISTORICAL_RETRIES, 8);
+  assert.equal(historicalBackoffMs(1), 5_000);
+  assert.equal(historicalBackoffMs(8), 300_000);
+  assert.throws(() => historicalBackoffMs(0), /positive integer/);
+});
 
 test("historical arguments require a bounded past epoch window", () => {
   assert.deepEqual(parseBackfillArgs(["--from", "100", "--to", "200"]), {

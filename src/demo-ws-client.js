@@ -215,6 +215,45 @@ export class DerivDemoClient {
     return contracts;
   }
 
+  async getStatement({
+    actionType = "buy",
+    dateFrom,
+    dateTo,
+    limit = 100,
+  } = {}) {
+    if (actionType !== "buy") {
+      throw new Error("Safety lock: reconciliation may request only buy statement rows.");
+    }
+    if (
+      !Number.isSafeInteger(dateFrom) ||
+      dateFrom < 0 ||
+      !Number.isSafeInteger(dateTo) ||
+      dateTo < dateFrom
+    ) {
+      throw new Error("Statement reconciliation requires a valid epoch range.");
+    }
+    if (!Number.isInteger(limit) || limit < 1 || limit > 999) {
+      throw new Error("Statement reconciliation limit must be from 1 through 999.");
+    }
+    const message = await this.request(
+      {
+        action_type: actionType,
+        date_from: dateFrom,
+        date_to: dateTo,
+        description: 1,
+        limit,
+        statement: 1,
+      },
+      "statement",
+      30_000,
+    );
+    const transactions = message.statement?.transactions;
+    if (!Array.isArray(transactions)) {
+      throw new Error("Deriv did not return statement transactions.");
+    }
+    return transactions;
+  }
+
   async getProposal({
     currency,
     direction,
@@ -269,7 +308,10 @@ export class DerivDemoClient {
       30_000,
     );
     return {
-      buyPrice: Number(message.buy?.buy_price ?? price),
+      buyPrice: positiveNumber(
+        message.buy?.buy_price ?? price,
+        "Confirmed demo buy price",
+      ),
       contractId: contractId(message.buy?.contract_id),
       longcode: message.buy?.longcode ?? null,
     };

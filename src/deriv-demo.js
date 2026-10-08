@@ -57,6 +57,12 @@ export function validateDemoConfig(config) {
   ) {
     throw new Error("Safety lock: demo cooldown must be at least 15 minutes.");
   }
+  if (
+    config.risk.dailyLimitTimezone !== undefined &&
+    config.risk.dailyLimitTimezone !== "UTC"
+  ) {
+    throw new Error("Safety lock: demo calendar-day limits use UTC.");
+  }
   if (config.currency !== "USD") {
     throw new Error("Safety lock: this demo bot is configured only for USD.");
   }

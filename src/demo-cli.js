@@ -30,7 +30,16 @@ async function readJson(relativePath) {
 
 async function main() {
   const command = process.argv[2] ?? "status";
-  const config = validateDemoConfig(await readJson("config.demo.json"));
+  const config = validateDemoConfig(
+    await readJson("config.demo.json").catch((error) => {
+      if (error.code === "ENOENT") {
+        throw new Error(
+          "WAIT: demo execution is not initialized. Copy config.demo.template.json to config.demo.json, keep executionEnabled=false, and add local evidence before considering any demo run.",
+        );
+      }
+      throw error;
+    }),
+  );
 
   if (command === "learn") {
     const journalPath = path.join(projectRoot, config.learning.journalPath);

@@ -1,21 +1,40 @@
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { runFallOnlySmaFlowBacktest } from "./browser-flow-backtest.js";
-import { createBrowserLearningReport } from "./browser-learning.js";
+import {
+  createBrowserLearningReport,
+  hashBrowserStrategyConfig,
+} from "./browser-learning.js";
 import { loadArchivedTicks } from "./data-store.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export const DEFAULT_BROWSER_GATE_POLICY = Object.freeze({
+  enabled: false,
   maximumArchiveAgeHours: 6,
   minimumApiEdge: 0.01,
   minimumApiTestObservations: 5_000,
   minimumBrowserObservations: 200,
   minimumProfitFactor: 1.1,
 });
+
+export const RETIRED_BROWSER_STRATEGY = Object.freeze({
+  contract: "Fall",
+  durationTicks: 1,
+  entryDelayTicks: 1,
+  fastSmaTicks: 10,
+  slowSmaTicks: 20,
+  stakeDemoUsd: 1,
+  symbol: "1HZ100V",
+  variantId: "one-tick-fall-signal",
+});
+
+export const RETIRED_BROWSER_STRATEGY_HASH = hashBrowserStrategyConfig(
+  RETIRED_BROWSER_STRATEGY,
+);
 
 function requirement(code, pass, actual, required, explanation) {
   return { actual, code, explanation, pass, required };
@@ -31,10 +50,9 @@ export function evaluateBrowserRunGate({
   flowBacktestReport,
   now = new Date(),
   policy = DEFAULT_BROWSER_GATE_POLICY,
+  expectedStrategyHash = RETIRED_BROWSER_STRATEGY_HASH,
 }) {
-  const totals = browserVariantId
-    ? browserReport?.byVariant?.[browserVariantId] ?? {}
-    : browserReport?.totals ?? {};
+  const totals = browserReport?.byStrategyHash?.[expectedStrategyHash] ?? {};
   const averageWin =
     totals.wins > 0 ? finiteOrNull(totals.grossWins / totals.wins) : null;
   const averageLoss =
@@ -54,6 +72,21 @@ export function evaluateBrowserRunGate({
     breakEvenWinRate === null ? null : breakEvenWinRate + policy.minimumApiEdge;
 
   const requirements = [
+    requirement(
+      "legacy_gate_retired",
+      policy.enabled === true,
+      policy.enabled === true,
+      true,
+      "The old browser-flow gate is retired. A new frozen candidate must use the shared gap-aware research qualification path.",
+    ),
+    requirement(
+      "browser_evidence_integrity",
+      browserReport?.evidenceAudit?.valid === true &&
+        browserReport?.evidenceAudit?.conflictingIdentities === 0,
+      browserReport?.evidenceAudit?.status ?? null,
+      "VALID",
+      "Only non-conflicting account+contract identities bound to an exact strategy hash may count.",
+    ),
     requirement(
       "browser_sample_size",
       Number.isInteger(totals.observations) &&
@@ -120,6 +153,7 @@ export function evaluateBrowserRunGate({
           ? "dbot/Codex_Browser_Learning_OneTick_Fall_Signal.xml"
           : "dbot/Codex_Browser_Learning_OneTick_Rise.xml",
       browserVariantId,
+      expectedStrategyHash,
     },
     mode: "Deriv Demo only",
     decision: eligibleForSignalCheck ? "READY_FOR_SIGNAL" : "WAIT",
@@ -176,25 +210,45 @@ async function main() {
     "browser-bot",
     "learning-report.json",
   );
-  const runFiles = (await readdir(runsDirectory))
+  const runFiles = (await readdir(runsDirectory).catch((error) => {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }))
     .filter((file) => file.endsWith(".json"))
     .sort();
-  const [runs, ticks] = await Promise.all([
+  const [runs, tickResult] = await Promise.all([
     Promise.all(
       runFiles.map((file) =>
-        readFile(path.join(runsDirectory, file), "utf8").then(JSON.parse),
+        readFile(path.join(runsDirectory, file), "utf8").then((text) => ({
+          ...JSON.parse(text),
+          evidenceFile: file,
+        })),
       ),
     ),
-    loadArchivedTicks(projectRoot, "1HZ100V", { maxRows: 1_000_000 }),
+    loadArchivedTicks(projectRoot, "1HZ100V", { maxRows: 1_000_000 })
+      .then((ticks) => ({ ticks, error: null }))
+      .catch((error) => ({ ticks: null, error: error.message })),
   ]);
   const browserReport = createBrowserLearningReport(runs);
+  await mkdir(path.dirname(browserReportPath), { recursive: true });
   await writeFile(
     browserReportPath,
     `${JSON.stringify(browserReport, null, 2)}\n`,
     "utf8",
   );
   const browserVariantId = "one-tick-fall-signal";
-  const flowBacktestReport = runFallOnlySmaFlowBacktest(ticks);
+  const flowBacktestReport = tickResult.ticks
+    ? runFallOnlySmaFlowBacktest(tickResult.ticks)
+    : {
+        blocked: true,
+        error: `WAIT: checksummed historical evidence is unavailable: ${tickResult.error}`,
+        input: { firstEpoch: null, lastEpoch: null, ticks: 0 },
+        parameters: {
+          ...RETIRED_BROWSER_STRATEGY,
+          direction: "fall",
+        },
+        test: {},
+      };
   const flowBacktestPath = path.join(
     projectRoot,
     "data",
@@ -210,6 +264,7 @@ async function main() {
     browserReport,
     browserVariantId,
     flowBacktestReport,
+    expectedStrategyHash: RETIRED_BROWSER_STRATEGY_HASH,
   });
   const outputPath = path.join(
     projectRoot,

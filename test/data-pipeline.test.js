@@ -63,11 +63,25 @@ test("older tick-history pages supply the explicit historical start boundary", a
 test("immutable tick chunks round-trip with checksums and no overlap", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "codex-trades-test-"));
   try {
-    await appendTickChunk(root, "1HZ100V", [
-      { epoch: 1, quote: 100 },
-      { epoch: 2, quote: 101 },
-    ]);
+    await appendTickChunk(
+      root,
+      "1HZ100V",
+      [
+        { epoch: 1, quote: 100 },
+        { epoch: 2, quote: 101 },
+      ],
+      {
+        request: { startEpochInclusive: 1, endEpochInclusive: 2, count: 2 },
+        retrievedAt: "2026-10-08T00:00:00.000Z",
+      },
+    );
     let manifest = await readManifest(root, "1HZ100V");
+    assert.deepEqual(manifest.chunks[0].request, {
+      startEpochInclusive: 1,
+      endEpochInclusive: 2,
+      count: 2,
+    });
+    assert.equal(manifest.chunks[0].retrievedAt, "2026-10-08T00:00:00.000Z");
     const uncovered = filterUncoveredTicks(
       [
         { epoch: 2, quote: 101 },

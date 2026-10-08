@@ -19,6 +19,14 @@ const statusPath = path.join(marketDirectory, "historical-backfill-status.json")
 const lockPath = path.join(marketDirectory, "collector.lock");
 const REQUEST_DELAY_MS = 3_000;
 const PAGE_SIZE = 1_000; // The public service currently caps a response at 1,000 ticks.
+export const MAX_HISTORICAL_RETRIES = 8;
+
+export function historicalBackoffMs(retry) {
+  if (!Number.isInteger(retry) || retry < 1) {
+    throw new Error("Historical retry number must be a positive integer.");
+  }
+  return Math.min(300_000, 5_000 * 2 ** Math.min(retry - 1, 6));
+}
 
 export function parseBackfillArgs(args) {
   const values = new Map();
@@ -146,7 +154,13 @@ async function fetchHistoricalPage(client, symbol, fromEpoch, cursorEpoch, statu
     } catch (error) {
       if (!isTransient(error)) throw error;
       retry += 1;
-      const backoffMs = Math.min(300_000, 5_000 * 2 ** Math.min(retry - 1, 6));
+      if (retry > MAX_HISTORICAL_RETRIES) {
+        throw new Error(
+          `Historical request exhausted ${MAX_HISTORICAL_RETRIES} bounded retries: ${error.message}`,
+          { cause: error },
+        );
+      }
+      const backoffMs = historicalBackoffMs(retry);
       const retryAt = new Date(Date.now() + backoffMs).toISOString();
       await writeStatus({
         ...status,
@@ -209,7 +223,16 @@ async function run() {
       if (uncovered.length === 0) {
         throw new Error("Historical page made no archive progress.");
       }
-      const result = await appendTickChunk(projectRoot, config.symbol, uncovered);
+      const result = await appendTickChunk(projectRoot, config.symbol, uncovered, {
+        request: {
+          count: PAGE_SIZE,
+          endEpochInclusive: cursorEpoch,
+          endpoint: config.endpoint,
+          startEpochInclusive: fromEpoch,
+        },
+        retrievedAt: new Date().toISOString(),
+        source: "Deriv public ticks_history",
+      });
       manifest = result.manifest;
       cursorEpoch = nextCursor;
       status = {

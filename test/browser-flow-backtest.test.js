@@ -18,11 +18,35 @@ test("Rise-only browser flow trades qualifying SMA signals and scores payout", (
   assert.ok(report.test.observations > 0);
   assert.equal(report.test.losses, 0);
   assert.equal(report.test.winRate, 1);
+  assert.match(report.methodology.execution, /one contract/);
   assert.ok(
     Math.abs(
       report.test.netProfitPerDollarStake - report.test.observations * 0.9,
     ) < 1e-10,
   );
+});
+
+test("browser flow resets after gaps and does not inflate trades during open contracts", () => {
+  const ticks = [
+    ...Array.from({ length: 170 }, (_, index) => ({
+      epoch: 1_700_000_000 + index,
+      quote: 100 + index,
+    })),
+    ...Array.from({ length: 170 }, (_, index) => ({
+      epoch: 1_700_000_172 + index,
+      quote: 300 + index,
+    })),
+  ];
+  const report = runRiseOnlySmaFlowBacktest(ticks, {
+    entryDelayTicks: 1,
+    fastWindow: 2,
+    horizonTicks: 5,
+    payoutOnLoss: -1,
+    payoutOnWin: 0.9,
+    slowWindow: 3,
+  });
+  assert.equal(report.input.gaps.length, 1);
+  assert.ok(report.test.observations < report.input.ticks / 2);
 });
 
 test("Fall-only browser flow trades falling SMA signals and scores payout", () => {

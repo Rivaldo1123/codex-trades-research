@@ -99,7 +99,11 @@ export async function appendTickChunk(
   projectRoot,
   symbol,
   ticks,
-  { source = "Deriv public ticks_history" } = {},
+  {
+    request = null,
+    retrievedAt = new Date().toISOString(),
+    source = "Deriv public ticks_history",
+  } = {},
 ) {
   const normalized = normalizeTicks(ticks);
   if (normalized.length === 0) {
@@ -140,6 +144,8 @@ export async function appendTickChunk(
     lastEpoch,
     rows: normalized.length,
     sha256: digest,
+    request,
+    retrievedAt,
     source,
     storedAt: new Date().toISOString(),
   };

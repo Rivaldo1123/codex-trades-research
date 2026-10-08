@@ -13,9 +13,29 @@ real-money endpoint, uses a fixed USD 1 stake, permits one open contract, caps
 activity at four trades per UTC day, enforces a 15-minute cooldown, and keeps
 martingale and automatic strategy mutation disabled.
 
+UTC is also the documented timezone for the daily-loss counter. The risk gate
+reserves the next contract's maximum loss plus pending/uncertain exposure.
+Cooldown uses the latest relevant trade across dates. Purchase timeouts are
+journaled as uncertain and are never blindly retried; read-only statement and
+open-contract reconciliation must establish the outcome first.
+
 The current strategy is an educational baseline, not a claim of profitability.
 Its purpose is to verify the data pipeline and give us something measurable to
 improve before connecting a Deriv demo account.
+
+## Frozen substantial strategy screen
+
+The current structured programme is documented in
+[`research/README.md`](research/README.md). Its v1 protocol freezes 12,012
+distinct configurations across seven families before the main run, with
+324,324 separate chronological-window, entry-delay, and payout evaluations.
+All currently archived history is development-exposed; the protected final
+window is prospective, so no historical result alone can authorize Demo.
+
+The older browser-flow gate is retired and always returns `WAIT` under its
+default policy. Its legacy 99 rows lack account ID, contract ID, settlement
+status, and an exact strategy hash, so they now count as zero eligible
+settlements. This is deliberate evidence rejection, not data deletion.
 
 ## Run
 
@@ -25,6 +45,7 @@ Node.js 22 or newer is required. No third-party packages are needed.
 node --test
 node src/cli.js symbols
 node src/cli.js snapshot
+node src/strategy-search-cli.js status
 ```
 
 `node src/cli.js snapshot` downloads recent one-minute candles, calculates a 20/50
@@ -182,15 +203,11 @@ every captured run, then reruns the exact conditional-flow backtest against the
 checksummed tick archive, and only then writes the gate decision. It therefore
 cannot arm the bot from a stale aggregate report.
 
-`data/browser-bot/run-gate.json` returns `WAIT` unless all requirements pass:
-at least 200 browser settlements, the browser's 95% lower win-rate bound above
-payout break-even, profit factor of at least 1.10, at least 5,000 untouched API
-test observations for the exact conditional flow, a one-tick rate at least one
-percentage point above break-even with positive payout-adjusted return, and a
-tick archive no older than six hours.
-Passing changes the state only to `READY_FOR_SIGNAL`; the conditional bot still
-has to see its live SMA condition, the account must visibly say Demo, and the
-run remains one contract maximum.
+`data/browser-bot/run-gate.json` now returns `WAIT` because the legacy path is
+retired. Its former sample, confidence, profit-factor, API-edge, and freshness
+checks remain visible for forensic reproducibility, but cannot arm a bot. New
+evidence must also be deduplicated by account+contract identity, have validated
+numeric settlement fields/status, and match the exact strategy hash.
 
 This is the provisional gate for the earlier one-tick Fall candidate. Its
 six-hour archive freshness rule does not substitute for the requested study of
@@ -219,6 +236,12 @@ Windows schedule is required.
 validates the returned OTP URL and refuses every endpoint except
 `/trading/v1/options/ws/demo`. There is no deposit, withdrawal, transfer, or
 real-account execution path.
+
+A fresh checkout intentionally has no local demo configuration or settlement
+evidence. Copy `config.demo.template.json` to the ignored
+`config.demo.json` only when needed; the template is secret-free and disarmed.
+Missing local evidence/configuration produces a useful `WAIT`/blocked state
+and must never be filled with manufactured observations.
 
 After creating a trade-scoped PAT in Deriv, run `node src/setup-server.js` and
 open the printed `127.0.0.1` URL to save it locally. The resulting

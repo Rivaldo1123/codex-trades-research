@@ -1,4 +1,11 @@
+import {
+  deriveSmaSignals,
+  replaySequentialSignals,
+  scoreBinaryCounts,
+} from "./execution-model.js";
+
 export const BROWSER_FLOW_PARAMETERS = Object.freeze({
+  cadenceSeconds: 1,
   entryDelayTicks: 1,
   fastWindow: 10,
   horizonTicks: 1,
@@ -7,62 +14,24 @@ export const BROWSER_FLOW_PARAMETERS = Object.freeze({
   slowWindow: 20,
 });
 
-function pricePrefix(ticks) {
-  const prefix = new Float64Array(ticks.length + 1);
-  for (let index = 0; index < ticks.length; index += 1) {
-    prefix[index + 1] = prefix[index] + ticks[index].quote;
-  }
-  return prefix;
-}
-
-function evaluate(ticks, prefix, parameters, direction, start, endExclusive) {
-  const first = Math.max(start, parameters.slowWindow - 1);
-  const last = Math.min(
-    endExclusive - parameters.entryDelayTicks - parameters.horizonTicks,
-    ticks.length - parameters.entryDelayTicks - parameters.horizonTicks,
-  );
-  let wins = 0;
-  let losses = 0;
-  let skipped = 0;
-
-  for (let index = first; index < last; index += 1) {
-    const fast =
-      (prefix[index + 1] - prefix[index + 1 - parameters.fastWindow]) /
-      parameters.fastWindow;
-    const slow =
-      (prefix[index + 1] - prefix[index + 1 - parameters.slowWindow]) /
-      parameters.slowWindow;
-    const qualifies = direction === "rise" ? fast > slow : fast < slow;
-    if (!qualifies) {
-      skipped += 1;
-      continue;
-    }
-    const entryIndex = index + parameters.entryDelayTicks;
-    const entry = ticks[entryIndex].quote;
-    const exit = ticks[entryIndex + parameters.horizonTicks].quote;
-    const won = direction === "rise" ? exit > entry : exit < entry;
-    if (won) {
-      wins += 1;
-    } else {
-      // Deriv's recorded one-tick contracts treat an unchanged exit as a loss.
-      losses += 1;
-    }
-  }
-
-  const observations = wins + losses;
-  const netProfit =
-    wins * parameters.payoutOnWin + losses * parameters.payoutOnLoss;
+function evaluate(ticks, signals, parameters, startEpoch, endEpochExclusive) {
+  const replay = replaySequentialSignals({
+    cadenceSeconds: parameters.cadenceSeconds,
+    delayTicks: parameters.entryDelayTicks,
+    durationTicks: parameters.horizonTicks,
+    fromEpoch: startEpoch,
+    signals,
+    ticks,
+    toEpochExclusive: endEpochExclusive,
+  });
+  const scored = scoreBinaryCounts(replay.counts, {
+    payoutOnLoss: parameters.payoutOnLoss,
+    payoutOnWin: parameters.payoutOnWin,
+  });
   return {
-    averageProfitPerDollarStake:
-      observations === 0 ? null : netProfit / observations,
-    losses,
-    netProfitPerDollarStake: netProfit,
-    observations,
-    profitFactor:
-      losses === 0 ? null : (wins * parameters.payoutOnWin) / losses,
-    skipped,
-    winRate: observations === 0 ? null : wins / observations,
-    wins,
+    ...scored,
+    observations: scored.settledTrades,
+    skipped: scored.noSignalTicks,
   };
 }
 
@@ -74,62 +43,65 @@ export function runDirectionalSmaFlowBacktest(
   if (direction !== "rise" && direction !== "fall") {
     throw new Error('Browser-flow direction must be "rise" or "fall".');
   }
-  if (!Number.isInteger(parameters.entryDelayTicks) || parameters.entryDelayTicks < 1) {
-    throw new Error("The contract entry delay must be at least one tick.");
-  }
+  const merged = { ...BROWSER_FLOW_PARAMETERS, ...parameters };
   if (
     ticks.length <
-    parameters.slowWindow + parameters.entryDelayTicks + parameters.horizonTicks + 100
+    merged.slowWindow + merged.entryDelayTicks + merged.horizonTicks + 100
   ) {
     throw new Error("Not enough ticks for the browser-flow backtest.");
   }
-  const prefix = pricePrefix(ticks);
-  const trainBoundary = Math.floor(ticks.length * 0.7);
-  const validationBoundary = Math.floor(ticks.length * 0.85);
+  const firstEpoch = ticks[0].epoch;
+  const endEpochExclusive = ticks.at(-1).epoch + merged.cadenceSeconds;
+  const span = endEpochExclusive - firstEpoch;
+  const trainBoundary = firstEpoch + Math.floor(span * 0.7);
+  const validationBoundary = firstEpoch + Math.floor(span * 0.85);
+  const { signals, gaps } = deriveSmaSignals({
+    cadenceSeconds: merged.cadenceSeconds,
+    direction,
+    fastWindow: merged.fastWindow,
+    resetEpochs: [trainBoundary, validationBoundary],
+    slowWindow: merged.slowWindow,
+    ticks,
+  });
   return {
     generatedAt: new Date().toISOString(),
     flow:
       direction === "rise"
-        ? "Buy one-tick Rise only when SMA(10) > SMA(20); otherwise wait"
-        : "Buy one-tick Fall only when SMA(10) < SMA(20); otherwise wait",
+        ? "Buy Rise only when the fast SMA is above the slow SMA; otherwise wait"
+        : "Buy Fall only when the fast SMA is below the slow SMA; otherwise wait",
     input: {
-      firstEpoch: ticks[0].epoch,
+      firstEpoch,
+      gaps,
       lastEpoch: ticks.at(-1).epoch,
       ticks: ticks.length,
     },
     methodology: {
       entryTiming:
-        "The signal uses the current tick. A contract enters on the following tick and settles after the configured duration; execution delay beyond one tick is not modeled.",
+        "The signal uses the current tick. With the default delay, entry uses the following tick; settlement then follows the configured contract duration.",
+      execution:
+        "Shared gap-aware engine; indicator warm-up resets at gaps and split boundaries; no decision, entry, or settlement crosses a gap; at most one contract is open.",
       payoutModel:
-        `Each qualifying $1 contract is scored +$0.90 for a correct ${direction} and -$1.00 for the opposite move or a tie, matching the captured Demo batches.`,
+        `Each qualifying $1 contract is scored +$${merged.payoutOnWin.toFixed(2)} on a win and $${merged.payoutOnLoss.toFixed(2)} on a loss or tie. These are assumptions, not historical executable quotes.`,
       selection:
-        `The 10/20 windows came from the prior validation-selected one-tick SMA candidate. This report measures the symmetric ${direction}-only gate without reselecting on the test segment.`,
-      split: "Chronological 70/15/15; each entry and settlement remains inside its own split.",
+        "This legacy candidate is retained for reproducibility but its browser gate is retired.",
+      split:
+        "Chronological 70/15/15 by UTC epoch with boundary resets and no cross-segment settlement.",
     },
-    parameters: { ...parameters, direction },
-    training: evaluate(
-      ticks,
-      prefix,
-      parameters,
-      direction,
-      0,
-      trainBoundary,
-    ),
+    parameters: { ...merged, direction },
+    training: evaluate(ticks, signals, merged, firstEpoch, trainBoundary),
     validation: evaluate(
       ticks,
-      prefix,
-      parameters,
-      direction,
+      signals,
+      merged,
       trainBoundary,
       validationBoundary,
     ),
     test: evaluate(
       ticks,
-      prefix,
-      parameters,
-      direction,
+      signals,
+      merged,
       validationBoundary,
-      ticks.length,
+      endEpochExclusive,
     ),
   };
 }

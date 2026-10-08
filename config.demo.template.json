@@ -1,0 +1,38 @@
+{
+  "mode": "demo-only",
+  "executionEnabled": false,
+  "appId": "YOUR_DERIV_APP_ID",
+  "accountId": null,
+  "symbol": "1HZ100V",
+  "currency": "USD",
+  "strategy": {
+    "name": "DISARMED_UNQUALIFIED_TEMPLATE",
+    "candleCount": 200,
+    "granularitySeconds": 60,
+    "fastWindow": 20,
+    "slowWindow": 50,
+    "contractDuration": 5,
+    "contractDurationUnit": "t",
+    "settlementTimeoutSeconds": 90
+  },
+  "risk": {
+    "stakeDemoUsd": 1,
+    "maxOpenContracts": 1,
+    "maxTradesPerDay": 4,
+    "maxDailyLossDemoUsd": 5,
+    "cooldownMinutes": 15,
+    "dailyLimitTimezone": "UTC",
+    "martingale": false
+  },
+  "learning": {
+    "journalPath": "data/demo/trade-events.jsonl",
+    "reportPath": "data/demo/learning-report.json",
+    "automaticParameterChanges": false
+  },
+  "promotionGate": {
+    "minimumForwardTrades": 500,
+    "minimumPositiveRate": 0.53,
+    "minimumAverageSignedReturn": 0
+  },
+  "realEndpointAllowed": false
+}

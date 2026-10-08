@@ -16,6 +16,7 @@ const config = {
     maxDailyLossDemoUsd: 5,
     maxOpenContracts: 1,
     maxTradesPerDay: 4,
+    stakeDemoUsd: 1,
   },
 };
 
@@ -77,6 +78,81 @@ test("risk gate enforces open-position, daily, loss, and cooldown limits", () =>
   assert.equal(risk.allowed, false);
   assert.equal(risk.dailyLoss, 5);
   assert.equal(risk.tradesToday, 4);
+});
+
+test("cooldown uses the latest relevant trade across a UTC date boundary", () => {
+  const risk = assessDemoRisk({
+    config,
+    events: [
+      {
+        profit: 0.9,
+        stage: "settled",
+        startedAt: "2026-10-06T23:59:00.000Z",
+        tradeId: "cross-midnight",
+      },
+    ],
+    openContracts: [],
+    now: new Date("2026-10-07T00:05:00.000Z"),
+  });
+  assert.equal(risk.tradesToday, 0);
+  assert.equal(risk.dailyLimitTimezone, "UTC");
+  assert.equal(risk.cooldownRemainingSeconds, 540);
+  assert.ok(risk.reasons.includes("The demo cooldown has not elapsed."));
+});
+
+test("risk reserves the next maximum loss and permits the exact loss boundary", () => {
+  const events = [
+    {
+      profit: -4,
+      stage: "settled",
+      startedAt: "2026-10-06T18:00:00.000Z",
+      tradeId: "loss",
+    },
+  ];
+  const atBoundary = assessDemoRisk({
+    config,
+    events,
+    nextMaximumLoss: 1,
+    openContracts: [],
+    now: new Date("2026-10-06T20:00:00.000Z"),
+  });
+  assert.equal(atBoundary.projectedDailyLoss, 5);
+  assert.equal(atBoundary.allowed, true);
+
+  const overBoundary = assessDemoRisk({
+    config,
+    events,
+    nextMaximumLoss: 1.01,
+    openContracts: [],
+    now: new Date("2026-10-06T20:00:00.000Z"),
+  });
+  assert.equal(overBoundary.allowed, false);
+  assert.match(overBoundary.reasons.join(" "), /would exceed/);
+});
+
+test("pending and uncertain outcomes reserve exposure and block another run", () => {
+  const risk = assessDemoRisk({
+    config,
+    events: [
+      {
+        maximumLoss: 1,
+        stage: "pending",
+        startedAt: "2026-10-06T19:50:00.000Z",
+        tradeId: "unknown",
+      },
+      {
+        stage: "uncertain",
+        tradeId: "unknown",
+      },
+    ],
+    nextMaximumLoss: 1,
+    openContracts: [],
+    now: new Date("2026-10-06T20:10:00.000Z"),
+  });
+  assert.equal(risk.reservedPendingLoss, 1);
+  assert.equal(risk.unresolvedTrades, 1);
+  assert.equal(risk.allowed, false);
+  assert.match(risk.reasons.join(" "), /must be reconciled/);
 });
 
 test("learning report uses settled forward-demo outcomes only", () => {

@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { open, unlink } from "node:fs/promises";
 import path from "node:path";
 
@@ -15,8 +15,36 @@ import {
   writeLearningReport,
 } from "./demo-learning.js";
 import { assessDemoRisk } from "./demo-risk.js";
+import { reconcileUnresolvedDemoTrades } from "./demo-trade-state.js";
 import { DerivDemoClient, directionToContractType } from "./demo-ws-client.js";
 import { buildSignals } from "./research.js";
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, item]) => [key, canonicalize(item)]),
+    );
+  }
+  return value;
+}
+
+export function hashDemoStrategyConfig(config) {
+  return createHash("sha256")
+    .update(
+      JSON.stringify(
+        canonicalize({
+          currency: config.currency,
+          stakeDemoUsd: config.risk.stakeDemoUsd,
+          strategy: config.strategy,
+          symbol: config.symbol,
+        }),
+      ),
+    )
+    .digest("hex");
+}
 
 export function buildDemoDecision(candles, strategy) {
   if (candles.length < strategy.slowWindow) {
@@ -112,21 +140,29 @@ export async function tradeDemoOnce({ config, credentials, projectRoot }) {
     const connection = await connectDemo(config, credentials);
     client = connection.client;
 
-    const [candles, balanceBefore, portfolio, events] = await Promise.all([
+    let events = await readTradeEvents(journalPath);
+    const reconciliation = await reconcileUnresolvedDemoTrades({
+      client,
+      events,
+      appendEvent: (event) => appendTradeEvent(journalPath, event),
+    });
+    events = [...events, ...reconciliation.appended];
+    if (reconciliation.blockers.length > 0) {
+      throw new Error(
+        "Demo execution blocked by unresolved broker outcome: " +
+          reconciliation.blockers.map((item) => item.reason).join(" "),
+      );
+    }
+
+    const [candles, balanceBefore, portfolio] = await Promise.all([
       client.getCandles(config.symbol, {
         count: config.strategy.candleCount,
         granularity: config.strategy.granularitySeconds,
       }),
       client.getBalance(),
       client.getPortfolio(),
-      readTradeEvents(journalPath),
     ]);
     const decision = buildDemoDecision(candles, config.strategy);
-    const risk = assessDemoRisk({ config, events, openContracts: portfolio });
-    if (!risk.allowed) {
-      throw new Error(`Demo risk gate blocked the trade: ${risk.reasons.join(" ")}`);
-    }
-
     const proposal = await client.getProposal({
       currency: config.currency,
       direction: decision.direction,
@@ -138,31 +174,79 @@ export async function tradeDemoOnce({ config, credentials, projectRoot }) {
     if (proposal.askPrice > config.risk.stakeDemoUsd) {
       throw new Error("Safety lock: proposal price exceeds the configured demo stake.");
     }
+    const risk = assessDemoRisk({
+      config,
+      events,
+      nextMaximumLoss: proposal.askPrice,
+      openContracts: portfolio,
+    });
+    if (!risk.allowed) {
+      throw new Error(`Demo risk gate blocked the trade: ${risk.reasons.join(" ")}`);
+    }
 
     const tradeId = randomUUID();
     const startedAt = new Date().toISOString();
+    const strategyHash = hashDemoStrategyConfig(config);
     await appendTradeEvent(journalPath, {
       ...decision,
       eventAt: startedAt,
-      stage: "intent",
+      maximumLoss: proposal.askPrice,
+      stage: "pending",
       stake: config.risk.stakeDemoUsd,
       startedAt,
+      strategyHash,
       symbol: config.symbol,
       tradeId,
     });
 
-    const purchase = await client.buyProposal(proposal.id, proposal.askPrice);
+    let purchase;
+    try {
+      purchase = await client.buyProposal(proposal.id, proposal.askPrice);
+    } catch (error) {
+      await appendTradeEvent(journalPath, {
+        eventAt: new Date().toISOString(),
+        failure: error.message,
+        maximumLoss: proposal.askPrice,
+        stage: "uncertain",
+        tradeId,
+        uncertainty: "Purchase request may have reached the broker; never retry blindly.",
+      });
+      throw new Error(
+        "Demo purchase outcome is uncertain and must be reconciled from broker records before another run.",
+        { cause: error },
+      );
+    }
     await appendTradeEvent(journalPath, {
       buyPrice: purchase.buyPrice,
       contractId: purchase.contractId,
       eventAt: new Date().toISOString(),
-      stage: "bought",
+      maximumLoss: purchase.buyPrice,
+      reconciliationStatus: "broker_purchase_confirmed",
+      stage: "reconciled",
       tradeId,
     });
 
-    const settled = await client.waitForSettlement(purchase.contractId, {
-      timeoutMs: config.strategy.settlementTimeoutSeconds * 1_000,
-    });
+    let settled;
+    try {
+      settled = await client.waitForSettlement(purchase.contractId, {
+        timeoutMs: config.strategy.settlementTimeoutSeconds * 1_000,
+      });
+    } catch (error) {
+      await appendTradeEvent(journalPath, {
+        buyPrice: purchase.buyPrice,
+        contractId: purchase.contractId,
+        eventAt: new Date().toISOString(),
+        failure: error.message,
+        maximumLoss: purchase.buyPrice,
+        stage: "uncertain",
+        tradeId,
+        uncertainty: "Known contract outcome could not be established.",
+      });
+      throw new Error(
+        "Demo contract outcome is uncertain and must be reconciled before another run.",
+        { cause: error },
+      );
+    }
     const balanceAfter = await client.getBalance();
     const profit = Number(settled.profit);
     if (!Number.isFinite(profit)) {
@@ -176,6 +260,7 @@ export async function tradeDemoOnce({ config, credentials, projectRoot }) {
       eventAt: closedAt,
       exitSpot: Number(settled.exit_spot ?? settled.exit_tick),
       profit,
+      reconciled: true,
       stage: "settled",
       status: String(settled.status ?? (profit > 0 ? "won" : "lost")),
       tradeId,

@@ -1,0 +1,52 @@
+{
+  "kind": "strategy-search-benchmark",
+  "generatedAt": "2026-10-08T12:54:48.081Z",
+  "batchId": "development-screen-v1",
+  "protocolSha256": "c7cd08b94f8d6155f16fb3f6af4b7276c3a343f972b123c647d0ffdd47ccb6e2",
+  "sampleConfigurations": 200,
+  "uniquePlannedConfigurations": 12012,
+  "evaluationWindowsPerConfiguration": 3,
+  "stressScenariosPerWindow": 9,
+  "plannedBacktestRuns": 324324,
+  "elapsedEvaluationSeconds": 2.6023080000000007,
+  "secondsPerConfiguration": 0.013011540000000004,
+  "expectedEvaluationSeconds": 156.29461848000005,
+  "expectedTotalSeconds": 169.45303888000007,
+  "recommendedWorkerCount": 1,
+  "rationale": "One worker shares the cached feature arrays and stays within the 4 GB host; process workers would duplicate the archive and cache.",
+  "preparation": {
+    "archiveAuditSeconds": 12.5367272,
+    "featureBuildSeconds": 0.6216931999999997,
+    "totalPreparationSeconds": 13.158420399999999
+  },
+  "dataset": {
+    "symbol": "1HZ100V",
+    "fromEpoch": 1788667200,
+    "toEpochExclusive": 1791259200,
+    "expectedSeconds": 2592000,
+    "observedGenuineSeconds": 2591993,
+    "missingSeconds": 7,
+    "coverage": 0.9999972993827161,
+    "missingRanges": [
+      {
+        "fromEpoch": 1789085201,
+        "toEpochExclusive": 1789085208,
+        "missingSeconds": 7
+      }
+    ],
+    "selectedChunks": 2594,
+    "manifestSha256": "da4b901cde363a48d92e2d2ecafabb12a20fdae69c07300fcb070da6ea22599c",
+    "checks": "Selected chunk SHA-256, row counts, bounds, ordering, duplicate/conflict rejection, and every eligible UTC second verified."
+  },
+  "featureCache": {
+    "decisions": 43200,
+    "featureBytes": 74131220
+  },
+  "memory": {
+    "rss": 235061248,
+    "heapTotal": 82632704,
+    "heapUsed": 29698072,
+    "external": 100436530,
+    "arrayBuffers": 98042673
+  }
+}

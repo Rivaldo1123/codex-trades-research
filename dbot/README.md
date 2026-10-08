@@ -18,6 +18,13 @@ The current one-day local exact-flow test rejects the conditional Fall candidate
 (49.56% wins versus a 52.63% payout break-even rate after modeling next-tick
 entry). It has no matching Demo settlements. The run gate says `WAIT`.
 
+The legacy browser-flow gate is now explicitly retired. It cannot return an
+actionable state under the default policy, and the old captured rows are
+ineligible because they lack account+contract identity, validated settlement
+status, and the exact strategy/configuration hash. A future candidate must pass
+the frozen shared gap-aware research path and collect new matching Demo
+settlements; do not retrofit identities onto old rows.
+
 The browser-visible workspace is separately saved as **Codex Browser Learning
 - One-Shot Gate**. Its automatic `Trade again` block is disabled and both error
 restart toggles are off. Because Chrome currently blocks programmatic XML file

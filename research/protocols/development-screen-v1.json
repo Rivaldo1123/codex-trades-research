@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "batchId": "development-screen-v1",
+  "status": "FROZEN_BEFORE_MAIN_SEARCH",
+  "frozenAtUtc": "2026-10-08T12:45:00.000Z",
+  "objective": "Screen diverse fixed-stake Rise/Fall hypotheses without treating exposed historical ticks or assumed payouts as executable-profit evidence.",
+  "priorExposure": {
+    "allProjectHistoryThroughUtcExclusive": "2026-10-08T12:45:00.000Z",
+    "developmentWindowPreviouslyViewed": true,
+    "notes": [
+      "The complete September 6 through October 6 1HZ100V archive and all earlier reports in this repository are development-exposed.",
+      "The October 7 pilot and multi-symbol samples are development-exposed.",
+      "No historical period currently present in the project is an untouched final holdout."
+    ]
+  },
+  "dataset": {
+    "source": "Deriv public ticks_history",
+    "authentication": "none",
+    "symbol": "1HZ100V",
+    "cadenceSeconds": 1,
+    "fromEpochInclusive": 1788667200,
+    "toEpochExclusive": 1791259200,
+    "knownMissingRanges": [
+      {
+        "fromEpoch": 1789085201,
+        "toEpochExclusive": 1789085208,
+        "missingTicks": 7
+      }
+    ],
+    "rawDataPreviouslyViewed": true,
+    "historicalPricesAreExecutableQuotes": false
+  },
+  "decisionSampling": {
+    "utcCadenceSeconds": 60,
+    "rule": "Evaluate at genuine ticks whose UTC epoch is divisible by 60.",
+    "oneOpenContract": true,
+    "ties": "loss",
+    "gapRule": "Indicator warm-up resets after a missing tick and at every evaluation-window boundary. Decision, entry, and settlement must remain contiguous and inside one window."
+  },
+  "searchBudget": {
+    "families": {
+      "unconditional_baseline": 12,
+      "sma_trend": 2000,
+      "sma_reversion": 2000,
+      "momentum_trend": 2000,
+      "momentum_reversion": 2000,
+      "channel_breakout": 2000,
+      "zscore_reversion": 2000
+    },
+    "plannedUniqueConfigurations": 12012,
+    "selectionWithinFamily": "Enumerate the declared grid, sort by SHA-256(batch seed + canonical configuration), and take the fixed family quota.",
+    "adaptiveSearch": false,
+    "stoppingRule": "Complete exactly the frozen valid configuration set unless a fatal dataset or engine validation error occurs."
+  },
+  "parameterRanges": {
+    "durationsTicks": [1, 2, 3, 5, 7, 10],
+    "entryDelayTicks": [1, 2, 3],
+    "profitPerDollarOnWin": [0.7, 0.8, 0.9],
+    "profitPerDollarOnLossOrTie": -1,
+    "sma": {
+      "fastWindows": [3, 5, 8, 10, 15, 20, 30, 45],
+      "slowWindows": [20, 30, 45, 60, 90, 120, 180, 240],
+      "minimumSeparationBps": [0, 0.1, 0.25, 0.5, 1, 2],
+      "volatilityWindows": [10, 30, 60],
+      "minimumVolatilityBps": [0, 0.25, 0.5]
+    },
+    "momentum": {
+      "lookbackTicks": [1, 2, 3, 5, 8, 13, 21, 34, 55, 89],
+      "minimumMoveBps": [0, 0.05, 0.1, 0.25, 0.5, 1, 2, 3],
+      "volatilityWindows": [10, 30, 60],
+      "minimumVolatilityBps": [0, 0.25, 0.5]
+    },
+    "channel": {
+      "lookbackTicks": [5, 8, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240],
+      "breakoutBufferBps": [0, 0.05, 0.1, 0.25, 0.5, 1, 2, 3],
+      "volatilityWindows": [10, 30, 60],
+      "minimumVolatilityBps": [0, 0.25, 0.5]
+    },
+    "zscore": {
+      "lookbackTicks": [5, 8, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240],
+      "absoluteThreshold": [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3],
+      "volatilityWindows": [10, 30, 60],
+      "minimumVolatilityBps": [0, 0.25, 0.5]
+    }
+  },
+  "evaluationWindows": [
+    {
+      "id": "dev-early",
+      "fromEpochInclusive": 1788667200,
+      "toEpochExclusive": 1789531200
+    },
+    {
+      "id": "dev-middle",
+      "fromEpochInclusive": 1789531200,
+      "toEpochExclusive": 1790395200
+    },
+    {
+      "id": "dev-late",
+      "fromEpochInclusive": 1790395200,
+      "toEpochExclusive": 1791259200
+    }
+  ],
+  "acceptanceRules": {
+    "basePayoutOnWin": 0.9,
+    "stressPayoutOnWin": 0.8,
+    "reportedSevereStressPayoutOnWin": 0.7,
+    "minimumBaseAverageProfitPerDollarStaked": 0.02,
+    "minimumStressAverageProfitPerDollarStaked": 0.01,
+    "minimumSettledTradesTotal": 1000,
+    "minimumSettledTradesPerWindow": 200,
+    "minimumActiveCalendarDays": 20,
+    "maximumDrawdownStakeUnits": 50,
+    "maximumLongestLosingStreak": 12,
+    "requiredWindowsPositiveAtStress": 3,
+    "requiredEntryDelaysPositiveAtStress": [1, 2, 3],
+    "familyWiseAlpha": 0.05,
+    "multipleTesting": "One-sided Student t test on UTC-day block mean returns with Bonferroni adjustment across all 12,012 searched configurations.",
+    "dependenceAwareCheck": "Deterministic UTC-day block bootstrap for the predefined top 20 robustness-ranked configurations; qualifying lower bound must exceed zero.",
+    "bootstrapConfidence": 0.99,
+    "bootstrapRepetitions": 20000,
+    "bootstrapSeed": 20261008,
+    "minimumNearbyPositiveFraction": 0.6,
+    "nearbyConfigurations": 10,
+    "maximumFinalShortlist": 3
+  },
+  "ranking": [
+    "Pass/fail frozen acceptance rules",
+    "Worst stress expectancy across windows and entry delays",
+    "Bonferroni-adjusted day-block evidence",
+    "Nearby-setting stability",
+    "Lower drawdown",
+    "Base expectancy"
+  ],
+  "protectedFinalEvaluation": {
+    "availableNow": false,
+    "prospectiveWindowUtc": {
+      "fromInclusive": "2026-10-09T00:00:00.000Z",
+      "toExclusive": "2026-11-08T00:00:00.000Z"
+    },
+    "candidateLimit": 3,
+    "rule": "Evaluate only frozen finalists that pass every development rule. Performance is inspected once after the window closes and a row-level audit passes. Operational health may be monitored without performance metrics.",
+    "status": "NEW_DATA_REQUIRED"
+  },
+  "safety": {
+    "fixedNormalizedStake": 1,
+    "martingale": false,
+    "lossRecoverySizing": false,
+    "ordersAuthorized": false,
+    "demoExecutionAuthorized": false,
+    "realMoneyExecutionAuthorized": false
+  }
+}

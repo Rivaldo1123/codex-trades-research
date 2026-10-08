@@ -6,6 +6,7 @@ data/market/
 data/datasets/
 data/backtests/
 data/browser-bot/
+data/research/
 node_modules/
 .env
 .env.*
