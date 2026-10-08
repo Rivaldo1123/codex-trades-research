@@ -10,7 +10,12 @@ import {
   selectDemoAccount,
   validateDemoConfig,
 } from "./deriv-demo.js";
-import { createDemoPlan, tradeDemoOnce } from "./demo-bot.js";
+import {
+  createDemoPlan,
+  hashDemoStrategyConfig,
+  tradeDemoOnce,
+} from "./demo-bot.js";
+import { verifyDemoDeploymentEligibility } from "./demo-deployment-gate.js";
 import {
   createLearningReport,
   readTradeEvents,
@@ -50,6 +55,26 @@ async function main() {
     return;
   }
 
+  let deploymentGate;
+  try {
+    const eligible = await verifyDemoDeploymentEligibility({
+      config,
+      projectRoot,
+      strategyHash: hashDemoStrategyConfig(config),
+    });
+    deploymentGate = {
+      candidateId: eligible.candidateId,
+      executionAuthorized: true,
+      state: "QUALIFIED_FOR_CONTROLLED_DEMO_VALIDATION",
+    };
+  } catch (error) {
+    deploymentGate = {
+      executionAuthorized: false,
+      reason: error.message,
+      state: "BLOCKED",
+    };
+  }
+
   const secrets = await readJson("secrets.local.json").catch((error) => {
     if (error.code === "ENOENT") {
       throw new Error(
@@ -70,6 +95,7 @@ async function main() {
           disclaimer:
             "Demo experiment only. The baseline has not demonstrated a reliable edge.",
           executionEnabled: config.executionEnabled,
+          deploymentGate,
           realEndpointAllowed: config.realEndpointAllowed,
         },
         null,
@@ -123,6 +149,7 @@ async function main() {
         accountIdSuffix: id.slice(-4),
         demoEndpointVerified: websocketUrl.pathname,
         executionEnabled: config.executionEnabled,
+        deploymentGate,
         mode: config.mode,
         realEndpointAllowed: config.realEndpointAllowed,
       },

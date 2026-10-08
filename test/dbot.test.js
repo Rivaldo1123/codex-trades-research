@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -8,6 +9,18 @@ const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+
+test("every XML workspace is registered as an immutable disarmed archive", async () => {
+  const registry = JSON.parse(await readFile(
+    path.join(projectRoot, "dbot", "archive-registry.json"), "utf8"));
+  assert.equal(registry.executionAuthorized, false);
+  assert.equal(registry.deploymentGate, "WAIT_NO_QUALIFIED_CANDIDATE");
+  for (const artifact of registry.artifacts) {
+    const bytes = await readFile(path.join(projectRoot, "dbot", artifact.file));
+    assert.equal(bytes.length, artifact.bytes);
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), artifact.sha256);
+  }
+});
 
 test("Deriv Bot XML keeps its fixed-stake demo guardrails", async () => {
   const xml = await readFile(

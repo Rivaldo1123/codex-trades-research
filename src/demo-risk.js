@@ -7,6 +7,10 @@ function utcDay(value) {
   return new Date(value).toISOString().slice(0, 10);
 }
 
+function validDate(value) {
+  return typeof value === "string" && !Number.isNaN(Date.parse(value));
+}
+
 export function isUnresolvedDemoTrade(trade) {
   if (!trade || trade.stage === "settled") return false;
   if (
@@ -73,13 +77,25 @@ export function assessDemoRisk({
   const todaysTrades = trades.filter(
     (trade) => relevantForTradeLimits(trade) && utcDay(trade.startedAt) === today,
   );
-  const settledToday = todaysTrades.filter(
-    (trade) => trade.stage === "settled" && Number.isFinite(trade.profit),
-  );
-  const netProfitToday = settledToday.reduce(
-    (sum, trade) => sum + trade.profit,
-    0,
-  );
+  const netProfitToday = trades.reduce((sum, trade) => {
+    let realized = 0;
+    if (trade.stage === "settled" && Number.isFinite(trade.profit)) {
+      const realizedAt = validDate(trade.closedAt)
+        ? trade.closedAt
+        : validDate(trade.eventAt)
+          ? trade.eventAt
+          : trade.startedAt;
+      if (validDate(realizedAt) && utcDay(realizedAt) === today) {
+        realized += trade.profit;
+      }
+    }
+    for (const correction of trade.settlementAdjustments ?? []) {
+      if (validDate(correction.correctedAt) && utcDay(correction.correctedAt) === today) {
+        realized += correction.profitAdjustment;
+      }
+    }
+    return sum + realized;
+  }, 0);
   const dailyLoss = Math.max(0, -netProfitToday);
   const unresolvedTrades = trades.filter(isUnresolvedDemoTrade);
   const reservedPendingLoss = pendingExposure(

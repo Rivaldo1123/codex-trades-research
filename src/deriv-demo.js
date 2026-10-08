@@ -66,6 +66,23 @@ export function validateDemoConfig(config) {
   if (config.currency !== "USD") {
     throw new Error("Safety lock: this demo bot is configured only for USD.");
   }
+  if (typeof config.symbol !== "string" || !/^[A-Za-z0-9_]{2,30}$/.test(config.symbol)) {
+    throw new Error("Safety lock: demo symbol format is invalid.");
+  }
+  if (typeof config.strategy?.name !== "string" || config.strategy.name.trim() === "" ||
+      !Number.isInteger(config.strategy.fastWindow) || config.strategy.fastWindow < 1 ||
+      !Number.isInteger(config.strategy.slowWindow) ||
+      config.strategy.slowWindow <= config.strategy.fastWindow ||
+      !Number.isInteger(config.strategy.candleCount) ||
+      config.strategy.candleCount < config.strategy.slowWindow ||
+      config.strategy.candleCount > 1000 ||
+      !Number.isInteger(config.strategy.granularitySeconds) ||
+      config.strategy.granularitySeconds < 1 ||
+      !Number.isInteger(config.strategy.settlementTimeoutSeconds) ||
+      config.strategy.settlementTimeoutSeconds < 10 ||
+      config.strategy.settlementTimeoutSeconds > 300) {
+    throw new Error("Safety lock: demo strategy timing or indicator configuration is invalid.");
+  }
   if (
     config.strategy?.contractDuration !== 5 ||
     config.strategy?.contractDurationUnit !== "t"
@@ -74,6 +91,16 @@ export function validateDemoConfig(config) {
   }
   if (config.learning?.automaticParameterChanges !== false) {
     throw new Error("Safety lock: automatic strategy mutation must remain disabled.");
+  }
+  for (const [label, relativePath] of [
+    ["journal", config.learning?.journalPath],
+    ["report", config.learning?.reportPath],
+  ]) {
+    if (typeof relativePath !== "string" ||
+        !/^data\/demo\/[A-Za-z0-9._/-]+$/.test(relativePath) ||
+        relativePath.split("/").includes("..")) {
+      throw new Error(`Safety lock: demo ${label} path must stay under data/demo/.`);
+    }
   }
   requireNonEmptyString(config.appId, "Deriv app ID");
   return config;

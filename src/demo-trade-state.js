@@ -1,37 +1,18 @@
+import {
+  settlementJournalEvent,
+  strictFiniteNumber,
+  strictPositiveInteger,
+  validateContractIdentity,
+} from "./demo-contract-validation.js";
 import { groupTrades } from "./demo-learning.js";
 import { isUnresolvedDemoTrade } from "./demo-risk.js";
 
-const FINAL_CONTRACT_STATUSES = new Set(["won", "lost", "sold", "cancelled"]);
-
-function positiveContractId(value) {
-  const parsed = Number(value);
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
-    throw new Error("Broker reconciliation returned an invalid contract ID.");
-  }
-  return parsed;
-}
-
-function finite(value, label) {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    throw new Error(`Broker reconciliation returned non-numeric ${label}.`);
-  }
-  return parsed;
-}
-
-function contractIsFinal(contract) {
-  const status = String(contract.status ?? "").toLowerCase();
-  return Number(contract.is_sold) === 1 || FINAL_CONTRACT_STATUSES.has(status);
-}
-
 function statementContractId(transaction) {
-  const candidate =
-    transaction.contract_id ??
-    transaction.contractId ??
-    transaction.reference_id ??
-    transaction.referenceId;
   try {
-    return positiveContractId(candidate);
+    return strictPositiveInteger(
+      transaction.contract_id ?? transaction.contractId,
+      "Statement contract ID",
+    );
   } catch {
     return null;
   }
@@ -41,69 +22,51 @@ function statementMatchesTrade(transaction, trade, nowEpoch) {
   if (String(transaction.action_type ?? transaction.actionType ?? "").toLowerCase() !== "buy") {
     return false;
   }
-  const transactionEpoch = Number(
-    transaction.transaction_time ?? transaction.transactionTime,
-  );
+  let transactionEpoch;
+  let amount;
+  try {
+    transactionEpoch = strictPositiveInteger(
+      transaction.transaction_time ?? transaction.transactionTime,
+      "Statement transaction time",
+    );
+    amount = Math.abs(strictFiniteNumber(transaction.amount, "Statement amount"));
+  } catch {
+    return false;
+  }
   const startedEpoch = Math.floor(Date.parse(trade.startedAt) / 1_000);
-  if (
-    !Number.isSafeInteger(transactionEpoch) ||
-    !Number.isSafeInteger(startedEpoch) ||
-    transactionEpoch < startedEpoch - 5 ||
-    transactionEpoch > nowEpoch
-  ) {
+  if (!Number.isSafeInteger(startedEpoch) || transactionEpoch < startedEpoch - 5 ||
+      transactionEpoch > nowEpoch) {
     return false;
   }
-  const amount = Math.abs(Number(transaction.amount));
-  const maximumLoss = Number(
+  const maximumLoss = strictFiniteNumber(
     trade.maximumLoss ?? trade.buyPrice ?? trade.stake,
+    "Intended maximum loss",
+    { positive: true },
   );
-  if (
-    Number.isFinite(maximumLoss) &&
-    maximumLoss > 0 &&
-    Number.isFinite(amount) &&
-    Math.abs(amount - maximumLoss) > 1e-6
-  ) {
-    return false;
-  }
-  return true;
+  return Math.abs(amount - maximumLoss) <= 1e-8;
 }
 
-function settledEvent(trade, contract, now) {
-  const contractId = positiveContractId(
-    contract.contract_id ?? contract.contractId ?? trade.contractId,
-  );
-  if (trade.contractId && String(trade.contractId) !== String(contractId)) {
-    throw new Error("Broker reconciliation returned a different contract identity.");
+function normalizeStatementResult(result) {
+  if (Array.isArray(result)) {
+    return {
+      coverage: { complete: false, reason: "UNPAGINATED_STATEMENT_RESULT" },
+      transactions: result,
+    };
   }
-  const status = String(contract.status ?? "").toLowerCase();
-  if (!contractIsFinal(contract)) {
-    throw new Error("Cannot create a settled event for an open contract.");
+  if (!result || !Array.isArray(result.transactions) ||
+      !result.coverage || typeof result.coverage.complete !== "boolean") {
+    throw new Error("Broker statement did not include verifiable pagination coverage.");
   }
-  return {
-    buyPrice: finite(
-      contract.buy_price ?? contract.buyPrice ?? trade.buyPrice ?? trade.maximumLoss,
-      "buy price",
-    ),
-    closedAt: new Date(
-      Number.isFinite(Number(contract.exit_spot_time))
-        ? Number(contract.exit_spot_time) * 1_000
-        : now.getTime(),
-    ).toISOString(),
-    contractId,
-    eventAt: now.toISOString(),
-    exitSpot:
-      contract.exit_spot === undefined && contract.exit_tick === undefined
-        ? null
-        : finite(contract.exit_spot ?? contract.exit_tick, "exit spot"),
-    profit: finite(contract.profit, "settlement profit"),
-    reconciled: true,
-    stage: "settled",
-    status,
-    tradeId: trade.tradeId,
-  };
+  return result;
+}
+
+function compatibleAccount(trade, accountFingerprint) {
+  return typeof accountFingerprint === "string" && /^[a-f0-9]{64}$/.test(accountFingerprint) &&
+    trade.accountFingerprint === accountFingerprint;
 }
 
 async function reconcileKnownContract({
+  accountFingerprint,
   appendEvent,
   client,
   now,
@@ -113,39 +76,58 @@ async function reconcileKnownContract({
 }) {
   let contract;
   try {
-    contract = await client.getOpenContract(positiveContractId(trade.contractId));
+    contract = await client.getOpenContract(strictPositiveInteger(
+      trade.contractId,
+      "Journal contract ID",
+    ));
+    validateContractIdentity(contract, trade, { expectedContractId: trade.contractId });
   } catch (error) {
     blockers.push({
       tradeId: trade.tradeId,
-      reason: `Could not establish contract outcome: ${error.message}`,
+      reason: `Could not establish compatible contract outcome: ${error.message}`,
     });
     return;
   }
-  if (contractIsFinal(contract)) {
-    const event = settledEvent(trade, contract, now);
-    await appendEvent(event);
-    appended.push(event);
+
+  const status = String(contract.status ?? "").toLowerCase();
+  const terminal = Number(contract.is_sold) === 1 ||
+    ["won", "lost", "sold", "cancelled"].includes(status);
+  if (terminal) {
+    try {
+      const event = settlementJournalEvent(trade, contract, now);
+      await appendEvent(event);
+      appended.push(event);
+    } catch (error) {
+      blockers.push({
+        tradeId: trade.tradeId,
+        reason: `Could not validate broker outcome: ${error.message}`,
+      });
+    }
     return;
   }
-  if (
-    trade.stage !== "reconciled" ||
-    trade.reconciliationStatus !== "broker_confirmed_open"
-  ) {
+
+  if (trade.stage !== "reconciled" ||
+      trade.reconciliationStatus !== "broker_confirmed_open") {
     const event = {
-      buyPrice: finite(
+      accountFingerprint,
+      buyPrice: strictFiniteNumber(
         contract.buy_price ?? trade.buyPrice ?? trade.maximumLoss,
-        "buy price",
+        "Broker buy price",
+        { positive: true },
       ),
-      contractId: positiveContractId(
+      contractId: strictPositiveInteger(
         contract.contract_id ?? contract.contractId ?? trade.contractId,
+        "Broker contract ID",
       ),
       eventAt: now.toISOString(),
-      maximumLoss: finite(
+      maximumLoss: strictFiniteNumber(
         contract.buy_price ?? trade.maximumLoss ?? trade.stake,
-        "maximum loss",
+        "Broker maximum loss",
+        { positive: true },
       ),
       reconciliationStatus: "broker_confirmed_open",
       stage: "reconciled",
+      strategyHash: trade.strategyHash,
       tradeId: trade.tradeId,
     };
     await appendEvent(event);
@@ -157,46 +139,91 @@ async function reconcileKnownContract({
   });
 }
 
+async function compatibleStatementMatches({ client, rows, trade }) {
+  const compatible = [];
+  const indeterminate = [];
+  for (const row of rows) {
+    const contractId = statementContractId(row);
+    if (contractId === null) {
+      indeterminate.push("matching statement row identity cannot be established");
+      continue;
+    }
+    try {
+      const contract = await client.getOpenContract(contractId);
+      validateContractIdentity(contract, trade, {
+        expectedContractId: contractId,
+        requireDurationEvidence: true,
+      });
+      compatible.push({ contract, contractId, row });
+    } catch (error) {
+      indeterminate.push(error.message);
+    }
+  }
+  return { compatible, indeterminate };
+}
+
 export async function reconcileUnresolvedDemoTrades({
+  accountFingerprint,
   client,
   events,
   appendEvent,
   now = new Date(),
   noPurchaseGraceSeconds = 120,
+  noPurchaseRepeatSeconds = 30,
 }) {
   if (typeof appendEvent !== "function") {
     throw new Error("Demo reconciliation requires an append-only journal callback.");
   }
-  const unresolved = groupTrades(events).filter(isUnresolvedDemoTrade);
+  let unresolved;
+  try {
+    unresolved = groupTrades(events).filter(isUnresolvedDemoTrade);
+  } catch (error) {
+    return {
+      appended: [],
+      blockers: [{ tradeId: null, reason: `Demo journal integrity failure: ${error.message}` }],
+      unresolved: null,
+    };
+  }
   const appended = [];
   const blockers = [];
   if (unresolved.length === 0) return { appended, blockers, unresolved: 0 };
 
-  const withoutContract = unresolved.filter(
+  const eligible = [];
+  for (const trade of unresolved) {
+    if (!compatibleAccount(trade, accountFingerprint)) {
+      blockers.push({
+        tradeId: trade.tradeId,
+        reason: "The unresolved trade has missing or incompatible account identity.",
+      });
+    } else {
+      eligible.push(trade);
+    }
+  }
+  if (eligible.length === 0) {
+    return { appended, blockers, unresolved: unresolved.length };
+  }
+
+  const withoutContract = eligible.filter(
     (trade) => trade.contractId === undefined || trade.contractId === null,
   );
-  let statement = [];
+  let statementResult = { transactions: [], coverage: { complete: true, pages: 0 } };
   if (withoutContract.length > 0) {
-    const startEpoch = Math.max(
-      0,
-      Math.min(...withoutContract.map((trade) => Math.floor(Date.parse(trade.startedAt) / 1_000))) - 10,
-    );
+    const startEpoch = Math.max(0, Math.min(...withoutContract.map((trade) =>
+      Math.floor(Date.parse(trade.startedAt) / 1_000))) - 10);
     try {
-      statement = await client.getStatement({
+      statementResult = normalizeStatementResult(await client.getStatement({
         actionType: "buy",
         dateFrom: startEpoch,
         dateTo: Math.floor(now.getTime() / 1_000),
         limit: 999,
-      });
+      }));
     } catch (error) {
-      return {
-        appended,
-        blockers: unresolved.map((trade) => ({
+      for (const trade of withoutContract) {
+        blockers.push({
           tradeId: trade.tradeId,
           reason: `Broker statement reconciliation failed: ${error.message}`,
-        })),
-        unresolved: unresolved.length,
-      };
+        });
+      }
     }
   }
 
@@ -207,66 +234,107 @@ export async function reconcileUnresolvedDemoTrades({
       .map(String),
   );
   const nowEpoch = Math.floor(now.getTime() / 1_000);
-  for (const original of unresolved) {
+  for (const original of eligible) {
     let trade = original;
     if (trade.contractId === undefined || trade.contractId === null) {
-      const potentialMatches = statement.filter((transaction) =>
-        statementMatchesTrade(transaction, trade, nowEpoch),
-      );
-      const matches = potentialMatches.filter((transaction) => {
-        const id = statementContractId(transaction);
-        return (
-          id !== null &&
-          !alreadyBound.has(String(id))
-        );
+      if (blockers.some((item) => item.tradeId === trade.tradeId)) continue;
+      const potentialRows = statementResult.transactions.filter((transaction) =>
+        statementMatchesTrade(transaction, trade, nowEpoch) &&
+        !alreadyBound.has(String(statementContractId(transaction))));
+      const { compatible, indeterminate } = await compatibleStatementMatches({
+        client,
+        rows: potentialRows,
+        trade,
       });
-      if (matches.length === 1) {
-        const contractId = statementContractId(matches[0]);
-        alreadyBound.add(String(contractId));
+      if (compatible.length === 1 && potentialRows.length === 1 && indeterminate.length === 0) {
+        const match = compatible[0];
+        alreadyBound.add(String(match.contractId));
         const event = {
-          buyPrice: Math.abs(finite(matches[0].amount, "statement amount")),
-          contractId,
+          accountFingerprint,
+          buyPrice: Math.abs(strictFiniteNumber(match.row.amount, "Statement amount")),
+          contractId: match.contractId,
           eventAt: now.toISOString(),
-          maximumLoss: Math.abs(finite(matches[0].amount, "statement amount")),
-          reconciliationStatus: "broker_purchase_found",
+          maximumLoss: Math.abs(strictFiniteNumber(match.row.amount, "Statement amount")),
+          reconciliationStatus: "broker_purchase_found_and_terms_verified",
           stage: "reconciled",
+          strategyHash: trade.strategyHash,
           tradeId: trade.tradeId,
-          transactionId:
-            matches[0].transaction_id ?? matches[0].transactionId ?? null,
+          transactionId: match.row.transaction_id ?? match.row.transactionId,
         };
         await appendEvent(event);
         appended.push(event);
         trade = { ...trade, ...event };
-      } else if (matches.length > 1 || potentialMatches.length > 0) {
+      } else if (potentialRows.length > 0) {
         blockers.push({
           tradeId: trade.tradeId,
-          reason:
-            matches.length > 1
-              ? "Multiple broker purchases could match the uncertain purchase intent."
-              : "A broker purchase may match, but its contract identity cannot be established safely.",
+          reason: compatible.length > 1 || potentialRows.length > 1
+            ? "Multiple broker purchases could match by time and price; the purchase cannot be assigned safely."
+            : `A possible broker purchase is incompatible or cannot be established safely: ${indeterminate.join("; ")}`,
+        });
+        continue;
+      } else if (!statementResult.coverage.complete) {
+        blockers.push({
+          tradeId: trade.tradeId,
+          reason: `Broker statement coverage is incomplete (${statementResult.coverage.reason ?? "unknown reason"}); absence cannot prove no purchase.`,
         });
         continue;
       } else {
         const ageSeconds = (now.getTime() - Date.parse(trade.startedAt)) / 1_000;
-        if (ageSeconds >= noPurchaseGraceSeconds) {
-          const event = {
-            eventAt: now.toISOString(),
-            reconciliationStatus: "not_purchased",
-            stage: "reconciled",
-            tradeId: trade.tradeId,
-          };
-          await appendEvent(event);
-          appended.push(event);
-        } else {
+        if (ageSeconds < noPurchaseGraceSeconds) {
           blockers.push({
             tradeId: trade.tradeId,
             reason: "No broker purchase is visible yet; the uncertainty grace period has not elapsed.",
           });
+          continue;
         }
+        const priorCount = Number.isSafeInteger(trade.noPurchaseEvidenceCount)
+          ? trade.noPurchaseEvidenceCount
+          : 0;
+        if (priorCount < 1) {
+          const event = {
+            accountFingerprint,
+            eventAt: now.toISOString(),
+            noPurchaseEvidenceCount: 1,
+            reconciliationStatus: "statement_complete_no_match_observed",
+            stage: "uncertain",
+            statementCoverage: statementResult.coverage,
+            strategyHash: trade.strategyHash,
+            tradeId: trade.tradeId,
+          };
+          await appendEvent(event);
+          appended.push(event);
+          blockers.push({
+            tradeId: trade.tradeId,
+            reason: "One complete statement observation found no purchase; a later complete observation is required before release.",
+          });
+          continue;
+        }
+        const previousObservationEpoch = Math.floor(Date.parse(trade.eventAt) / 1_000);
+        if (!Number.isSafeInteger(previousObservationEpoch) ||
+            nowEpoch - previousObservationEpoch < noPurchaseRepeatSeconds) {
+          blockers.push({
+            tradeId: trade.tradeId,
+            reason: "The second complete statement observation must be obtained later than the first.",
+          });
+          continue;
+        }
+        const event = {
+          accountFingerprint,
+          eventAt: now.toISOString(),
+          noPurchaseEvidenceCount: priorCount + 1,
+          reconciliationStatus: "not_purchased",
+          stage: "reconciled",
+          statementCoverage: statementResult.coverage,
+          strategyHash: trade.strategyHash,
+          tradeId: trade.tradeId,
+        };
+        await appendEvent(event);
+        appended.push(event);
         continue;
       }
     }
     await reconcileKnownContract({
+      accountFingerprint,
       appendEvent,
       appended,
       blockers,

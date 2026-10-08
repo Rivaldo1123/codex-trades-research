@@ -13,7 +13,11 @@ test("demo config rejects execution and real-endpoint access", () => {
     appId: "app123",
     executionEnabled: false,
     currency: "USD",
-    learning: { automaticParameterChanges: false },
+    learning: {
+      automaticParameterChanges: false,
+      journalPath: "data/demo/trade-events.jsonl",
+      reportPath: "data/demo/learning-report.json",
+    },
     mode: "demo-only",
     realEndpointAllowed: false,
     risk: {
@@ -24,7 +28,17 @@ test("demo config rejects execution and real-endpoint access", () => {
       maxTradesPerDay: 4,
       stakeDemoUsd: 1,
     },
-    strategy: { contractDuration: 5, contractDurationUnit: "t" },
+    strategy: {
+      candleCount: 200,
+      contractDuration: 5,
+      contractDurationUnit: "t",
+      fastWindow: 20,
+      granularitySeconds: 60,
+      name: "DISARMED_TEST",
+      settlementTimeoutSeconds: 90,
+      slowWindow: 50,
+    },
+    symbol: "1HZ100V",
   };
   assert.doesNotThrow(() => validateDemoConfig(safe));
   assert.doesNotThrow(() =>

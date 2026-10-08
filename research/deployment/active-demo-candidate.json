@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "demo-deployment-decision",
+  "state": "NO_QUALIFIED_CANDIDATE",
+  "executionAuthorized": false,
+  "candidate": null,
+  "reason": "The frozen 1HZ100V development screen qualified no candidate, and the alternative directions remain blocked by specification or execution-data limitations.",
+  "evidenceScope": "This blocks strategy deployment; it does not assert that every Deriv strategy is unprofitable.",
+  "reviewedBaselineCommit": "e8263e3c684b5b7a60eccbb390ba31a22de2f39e",
+  "reviewedByAudit": "execution-and-strategy-path-audit-v3-2026-10-08"
+}

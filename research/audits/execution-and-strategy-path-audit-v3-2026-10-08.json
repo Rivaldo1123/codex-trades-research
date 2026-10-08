@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "kind": "execution-and-strategy-path-audit",
+  "auditId": "execution-and-strategy-path-audit-v3-2026-10-08",
+  "accessedAtUtc": "2026-10-08",
+  "reviewedBaselineCommit": "e8263e3c684b5b7a60eccbb390ba31a22de2f39e",
+  "ordersPlaced": 0,
+  "authenticatedRequests": 0,
+  "derivPublicApiRequestsThisAudit": 0,
+  "largeSearchesStarted": 0,
+  "collectorsStarted": 0,
+  "originalEvidence": {
+    "ledgerPath": "data/research/development-screen-v1/ledger.final.jsonl",
+    "ledgerBytes": 115485863,
+    "ledgerSha256": "23da90a773cdffb77c1f71187083985f4cf2916a38eb477875dfbdffe58dccd3",
+    "protocolSha256": "c7cd08b94f8d6155f16fb3f6af4b7276c3a343f972b123c647d0ffdd47ccb6e2",
+    "datasetContentSha256": "8e3196f7d9faba44791fea5e0da1db797dd779355b656419e39667c7752a6d69",
+    "ledgerSummaryRecomputed": true,
+    "marketSliceIntegrityRecomputed": true,
+    "strategySignalsRerun": false,
+    "outcome": "NO_RELIABLE_EDGE_FOUND_IN_FROZEN_1HZ100V_DEVELOPMENT_SCREEN"
+  },
+  "confirmedDefects": [
+    {
+      "id": "EXEC-QUALIFICATION-DISCONNECTED",
+      "severity": "CRITICAL",
+      "resolution": "Exact candidate, product, strategy hash, executor-source hash, evidence checksum, frozen protocol, independently evaluated result, prospectively ordered dates, recomputed acceptance rules, and execution assumptions are enforced before connection and re-verified by the low-level purchase method. Generic order-bearing requests are rejected. The tracked decision contains no candidate and blocks execution."
+    },
+    {
+      "id": "EXEC-WRONG-PURCHASE-RECONCILIATION",
+      "severity": "CRITICAL",
+      "resolution": "Account fingerprint and immutable intended terms are journalled; assignment requires exactly one candidate statement row, whose authoritative contract identity and tick/clock terms agree."
+    },
+    {
+      "id": "EXEC-INCOMPLETE-STATEMENT-PAGING",
+      "severity": "CRITICAL",
+      "resolution": "Bounded offset pagination now records completeness, detects duplicates/change/failure, and requires two separated complete no-match observations before not_purchased."
+    },
+    {
+      "id": "EXEC-PERMISSIVE-SETTLEMENT",
+      "severity": "CRITICAL",
+      "resolution": "One strict validator handles immediate and restart settlement; null, blank, boolean, non-finite, identity-mismatched, inconsistent and unsupported cancellation records remain unresolved."
+    },
+    {
+      "id": "EXEC-JOURNAL-IDENTITY-AND-STATE",
+      "severity": "HIGH",
+      "resolution": "Every event requires account, strategy and event-time identity; exact initial terms, legal transitions and chronology are checked; settlement requires prior reconciliation; accepted numeric strings are normalized before risk accounting."
+    },
+    {
+      "id": "RISK-OPEN-DAY-PNL",
+      "severity": "HIGH",
+      "resolution": "Trade counts use UTC entry date; realized P&L uses UTC settlement date; unique corrections use their correction date."
+    },
+    {
+      "id": "ARCHIVE-SELF-DEFINED-TARGET",
+      "severity": "HIGH",
+      "resolution": "The checkpoint is verified against a separately tracked approved collection specification and cannot redefine the target."
+    },
+    {
+      "id": "STATUS-STALE-VERIFIED",
+      "severity": "HIGH",
+      "resolution": "Rejected summary/inventory cross-checks clear intermediate values and all dependent published fields become unverifiable."
+    },
+    {
+      "id": "EXEC-INCOMPLETE-CANDLE-AND-STALE-PROPOSAL",
+      "severity": "HIGH",
+      "resolution": "Signals require recent contiguous completed candles, proposal terms must be present and agree, and frozen payout and response-time-inclusive quote-age constraints are applied before purchase."
+    }
+  ],
+  "researchAssessment": {
+    "configurationCount": 12012,
+    "economicRuns": 324324,
+    "independentOutcomeClusters": "Far fewer than configurations: every configuration used the same 30-day 1HZ100V slice and three UTC window clusters; prior audit found 5,728 distinct outcome-count signatures.",
+    "baseExpectancyFailures": 11960,
+    "stressExpectancyFailures": 12012,
+    "multipleTestingEvidenceFailures": 12012,
+    "qualified": 0,
+    "interpretation": "Strong negative development evidence for the tested short-tick directional indicator rules under the frozen assumed payouts; not historical executable-account profitability and not universal Deriv evidence."
+  },
+  "rankedDirections": [
+    {
+      "rank": 1,
+      "id": "range-break-boundary-hazard",
+      "product": "RB100/RB200 MULTUP and MULTDOWN multiplier contracts",
+      "horizon": "Multi-tick holding across within-range approaches and breaks; no fixed expiry in captured metadata",
+      "mechanism": "Deriv documents repeated support/resistance ranges and breaks after an average number of boundary hits.",
+      "classification": ["SPECIFICATION_CONFLICT", "INSUFFICIENT_EXECUTION_DATA"],
+      "dataAvailable": "Public ticks and point-in-time entry proposals only",
+      "missing": ["coherent multiplier limits", "commission units", "historical/forward contract-specific sell prices", "processing delay", "stop-out path"],
+      "smallestFalsifier": "First obtain a coherent account-applicable specification and a timestamped entry/close valuation feed. Then preregister a small boundary-state diagnostic; raw price-path results alone cannot establish net profit."
+    },
+    {
+      "rank": 2,
+      "id": "drift-or-volatility-switch-causal-regime",
+      "product": "Drift Switch 10/20/30 or Volatility Switch CFDs",
+      "horizon": "Minutes, shorter than the documented average regime duration",
+      "mechanism": "Deriv describes persistent bullish/bearish/sideways or low/medium/high-volatility phases.",
+      "classification": ["INSUFFICIENT_EXECUTION_DATA"],
+      "dataAvailable": "Product descriptions; no exact local symbol dataset or synchronized executable prices",
+      "missing": ["causal observable regime proxy", "bid/ask history", "dynamic spread", "financing", "margin and stop-out", "fills and slippage"],
+      "smallestFalsifier": "A fixed one-proxy state-classification test on synchronized bid/ask data, followed by net CFD simulation only if full costs and margin rules are available."
+    },
+    {
+      "rank": 3,
+      "id": "skew-step-conditional-transition",
+      "product": "Skew Step 5 Up/Down; Skew Step 4 deferred",
+      "horizon": "One to several ticks",
+      "mechanism": "Published asymmetric marginal step probabilities define tail risk; conditional dependence would be a separate, unproven mechanism.",
+      "classification": ["TESTED_AND_FAILED", "SPECIFICATION_CONFLICT", "INSUFFICIENT_EXECUTION_DATA"],
+      "dataAvailable": "Published marginal distributions; no exact local tick/quote dataset or executable-cost history",
+      "missing": ["documented transition dependence", "consistent Skew Step 4 table", "supported exact symbols", "historical payouts or bid/ask"],
+      "smallestFalsifier": "Only after specification resolution, preregister one conditional-dependence statistic with simulated independent controls and one correction family; dependence would not itself prove profitability."
+    }
+  ],
+  "decision": {
+    "code": "NO_CURRENTLY_TESTABLE_EDGE_HYPOTHESIS",
+    "credibleMechanismForDataAcquisition": "range-break-boundary-hazard",
+    "boundedExperimentRun": false,
+    "reason": "None of the three available datasets contains the executable entry/exit economics needed by its product. A midpoint-only backtest would answer the wrong question.",
+    "singleNextAction": "Resolve RB100 account-applicable product terms and establish a legitimate timestamped entry-and-close valuation source before any strategy search.",
+    "continueOnlyIf": "Catalog/proposal limits and commission units are coherent, and contract-specific close values, delays and stop-out paths can be captured without hindsight.",
+    "stopIf": "Those fields remain unavailable or contradictory; do not substitute more indicators or midpoint history."
+  },
+  "deployment": {
+    "qualifiedCandidateExists": false,
+    "executionAuthorized": false,
+    "trackedDecision": "research/deployment/active-demo-candidate.json",
+    "archivedXmlRegistry": "dbot/archive-registry.json"
+  },
+  "officialSources": [
+    {
+      "url": "https://deriv.com/eu/markets/derived-indices/synthetic-indices",
+      "supports": ["synthetic generation context", "Range Break mechanism", "regime product descriptions", "technical-indicator limitation"],
+      "accessedAt": "2026-10-08"
+    },
+    {
+      "url": "https://developers.deriv.com/docs/best-practices/",
+      "supports": ["fresh proposals", "maximum buy price", "reconcile before retry", "pagination", "token hygiene"],
+      "accessedAt": "2026-10-08"
+    },
+    {
+      "url": "https://developers.deriv.com/docs/account/statement/",
+      "supports": ["authenticated account statement", "action filtering"],
+      "accessedAt": "2026-10-08"
+    },
+    {
+      "url": "https://developers.deriv.com/docs/trading/",
+      "supports": ["public proposal versus authenticated buy/open-contract lifecycle"],
+      "accessedAt": "2026-10-08"
+    },
+    {
+      "url": "https://developers.deriv.com/docs/limits/",
+      "supports": ["current request budgets"],
+      "accessedAt": "2026-10-08"
+    },
+    {
+      "url": "https://github.com/deriv-com/deriv-api-schemas",
+      "supports": ["statement offset and response identity fields", "buy fields", "open-contract fields and numeric formats"],
+      "accessedAt": "2026-10-08"
+    },
+    {
+      "url": "https://signup.deriv.com/tnc/trading-terms.pdf",
+      "supports": ["spread and commission mechanics", "server processing and exit provisions"],
+      "accessedAt": "2026-10-08"
+    },
+    {
+      "url": "https://experts.deriv.com/insights/trade-volatility-phases-with-vsi",
+      "supports": ["Volatility Switch phases and dynamic spreads; product description only"],
+      "accessedAt": "2026-10-08"
+    }
+  ]
+}

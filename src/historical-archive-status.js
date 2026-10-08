@@ -13,6 +13,30 @@ const CHECKPOINT_STATES = new Set([
   "INCOMPLETE",
   "FAILED",
 ]);
+const DEFAULT_APPROVED_SPEC =
+  "research/protocols/historical-expansion-90day-v1.json";
+
+function validateApprovedCollection(value) {
+  const collection = {
+    collectionId: value?.collectionId ?? null,
+    fromEpoch: value?.fromEpoch ?? value?.fromEpochInclusive,
+    sourceGapExceptions: value?.sourceGapExceptions ?? [],
+    symbol: value?.symbol,
+    toEpochExclusive: value?.toEpochExclusive,
+  };
+  if (typeof collection.symbol !== "string" ||
+      !/^[A-Za-z0-9_]{2,30}$/.test(collection.symbol) ||
+      !Number.isSafeInteger(collection.fromEpoch) ||
+      !Number.isSafeInteger(collection.toEpochExclusive) ||
+      collection.toEpochExclusive <= collection.fromEpoch ||
+      !Array.isArray(collection.sourceGapExceptions)) {
+    throw new Error("Approved historical collection specification is malformed.");
+  }
+  if (collection.sourceGapExceptions.length > 0) {
+    throw new Error("Approved source-gap exceptions require a verifier not implemented here.");
+  }
+  return collection;
+}
 
 function validateCheckpoint(checkpoint) {
   if (!checkpoint || typeof checkpoint !== "object" ||
@@ -130,10 +154,28 @@ function inspectManifestMetadata(manifest, checkpoint) {
 }
 
 export async function assessHistoricalExpansion({
+  approvedCollection = null,
+  approvedSpecificationRelativePath = DEFAULT_APPROVED_SPEC,
   checkpointRelativePath = "data/market/historical-backfill-status.json",
   projectRoot,
   verifyArchiveContents = false,
 }) {
+  let approved;
+  try {
+    approved = validateApprovedCollection(approvedCollection ?? JSON.parse(await readFile(
+      path.resolve(projectRoot, ...approvedSpecificationRelativePath.split("/")),
+      "utf8",
+    )));
+  } catch (error) {
+    return {
+      approvedSpecificationPath: approvedSpecificationRelativePath,
+      complete: false,
+      error: error.message,
+      processObservation: { state: "NOT_CHECKED" },
+      state: error?.code === "ENOENT" ? "UNAVAILABLE" : "MALFORMED",
+      statusPath: checkpointRelativePath,
+    };
+  }
   const checkpointPath = path.resolve(
     projectRoot,
     ...checkpointRelativePath.split("/"),
@@ -144,6 +186,8 @@ export async function assessHistoricalExpansion({
   } catch (error) {
     if (error?.code === "ENOENT") {
       return {
+        approvedInterval: [approved.fromEpoch, approved.toEpochExclusive],
+        approvedSpecificationPath: approvedSpecificationRelativePath,
         complete: false,
         processObservation: { state: "NOT_CHECKED" },
         state: "UNAVAILABLE",
@@ -151,11 +195,35 @@ export async function assessHistoricalExpansion({
       };
     }
     return {
+      approvedInterval: [approved.fromEpoch, approved.toEpochExclusive],
+      approvedSpecificationPath: approvedSpecificationRelativePath,
       complete: false,
       error: error.message,
       processObservation: { state: "NOT_CHECKED" },
       state: "MALFORMED",
       statusPath: checkpointRelativePath,
+    };
+  }
+
+  if (checkpoint.symbol !== approved.symbol ||
+      checkpoint.fromEpoch !== approved.fromEpoch ||
+      checkpoint.toEpochExclusive !== approved.toEpochExclusive) {
+    return {
+      approvedInterval: [approved.fromEpoch, approved.toEpochExclusive],
+      approvedSpecificationPath: approvedSpecificationRelativePath,
+      complete: false,
+      error: "Checkpoint target conflicts with the approved collection specification.",
+      processObservation: { state: "NOT_CHECKED" },
+      requestedInterval: [checkpoint.fromEpoch, checkpoint.toEpochExclusive],
+      snapshot: checkpointSnapshot(checkpoint),
+      state: "INCONSISTENT",
+      statusPath: checkpointRelativePath,
+      symbol: checkpoint.symbol,
+      verification: {
+        approvedTargetMatchesCheckpoint: false,
+        checkpointClaimsCompletion: checkpoint.state === "COMPLETED",
+        manifestAndChunkIntegrity: "NOT_VERIFIED",
+      },
     };
   }
 
@@ -176,6 +244,8 @@ export async function assessHistoricalExpansion({
     );
   } catch (error) {
     return {
+      approvedInterval: [approved.fromEpoch, approved.toEpochExclusive],
+      approvedSpecificationPath: approvedSpecificationRelativePath,
       complete: false,
       error: error.message,
       processObservation: { state: "NOT_CHECKED" },
@@ -185,6 +255,7 @@ export async function assessHistoricalExpansion({
       statusPath: checkpointRelativePath,
       symbol: checkpoint.symbol,
       verification: {
+        approvedTargetMatchesCheckpoint: true,
         checkpointClaimsCompletion: claimsCompletion,
         manifestAndChunkIntegrity: "NOT_VERIFIED",
       },
@@ -194,7 +265,10 @@ export async function assessHistoricalExpansion({
   if (!verifyArchiveContents && !claimsCompletion &&
       (!reachedRequestedStart || !manifestMetadata.descriptorCoverageComplete)) {
     return {
+      approvedInterval: [approved.fromEpoch, approved.toEpochExclusive],
+      approvedSpecificationPath: approvedSpecificationRelativePath,
       complete: false,
+      collectionTerminalState: checkpoint.state,
       currentArchiveObservation: manifestMetadata,
       paging: {
         cursorEpoch: checkpoint.cursorEpoch,
@@ -204,9 +278,14 @@ export async function assessHistoricalExpansion({
       requestedInterval: [checkpoint.fromEpoch, checkpoint.toEpochExclusive],
       snapshot,
       state: "INCOMPLETE",
+      sourceGapEvidence: {
+        independentlyVerifiedSourceGaps: [],
+        unverifiedMissingRanges: manifestMetadata.manifestRangeGaps,
+      },
       statusPath: checkpointRelativePath,
       symbol: checkpoint.symbol,
       verification: {
+        approvedTargetMatchesCheckpoint: true,
         checkpointClaimsCompletion: false,
         exactCoverage: false,
         manifestAndChunkIntegrity: "NOT_FULLY_VERIFIED_NOT_NEEDED_TO_DISPROVE_COMPLETION",
@@ -234,7 +313,10 @@ export async function assessHistoricalExpansion({
       state = "INCOMPLETE";
     }
     return {
+      approvedInterval: [approved.fromEpoch, approved.toEpochExclusive],
+      approvedSpecificationPath: approvedSpecificationRelativePath,
       complete: state === "VERIFIED_COMPLETE",
+      collectionTerminalState: checkpoint.state,
       currentArchiveObservation: {
         checks: audit.checks,
         coverage: audit.coverage,
@@ -254,9 +336,14 @@ export async function assessHistoricalExpansion({
       requestedInterval: [checkpoint.fromEpoch, checkpoint.toEpochExclusive],
       snapshot,
       state,
+      sourceGapEvidence: {
+        independentlyVerifiedSourceGaps: [],
+        unverifiedMissingRanges: audit.missingRanges,
+      },
       statusPath: checkpointRelativePath,
       symbol: checkpoint.symbol,
       verification: {
+        approvedTargetMatchesCheckpoint: true,
         checkpointClaimsCompletion: claimsCompletion,
         checkpointCompletionAuditMatches: completionAuditMatches(checkpoint.audit, audit),
         exactCoverage,
@@ -265,6 +352,8 @@ export async function assessHistoricalExpansion({
     };
   } catch (error) {
     return {
+      approvedInterval: [approved.fromEpoch, approved.toEpochExclusive],
+      approvedSpecificationPath: approvedSpecificationRelativePath,
       complete: false,
       error: error.message,
       processObservation: { state: "NOT_CHECKED" },
@@ -274,6 +363,7 @@ export async function assessHistoricalExpansion({
       statusPath: checkpointRelativePath,
       symbol: checkpoint.symbol,
       verification: {
+        approvedTargetMatchesCheckpoint: true,
         checkpointClaimsCompletion: claimsCompletion,
         manifestAndChunkIntegrity: "NOT_VERIFIED",
       },

@@ -1,16 +1,23 @@
-# Deriv Bot file
+# Archived Deriv Bot files
 
-`Codex_DEMO_Guarded_SMA.xml` is an importable Deriv Bot workspace for the
+Every XML file in this directory is a preserved, disarmed experimental artifact.
+The machine-readable [`archive-registry.json`](archive-registry.json) records
+its size, SHA-256 and `executionAuthorized: false`. None is a current deployment
+candidate, and the current research decision does not authorize importing or
+running any of them. A future candidate must be a new version whose exact hash
+is bound to qualifying evidence and execution assumptions.
+
+`Codex_DEMO_Guarded_SMA.xml` is a preserved Deriv Bot workspace for the
 Volatility 100 (1s) Index. It uses a fixed USD 1 stake, five-tick Rise/Fall
 contracts, 20/50 tick SMAs, no martingale, no restart-on-error, and stops after
 at most four settled contracts in a run.
 
-The XML cannot force Deriv's account selector to stay on Demo. Verify that the
-top-right account is a Demo account before pressing **Run**. Importing the file
-does not start it.
+The XML cannot force Deriv's account selector to stay on Demo. That limitation
+would require an explicit human check in any separately qualified future use;
+it is not permission to import or press **Run** now.
 
 `Codex_Browser_Learning_OneTick_Rise.xml` is a schema-validated conditional
-one-tick Rise research candidate. It buys one fixed USD 1 Demo contract only when its 10-tick SMA is
+one-tick Rise research experiment. It buys one fixed USD 1 Demo contract only when its 10-tick SMA is
 above its 20-tick SMA; otherwise it displays `WAIT` and buys nothing. It has no
 automatic repeat and both restart-on-error settings are disabled.
 

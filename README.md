@@ -23,6 +23,43 @@ The current strategy is an educational baseline, not a claim of profitability.
 Its purpose is to verify the data pipeline and give us something measurable to
 improve before connecting a Deriv demo account.
 
+## Current execution and research decision
+
+The [2026-10-08 v3 execution and strategy-path audit](research/audits/execution-and-strategy-path-audit-v3-2026-10-08.md)
+verified and corrected the actual order lifecycle. `executionEnabled: true` is
+no longer sufficient: `tradeDemoOnce` first requires the tracked deployment
+decision and a checksum-bound evidence package that exactly matches the
+candidate, strategy configuration, product terms, duration, stake, executor
+source and execution assumptions. The current
+[`active-demo-candidate.json`](research/deployment/active-demo-candidate.json)
+contains `NO_QUALIFIED_CANDIDATE`, so the programmatic and CLI strategy path is
+blocked before any broker connection or purchase. The low-level purchase method
+re-verifies the same package immediately before submission, and the generic
+request method rejects order-bearing payloads. There is no generic bypass.
+
+Restart reconciliation now binds account and intended contract terms, exhausts
+bounded statement pages, and validates the broker contract before assigning it
+to an intent. Immediate and recovered settlements use the same strict validator.
+The append-only journal rejects identity-less events, illegal state transitions
+and backwards chronology; accepted numeric strings are normalized before risk
+accounting.
+Entry-day counts are separate from settlement-day UTC P&L, and an approved
+collection specification—not the collector checkpoint—defines the 90-day
+archive target. Focused tests exercise lost responses, wrong accounts and
+contracts, malformed settlements, pagination failures, journal failures,
+cross-midnight losses, stale quotes and concurrent attempts without credentials
+or orders.
+
+The current research decision remains
+`NO_CURRENTLY_TESTABLE_EDGE_HYPOTHESIS`. Range Break boundary state is the
+strongest mechanism worth resolving, but it is not yet a testable net-profit
+hypothesis: product limits conflict and historical contract-specific close
+values, commission semantics, processing delay and stop-out paths are missing.
+No new strategy search or midpoint-only profitability backtest was run. The
+single next evidence step is to resolve those terms and establish a legitimate
+timestamped entry-and-close valuation source; if that cannot be done, stop this
+direction rather than add indicators.
+
 ## Frozen substantial strategy screen
 
 The current structured programme is documented in
@@ -249,23 +286,26 @@ qualified implementations. They are preserved for reproducibility and must not
 be imported or Run as part of the current research decision. The external gate
 is `WAIT`, the tracked API demo template has `executionEnabled: false`,
 and any future qualified implementation must be a new version tied to its own
-frozen strategy/configuration hash and evidence record.
+frozen strategy/configuration hash and evidence record. Their exact hashes and
+explicit `executionAuthorized: false` state are in
+[`dbot/archive-registry.json`](dbot/archive-registry.json).
 
-[`dbot/Codex_DEMO_Guarded_SMA.xml`](dbot/Codex_DEMO_Guarded_SMA.xml) can be
-imported into Deriv Bot from **Dashboard > My computer**. It uses Volatility 100
-(1s), a fixed USD 1 stake, five-tick Rise/Fall contracts, a 20/50 tick SMA rule,
-no martingale, no restart-on-error, and at most four settled contracts per Run.
-The XML cannot control Deriv's account selector, so the visible account must say
-**Demo account** before Run is pressed.
+[`dbot/Codex_DEMO_Guarded_SMA.xml`](dbot/Codex_DEMO_Guarded_SMA.xml) is preserved
+in Deriv Bot's importable workspace format, but it must not be imported or Run
+under the current decision. It historically used Volatility 100 (1s), a fixed
+USD 1 stake, five-tick Rise/Fall contracts, a 20/50 tick SMA rule, no martingale,
+no restart-on-error, and at most four settled contracts per Run. The XML also
+cannot enforce Deriv's account selector, which is an unresolved parity and
+safety limitation rather than a current operating instruction.
 
 The live browser workspace is saved in Deriv Bot as **Codex Browser Learning -
 One-Shot Gate**. Automatic `Trade again` is disabled and both restart-on-error
 settings are off, so one click can produce at most one Demo contract. Its
-purchase block remains the original one-tick Rise baseline; it must not be Run
-unless the external evidence gate is eligible.
+purchase block remains the rejected one-tick Rise baseline. The external gate
+is not eligible, so the saved workspace must not be Run.
 
 [`dbot/Codex_Browser_Learning_OneTick_Rise.xml`](dbot/Codex_Browser_Learning_OneTick_Rise.xml)
-is the schema-validated conditional candidate. It adds a 10/20-tick SMA Rise condition:
+is an archived schema-validated conditional experiment. It adds a 10/20-tick SMA Rise condition:
 if the fast SMA is not above the slow SMA, it displays `WAIT` and buys nothing.
 It uses a fixed USD 1 stake, disables restart-on-error, and contains no
 `Trade again` block. Browser upload remains blocked unless the user enables the
@@ -284,7 +324,8 @@ wins, losses, net virtual profit, profit factor, streaks, and a 95% Wilson
 interval. Bot Builder one-tick results and API five-tick results remain separate;
 their raw win rates are not pooled because they measure different contracts.
 
-Before touching Run, rebuild the evidence decision:
+The retired external evidence decision can be rebuilt offline; it cannot grant
+current Run permission:
 
 ```powershell
 node src/browser-run-gate.js

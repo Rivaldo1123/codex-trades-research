@@ -19,6 +19,59 @@ const config = {
     stakeDemoUsd: 1,
   },
 };
+const accountFingerprint = "a".repeat(64);
+const strategyHash = "b".repeat(64);
+
+function pendingTrade({
+  direction = "up",
+  startedAt,
+  tradeId,
+} = {}) {
+  return {
+    accountFingerprint,
+    contractType: direction === "up" ? "CALL" : "PUT",
+    currency: "USD",
+    direction,
+    duration: 5,
+    durationUnit: "t",
+    eventAt: startedAt,
+    maximumLoss: 1,
+    stage: "pending",
+    stake: 1,
+    startedAt,
+    strategyHash,
+    symbol: "1HZ100V",
+    tradeId,
+  };
+}
+
+function settledTrade({ closedAt, contractId, direction = "up", profit, startedAt, tradeId }) {
+  const status = profit > 0 ? "won" : "lost";
+  return [
+    pendingTrade({ direction, startedAt, tradeId }),
+    {
+      accountFingerprint,
+      contractId,
+      eventAt: startedAt,
+      reconciliationStatus: "broker_purchase_confirmed",
+      stage: "reconciled",
+      strategyHash,
+      tradeId,
+    },
+    {
+      accountFingerprint,
+      closedAt: closedAt ?? startedAt,
+      contractId,
+      eventAt: closedAt ?? startedAt,
+      performanceEligible: true,
+      profit,
+      stage: "settled",
+      status,
+      strategyHash,
+      tradeId,
+    },
+  ];
+}
 
 test("demo client rejects every non-demo endpoint", () => {
   assert.doesNotThrow(
@@ -33,6 +86,30 @@ test("demo client rejects every non-demo endpoint", () => {
         "wss://api.derivws.com/trading/v1/options/ws/real?otp=one-time",
       ),
     /Safety lock/,
+  );
+});
+
+test("low-level demo client cannot bypass the deployment executor", async () => {
+  const client = new DerivDemoClient(
+    "wss://api.derivws.com/trading/v1/options/ws/demo?otp=one-time",
+  );
+  assert.throws(
+    () => client.request({ buy: "p".repeat(32), price: 1 }, "buy"),
+    /qualified executor path/,
+  );
+  await assert.rejects(
+    client.buyProposal("p".repeat(32), 1),
+    /lacks deployment authorization/,
+  );
+  await assert.rejects(
+    client.buyProposal("p".repeat(32), 1, {
+      candidateId: "none",
+      config: {},
+      executorSourceSha256: "0".repeat(64),
+      projectRoot: process.cwd(),
+      strategyHash: "0".repeat(64),
+    }),
+    /no candidate is qualified/,
   );
 });
 
@@ -56,6 +133,40 @@ test("demo decision records measurable signal separation", () => {
   assert.ok(decision.separationBps > 0);
 });
 
+test("demo decision excludes a still-forming candle", () => {
+  const now = new Date("2026-10-08T12:00:00.000Z");
+  const nowEpoch = Math.floor(now.getTime() / 1_000);
+  const candles = [
+    { close: 100, epoch: nowEpoch - 180 },
+    { close: 101, epoch: nowEpoch - 120 },
+    { close: 102, epoch: nowEpoch - 60 },
+    { close: 999, epoch: nowEpoch },
+  ];
+  const decision = buildDemoDecision(candles, {
+    fastWindow: 2,
+    granularitySeconds: 60,
+    slowWindow: 3,
+  }, { now });
+  assert.equal(decision.candleEpoch, nowEpoch - 60);
+  assert.equal(decision.close, 102);
+});
+
+test("demo decision cannot cross a candle gap or use a stale completed candle", () => {
+  const now = new Date("2026-10-08T12:00:00.000Z");
+  const nowEpoch = Math.floor(now.getTime() / 1_000);
+  const strategy = { fastWindow: 2, granularitySeconds: 60, slowWindow: 3 };
+  assert.throws(() => buildDemoDecision([
+    { close: 100, epoch: nowEpoch - 240 },
+    { close: 101, epoch: nowEpoch - 180 },
+    { close: 102, epoch: nowEpoch - 60 },
+  ], strategy, { now }), /contiguous completed/);
+  assert.throws(() => buildDemoDecision([
+    { close: 100, epoch: nowEpoch - 240 },
+    { close: 101, epoch: nowEpoch - 180 },
+    { close: 102, epoch: nowEpoch - 120 },
+  ], strategy, { now }), /stale/);
+});
+
 test("risk gate enforces open-position, daily, loss, and cooldown limits", () => {
   const now = new Date("2026-10-06T20:00:00.000Z");
   assert.equal(
@@ -67,13 +178,13 @@ test("risk gate enforces open-position, daily, loss, and cooldown limits", () =>
     false,
   );
 
-  const events = Array.from({ length: 4 }, (_, index) => ({
-    eventAt: `2026-10-06T1${index}:00:00.000Z`,
-    profit: index === 0 ? -5 : 0,
-    stage: "settled",
+  const profits = [-5, 1, -0.5, -0.5];
+  const events = Array.from({ length: 4 }, (_, index) => settledTrade({
+    contractId: 100 + index,
+    profit: profits[index],
     startedAt: `2026-10-06T1${index}:00:00.000Z`,
     tradeId: `trade-${index}`,
-  }));
+  })).flat();
   const risk = assessDemoRisk({ config, events, openContracts: [], now });
   assert.equal(risk.allowed, false);
   assert.equal(risk.dailyLoss, 5);
@@ -83,14 +194,12 @@ test("risk gate enforces open-position, daily, loss, and cooldown limits", () =>
 test("cooldown uses the latest relevant trade across a UTC date boundary", () => {
   const risk = assessDemoRisk({
     config,
-    events: [
-      {
-        profit: 0.9,
-        stage: "settled",
-        startedAt: "2026-10-06T23:59:00.000Z",
-        tradeId: "cross-midnight",
-      },
-    ],
+    events: settledTrade({
+      contractId: 200,
+      profit: 0.9,
+      startedAt: "2026-10-06T23:59:00.000Z",
+      tradeId: "cross-midnight",
+    }),
     openContracts: [],
     now: new Date("2026-10-07T00:05:00.000Z"),
   });
@@ -101,14 +210,12 @@ test("cooldown uses the latest relevant trade across a UTC date boundary", () =>
 });
 
 test("risk reserves the next maximum loss and permits the exact loss boundary", () => {
-  const events = [
-    {
-      profit: -4,
-      stage: "settled",
-      startedAt: "2026-10-06T18:00:00.000Z",
-      tradeId: "loss",
-    },
-  ];
+  const events = settledTrade({
+    contractId: 300,
+    profit: -4,
+    startedAt: "2026-10-06T18:00:00.000Z",
+    tradeId: "loss",
+  });
   const atBoundary = assessDemoRisk({
     config,
     events,
@@ -134,14 +241,15 @@ test("pending and uncertain outcomes reserve exposure and block another run", ()
   const risk = assessDemoRisk({
     config,
     events: [
-      {
-        maximumLoss: 1,
-        stage: "pending",
+      pendingTrade({
         startedAt: "2026-10-06T19:50:00.000Z",
         tradeId: "unknown",
-      },
+      }),
       {
+        accountFingerprint,
+        eventAt: "2026-10-06T19:50:01.000Z",
         stage: "uncertain",
+        strategyHash,
         tradeId: "unknown",
       },
     ],
@@ -157,11 +265,11 @@ test("pending and uncertain outcomes reserve exposure and block another run", ()
 
 test("learning report uses settled forward-demo outcomes only", () => {
   const report = createLearningReport([
-    { direction: "up", stage: "intent", tradeId: "one" },
-    { profit: 0.8, stage: "settled", tradeId: "one" },
-    { direction: "down", stage: "intent", tradeId: "two" },
-    { profit: -1, stage: "settled", tradeId: "two" },
-    { direction: "up", stage: "intent", tradeId: "open" },
+    ...settledTrade({ contractId: 401, direction: "up", profit: 0.8,
+      startedAt: "2026-10-06T10:00:00.000Z", tradeId: "one" }),
+    ...settledTrade({ contractId: 402, direction: "down", profit: -1,
+      startedAt: "2026-10-06T11:00:00.000Z", tradeId: "two" }),
+    pendingTrade({ startedAt: "2026-10-06T12:00:00.000Z", tradeId: "open" }),
   ]);
   assert.equal(report.totals.settledTrades, 2);
   assert.equal(report.totals.wins, 1);

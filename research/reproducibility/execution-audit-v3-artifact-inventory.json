@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "execution-audit-v3-artifact-inventory",
+  "auditId": "execution-and-strategy-path-audit-v3-2026-10-08",
+  "reviewedBaselineCommit": "e8263e3c684b5b7a60eccbb390ba31a22de2f39e",
+  "artifacts": [
+    {
+      "id": "audit-report",
+      "path": "research/audits/execution-and-strategy-path-audit-v3-2026-10-08.md",
+      "bytes": 19576,
+      "sha256": "eafb142b3e2e4b9bb037a68302868b8250981c65afac5798ce9313beace48b81",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "audit-machine-record",
+      "path": "research/audits/execution-and-strategy-path-audit-v3-2026-10-08.json",
+      "bytes": 9951,
+      "sha256": "6447f32becbdf99019998789d0876eda75252b8aea11a1206e152ff291884a37",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "active-demo-decision",
+      "path": "research/deployment/active-demo-candidate.json",
+      "bytes": 585,
+      "sha256": "a845148ed595a5d1ebd949b4abc959a4ceddf621d354613e8b384ff41feea542",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "historical-expansion-specification",
+      "path": "research/protocols/historical-expansion-90day-v1.json",
+      "bytes": 779,
+      "sha256": "8e2914a60c4f1fdb75d9a1779c9f17c1b222dc7ab7afb675b997a82cfb5070b2",
+      "availability": "PUBLIC_TRACKED"
+    },
+    {
+      "id": "disarmed-dbot-archive-registry",
+      "path": "dbot/archive-registry.json",
+      "bytes": 1204,
+      "sha256": "02b31a672ad3738a1354d85c0cf7df22fea802ca2a326435044e6d9f07c7aebe",
+      "availability": "PUBLIC_TRACKED"
+    }
+  ],
+  "preservedOriginalEvidence": {
+    "inventory": "research/reproducibility/development-screen-v1-artifact-inventory.json",
+    "ledgerPath": "data/research/development-screen-v1/ledger.final.jsonl",
+    "ledgerBytes": 115485863,
+    "ledgerSha256": "23da90a773cdffb77c1f71187083985f4cf2916a38eb477875dfbdffe58dccd3",
+    "modifiedByThisAudit": false
+  }
+}

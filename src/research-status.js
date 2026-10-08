@@ -289,6 +289,7 @@ export async function buildResearchStatus({
         error: error.message,
         state: "MALFORMED",
       });
+      publishedArtifacts = null;
     }
   }
 
@@ -311,7 +312,8 @@ export async function buildResearchStatus({
         outcome: null,
         reportedCompletion: null,
         source: matrix ? matrixArtifact.path : null,
-        sourceState: matrix ? "SECONDARY_SOURCE_ONLY" : "UNVERIFIABLE",
+        narrativeSourceState: matrix ? "SECONDARY_SOURCE_ONLY" : "UNAVAILABLE",
+        sourceState: "UNVERIFIABLE",
         status: "REPORTED_FINDING_SOURCE_UNVERIFIABLE",
       };
 

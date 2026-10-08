@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "approved-historical-collection-specification",
+  "collectionId": "1HZ100V-90day-expansion-v1",
+  "status": "FROZEN_TARGET",
+  "symbol": "1HZ100V",
+  "fromEpochInclusive": 1783483200,
+  "toEpochExclusive": 1791259200,
+  "expectedCadenceSeconds": 1,
+  "source": "Deriv public ticks_history",
+  "completionRule": "The checkpoint target must exactly match this specification, paging must reach before fromEpochInclusive, every selected chunk must pass its checksum and row checks, and every expected second must either contain a genuine observation or have separately evidenced source-gap status. This repository currently has no independently evidenced source-gap exceptions.",
+  "sourceGapExceptions": [],
+  "collectorMayRedefineTarget": false
+}

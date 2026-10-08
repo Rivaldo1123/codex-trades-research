@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "kind": "disarmed-dbot-archive-registry",
+  "executionAuthorized": false,
+  "deploymentGate": "WAIT_NO_QUALIFIED_CANDIDATE",
+  "artifacts": [
+    {
+      "file": "Codex_Browser_Learning_FiveTick_Rise.xml",
+      "bytes": 3449,
+      "sha256": "4e97a2a9f104906feab2d6a7e9a5e898aaced28f172864f8cd238d6b5b452452"
+    },
+    {
+      "file": "Codex_Browser_Learning_OneTick_Fall_Signal.xml",
+      "bytes": 7938,
+      "sha256": "5c78fe43dc07b7ab065c911961f47de33c2e387392aafb47353631cfaa55881e"
+    },
+    {
+      "file": "Codex_Browser_Learning_OneTick_Fall.xml",
+      "bytes": 3448,
+      "sha256": "a46adeb537e6b9040c256674b33d738c764e8468d466c68cd5a4ff0728ab04b8"
+    },
+    {
+      "file": "Codex_Browser_Learning_OneTick_Rise.xml",
+      "bytes": 7909,
+      "sha256": "751fd118ac0a06676e82d1705233e1acd588f4903985464a9fae616462a51552"
+    },
+    {
+      "file": "Codex_DEMO_Guarded_SMA.xml",
+      "bytes": 12155,
+      "sha256": "63708a3658dc8d34efaf752e5fa93fafd94e411ebfff820b4811083cad603f6e"
+    }
+  ],
+  "warning": "These are preserved experimental workspaces. They are not deployment candidates and must not be imported or run under the current research decision."
+}

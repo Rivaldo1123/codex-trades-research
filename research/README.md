@@ -21,6 +21,39 @@ Legacy browser rows missing those identities remain on disk but contribute zero
 eligible observations. Reimporting an identical settlement cannot increase the
 count, and conflicting duplicates invalidate that identity.
 
+## Execution and strategy-path audit v3
+
+The versioned [v3 audit](audits/execution-and-strategy-path-audit-v3-2026-10-08.md)
+and [machine record](audits/execution-and-strategy-path-audit-v3-2026-10-08.json)
+inspect the full path from immutable ticks through qualification and demo
+settlement. It fixes the deployment/reconciliation/pagination/settlement/risk
+and archive-status defects without rewriting the original ledger or reports.
+The [v3 artifact inventory](reproducibility/execution-audit-v3-artifact-inventory.json)
+pins the compact public audit, deployment decision, collection specification
+and archived-XML registry by size and SHA-256.
+
+The original ledger and fixed data slice are present in this working copy. The
+strict reproduction command independently matched all 12,012 ledger records,
+324,324 scenario calculations, family/rejection counts and the exact data-slice
+hash. It did **not** regenerate all signals from the market archive, so this is
+`VERIFIED_PARTIAL_REPRODUCTION`, not a bit-for-bit strategy rerun.
+
+The executor is now gated by
+[`active-demo-candidate.json`](deployment/active-demo-candidate.json). That
+tracked record states `NO_QUALIFIED_CANDIDATE`; neither changing the local
+config flag nor calling `tradeDemoOnce` programmatically can qualify a strategy.
+The integration tests use a temporary, checksum-bound qualification fixture to
+exercise orchestration offline; that fixture is not research evidence and never
+reaches Deriv.
+
+No further short-tick indicator search was launched. Three distinct mechanisms
+were reconsidered: Range Break boundary state, causal Drift/Volatility Switch
+regimes, and Skew Step conditional transitions. None presently contains the
+entry/exit economics needed for a valid net-profit experiment. The decision is
+`NO_CURRENTLY_TESTABLE_EDGE_HYPOTHESIS`, caused by a mix of narrow negative
+evidence, specification conflicts and missing execution data—not proof of
+universal unprofitability.
+
 ## Verify the frozen development screen
 
 Node.js 24 was used; Node.js 22 or newer is supported. The commands need no

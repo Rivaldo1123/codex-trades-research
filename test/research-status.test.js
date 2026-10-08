@@ -4,6 +4,7 @@ import {
   appendFile,
   mkdir,
   mkdtemp,
+  readFile,
   rm,
   unlink,
   writeFile,
@@ -15,6 +16,7 @@ import test from "node:test";
 import { auditArchiveSlice } from "../src/archive-slice-audit.js";
 import { appendTickChunk } from "../src/data-store.js";
 import { referenceScore } from "../src/experiment-ledger-audit.js";
+import { assessHistoricalExpansion } from "../src/historical-archive-status.js";
 import { buildResearchStatus, strictExitCode } from "../src/research-status.js";
 import { canonicalJson, sha256 } from "../src/strategy-search-config.js";
 
@@ -24,6 +26,7 @@ const SUMMARY_PATH = "research/results/development-screen-v1-summary.json";
 const LEDGER_PATH = "data/research/development-screen-v1/ledger.final.jsonl";
 const INVENTORY_PATH = "research/reproducibility/development-screen-v1-artifact-inventory.json";
 const CHECKPOINT_PATH = "data/market/historical-backfill-status.json";
+const HISTORICAL_SPEC_PATH = "research/protocols/historical-expansion-90day-v1.json";
 
 function digest(value) {
   return createHash("sha256").update(value).digest("hex");
@@ -194,6 +197,15 @@ async function createFixture({ checkpoint = "complete", malformedSummary = false
   await write(root, PROTOCOL_PATH, protocolContent);
   await write(root, SUMMARY_PATH, summaryContent);
   await write(root, LEDGER_PATH, ledgerContent);
+  await write(root, HISTORICAL_SPEC_PATH, json({
+    schemaVersion: 1,
+    kind: "approved-historical-collection-specification",
+    collectionId: "fixture-expansion",
+    symbol: "1HZ100V",
+    fromEpochInclusive: checkpoint === "partial" ? 90 : 100,
+    toEpochExclusive: checkpoint === "partial" ? 103 : checkpoint === "false-complete" ? 104 : 103,
+    sourceGapExceptions: [],
+  }));
   await appendTickChunk(root, "1HZ100V", [
     { epoch: 100, quote: 100 },
     { epoch: 101, quote: 101 },
@@ -411,6 +423,42 @@ test("a COMPLETED checkpoint cannot override incomplete row coverage", async () 
     assert.equal(historical.verification.checkpointClaimsCompletion, true);
     assert.equal(historical.verification.exactCoverage, false);
     assert.equal(historical.currentArchiveObservation.missingSeconds, 1);
+  });
+});
+
+test("a checkpoint cannot redefine the approved collection target", async () => {
+  await withFixture({}, async ({ root }) => {
+    const historical = await assessHistoricalExpansion({
+      approvedCollection: {
+        fromEpoch: 90,
+        symbol: "1HZ100V",
+        toEpochExclusive: 103,
+      },
+      projectRoot: root,
+      verifyArchiveContents: true,
+    });
+    assert.equal(historical.complete, false);
+    assert.equal(historical.state, "INCONSISTENT");
+    assert.deepEqual(historical.approvedInterval, [90, 103]);
+    assert.match(historical.error, /approved collection specification/i);
+  });
+});
+
+test("a rejected public-summary cross-check cannot retain VERIFIED labels", async () => {
+  await withFixture({}, async ({ root }) => {
+    const inventoryPath = path.join(root, ...INVENTORY_PATH.split("/"));
+    const inventory = JSON.parse(await readFile(inventoryPath, "utf8"));
+    inventory.developmentScreen.reportedOutcome = "CONFLICTING_OUTCOME";
+    await writeFile(inventoryPath, json(inventory));
+
+    const status = await buildResearchStatus({ projectRoot: root });
+    assert.equal(status.publishedResearch.developmentScreen.sourceState,
+      "UNVERIFIABLE");
+    assert.equal(status.publishedResearch.developmentScreen.status,
+      "REPORTED_FINDING_SOURCE_UNVERIFIABLE");
+    assert.equal(status.publishedResearch.developmentScreen.outcome, null);
+    assert.equal(status.dataCompleteness.developmentScreen.reportedCompletion, null);
+    assert.equal(status.dataCompleteness.developmentScreen.configurationsCompleted, null);
   });
 });
 

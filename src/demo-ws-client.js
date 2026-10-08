@@ -1,4 +1,14 @@
 import { validateDemoWebSocketUrl } from "./deriv-demo.js";
+import { verifyDemoDeploymentEligibility } from "./demo-deployment-gate.js";
+
+const AUTHORIZED_ORDER_REQUEST = Symbol("authorized-demo-order-request");
+const ORDER_REQUEST_FIELDS = [
+  "buy",
+  "buy_contract_for_multiple_accounts",
+  "cancel",
+  "sell",
+  "sell_contract_for_multiple_accounts",
+];
 
 function decodeMessage(event) {
   if (typeof event.data === "string") {
@@ -127,7 +137,13 @@ export class DerivDemoClient {
     });
   }
 
-  request(payload, expectedTypes, timeoutMs = 15_000) {
+  request(payload, expectedTypes, timeoutMs = 15_000, orderCapability = null) {
+    if (ORDER_REQUEST_FIELDS.some((field) => payload?.[field] !== undefined) &&
+        orderCapability !== AUTHORIZED_ORDER_REQUEST) {
+      throw new Error(
+        "Safety lock: order-bearing demo requests require the qualified executor path.",
+      );
+    }
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       throw new Error("Connect to Deriv demo before making a request.");
     }
@@ -183,13 +199,20 @@ export class DerivDemoClient {
     }
 
     return message.candles
-      .map((candle) => ({
-        close: Number(candle.close),
-        epoch: Number(candle.epoch),
-        high: Number(candle.high),
-        low: Number(candle.low),
-        open: Number(candle.open),
-      }))
+      .map((candle) => {
+        const parsed = {
+          close: Number(candle.close),
+          epoch: Number(candle.epoch),
+          high: Number(candle.high),
+          low: Number(candle.low),
+          open: Number(candle.open),
+        };
+        if (!Number.isSafeInteger(parsed.epoch) ||
+            ![parsed.close, parsed.high, parsed.low, parsed.open].every(Number.isFinite)) {
+          throw new Error("Deriv returned a malformed demo candle.");
+        }
+        return parsed;
+      })
       .sort((a, b) => a.epoch - b.epoch);
   }
 
@@ -220,6 +243,7 @@ export class DerivDemoClient {
     dateFrom,
     dateTo,
     limit = 100,
+    maxPages = 20,
   } = {}) {
     if (actionType !== "buy") {
       throw new Error("Safety lock: reconciliation may request only buy statement rows.");
@@ -235,23 +259,135 @@ export class DerivDemoClient {
     if (!Number.isInteger(limit) || limit < 1 || limit > 999) {
       throw new Error("Statement reconciliation limit must be from 1 through 999.");
     }
-    const message = await this.request(
-      {
-        action_type: actionType,
-        date_from: dateFrom,
-        date_to: dateTo,
-        description: 1,
-        limit,
-        statement: 1,
-      },
-      "statement",
-      30_000,
-    );
-    const transactions = message.statement?.transactions;
-    if (!Array.isArray(transactions)) {
-      throw new Error("Deriv did not return statement transactions.");
+    if (!Number.isInteger(maxPages) || maxPages < 1 || maxPages > 100) {
+      throw new Error("Statement reconciliation page limit must be from 1 through 100.");
     }
-    return transactions;
+
+    const transactions = [];
+    const transactionIds = new Set();
+    const pageFingerprints = new Set();
+    let offset = 0;
+    for (let page = 1; page <= maxPages; page += 1) {
+      let message;
+      try {
+        message = await this.request(
+          {
+            action_type: actionType,
+            date_from: dateFrom,
+            date_to: dateTo,
+            description: 1,
+            limit,
+            offset,
+            statement: 1,
+          },
+          "statement",
+          30_000,
+        );
+      } catch (error) {
+        return {
+          coverage: {
+            complete: false,
+            dateFrom,
+            dateTo,
+            failure: error.message,
+            nextOffset: offset,
+            pages: page - 1,
+            reason: "PAGINATION_REQUEST_FAILED",
+            rows: transactions.length,
+          },
+          transactions,
+        };
+      }
+      const pageRows = message.statement?.transactions;
+      const reportedCount = Number(message.statement?.count);
+      if (!Array.isArray(pageRows) || !Number.isSafeInteger(reportedCount) ||
+          reportedCount !== pageRows.length) {
+        throw new Error("Deriv returned malformed statement page coverage.");
+      }
+      const ids = pageRows.map((transaction) => {
+        if (!transaction || typeof transaction !== "object") {
+          throw new Error("Deriv returned a malformed statement transaction.");
+        }
+        const id = transaction.transaction_id ?? transaction.transactionId;
+        if ((typeof id !== "number" && typeof id !== "string") || String(id).trim() === "") {
+          throw new Error("Deriv statement transaction is missing its identity.");
+        }
+        const action = String(transaction.action_type ?? transaction.actionType ?? "").toLowerCase();
+        const amount = transaction.amount;
+        const transactionTime = Number(
+          transaction.transaction_time ?? transaction.transactionTime,
+        );
+        if (action !== actionType || amount === null || amount === undefined ||
+            (typeof amount === "string" && amount.trim() === "") ||
+            typeof amount === "boolean" || !Number.isFinite(Number(amount)) ||
+            !Number.isSafeInteger(transactionTime) || transactionTime < dateFrom ||
+            transactionTime > dateTo) {
+          throw new Error("Deriv statement transaction is missing required reconciliation fields.");
+        }
+        return String(id);
+      });
+      const fingerprint = JSON.stringify(ids);
+      if (pageFingerprints.has(fingerprint) && pageRows.length > 0) {
+        return {
+          coverage: {
+            complete: false,
+            dateFrom,
+            dateTo,
+            nextOffset: offset,
+            pages: page,
+            reason: "DUPLICATE_PAGE",
+            rows: transactions.length,
+          },
+          transactions,
+        };
+      }
+      pageFingerprints.add(fingerprint);
+      for (let index = 0; index < pageRows.length; index += 1) {
+        if (transactionIds.has(ids[index])) {
+          return {
+            coverage: {
+              complete: false,
+              dateFrom,
+              dateTo,
+              nextOffset: offset,
+              pages: page,
+              reason: "DUPLICATE_OR_CHANGING_RESULTS",
+              rows: transactions.length,
+            },
+            transactions,
+          };
+        }
+        transactionIds.add(ids[index]);
+        transactions.push(pageRows[index]);
+      }
+      offset += pageRows.length;
+      if (pageRows.length < limit) {
+        return {
+          coverage: {
+            complete: true,
+            dateFrom,
+            dateTo,
+            nextOffset: offset,
+            pages: page,
+            reason: "EXHAUSTED",
+            rows: transactions.length,
+          },
+          transactions,
+        };
+      }
+    }
+    return {
+      coverage: {
+        complete: false,
+        dateFrom,
+        dateTo,
+        nextOffset: offset,
+        pages: maxPages,
+        reason: "PAGE_LIMIT_REACHED",
+        rows: transactions.length,
+      },
+      transactions,
+    };
   }
 
   async getProposal({
@@ -291,13 +427,31 @@ export class DerivDemoClient {
     }
     return {
       askPrice: positiveNumber(proposal.ask_price, "Proposal ask price"),
+      contractType,
+      currency,
+      duration,
+      durationUnit,
       id: String(proposal.id),
-      payout: Number(proposal.payout),
-      spot: Number(proposal.spot),
+      payout: positiveNumber(proposal.payout, "Proposal payout"),
+      spot: positiveNumber(proposal.spot, "Proposal spot"),
+      spotTime: contractId(proposal.spot_time),
+      symbol,
     };
   }
 
-  async buyProposal(proposalId, maximumPrice) {
+  async buyProposal(proposalId, maximumPrice, authorization = null) {
+    if (!authorization || typeof authorization !== "object") {
+      throw new Error("Safety lock: demo purchase lacks deployment authorization.");
+    }
+    const eligibility = await verifyDemoDeploymentEligibility({
+      config: authorization.config,
+      projectRoot: authorization.projectRoot,
+      strategyHash: authorization.strategyHash,
+    });
+    if (eligibility.candidateId !== authorization.candidateId ||
+        eligibility.executorSourceSha256 !== authorization.executorSourceSha256) {
+      throw new Error("Safety lock: demo purchase authorization changed before submission.");
+    }
     if (!/^[\w-]{32,128}$/.test(proposalId)) {
       throw new Error("Deriv proposal ID has an invalid format.");
     }
@@ -306,6 +460,7 @@ export class DerivDemoClient {
       { buy: proposalId, price },
       "buy",
       30_000,
+      AUTHORIZED_ORDER_REQUEST,
     );
     return {
       buyPrice: positiveNumber(
@@ -314,6 +469,19 @@ export class DerivDemoClient {
       ),
       contractId: contractId(message.buy?.contract_id),
       longcode: message.buy?.longcode ?? null,
+      payout: message.buy?.payout === undefined
+        ? null
+        : positiveNumber(message.buy.payout, "Confirmed demo payout"),
+      purchaseTime: message.buy?.purchase_time === undefined
+        ? null
+        : contractId(message.buy.purchase_time),
+      shortcode: message.buy?.shortcode ?? null,
+      startTime: message.buy?.start_time === undefined
+        ? null
+        : contractId(message.buy.start_time),
+      transactionId: message.buy?.transaction_id === undefined
+        ? null
+        : contractId(message.buy.transaction_id),
     };
   }
 
