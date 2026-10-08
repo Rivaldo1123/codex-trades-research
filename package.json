@@ -1,0 +1,34 @@
+{
+  "name": "codex-trades",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Guarded Deriv demo-trading research bot with real-money endpoints blocked.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "demo:setup": "node src/setup-server.js",
+    "demo:status": "node src/demo-cli.js status",
+    "demo:plan": "node src/demo-cli.js plan",
+    "demo:trade-once": "node src/demo-cli.js trade-once --confirm-demo",
+    "demo:learn": "node src/demo-cli.js learn",
+    "data:collect": "node src/data-cli.js collect",
+    "data:history": "node src/historical-backfill-cli.js",
+    "data:historical-study": "node src/historical-study.js",
+    "data:historical-study-wait": "node src/historical-study-wait.js",
+    "data:status": "node src/data-cli.js status",
+    "data:dataset": "node src/data-cli.js dataset",
+    "data:backtest": "node src/data-cli.js backtest",
+    "data:pipeline": "node src/data-cli.js pipeline",
+    "data:live": "node src/live-data-cli.js run",
+    "data:live-status": "node src/live-data-cli.js status",
+    "browser:learn": "node src/browser-learning.js",
+    "browser:flow-backtest": "node src/browser-run-gate.js",
+    "browser:gate": "node src/browser-run-gate.js",
+    "browser:decide": "node src/browser-run-gate.js",
+    "symbols": "node src/cli.js symbols",
+    "snapshot": "node src/cli.js snapshot",
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,976 @@
+{
+  "kind": "retrospective-public-history-gap-recovery",
+  "state": "RECOVERED_SEPARATELY",
+  "generatedAtUtc": "2026-10-08T01:17:14.864Z",
+  "symbol": "1HZ100V",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "fromEpoch": 1791392400,
+  "toEpochExclusive": 1791417600,
+  "protocolSha256": "3847b023023dbe5434fb23b71cad4a6d376f42fe26393e605348a1267722979e",
+  "liveManifestSha256": "da4b901cde363a48d92e2d2ecafabb12a20fdae69c07300fcb070da6ea22599c",
+  "originalLiveAudit": {
+    "kind": "public-forward-window-row-audit",
+    "symbol": "1HZ100V",
+    "fromEpoch": 1791392400,
+    "toEpochExclusive": 1791417600,
+    "fromUtcInclusive": "2026-10-07T17:00:00.000Z",
+    "toUtcExclusive": "2026-10-08T00:00:00.000Z",
+    "minimumCoverageRate": 0.999,
+    "state": "INCONCLUSIVE",
+    "expectedRows": 25200,
+    "availableRows": 24980,
+    "missingRows": 220,
+    "coverageRate": 0.9912698412698413,
+    "missingRanges": [
+      {
+        "firstEpoch": 1791398477,
+        "lastEpoch": 1791398479
+      },
+      {
+        "firstEpoch": 1791399833,
+        "lastEpoch": 1791400018
+      },
+      {
+        "firstEpoch": 1791408710,
+        "lastEpoch": 1791408740
+      }
+    ],
+    "duplicateRows": 0,
+    "duplicateRanges": [],
+    "conflictingRows": 0,
+    "conflictingRanges": [],
+    "observedWindowRows": 24980,
+    "verifiedChunks": 93,
+    "rowsRead": 25099,
+    "note": "A passing archive audit verifies stored public ticks only; it does not establish an executable quote, a profitable method, or permission to trade."
+  },
+  "provenance": "Deriv public ticks_history requested after the live pilot cutoff",
+  "recoveredRows": 220,
+  "stillMissingRows": 0,
+  "ranges": [
+    {
+      "firstEpoch": 1791398477,
+      "lastEpoch": 1791398479,
+      "contextStart": 1791398457,
+      "contextEnd": 1791398499,
+      "fetchedRows": 43,
+      "fetchedSha256": "55d44b9d2748f6d02edd2e984c3f9b045afb9a701ad34f5b1f1640b8d13701df",
+      "recoveredRows": 3,
+      "stillMissingRows": 0,
+      "recovered": [
+        {
+          "epoch": 1791398477,
+          "quote": 1279.87
+        },
+        {
+          "epoch": 1791398478,
+          "quote": 1279.71
+        },
+        {
+          "epoch": 1791398479,
+          "quote": 1279.93
+        }
+      ],
+      "stillMissing": []
+    },
+    {
+      "firstEpoch": 1791399833,
+      "lastEpoch": 1791400018,
+      "contextStart": 1791399813,
+      "contextEnd": 1791400038,
+      "fetchedRows": 226,
+      "fetchedSha256": "42f5dd23303cfa3ddf45a98d7f7017a998e9a58d01d83a2b69aabbfe0c76956a",
+      "recoveredRows": 186,
+      "stillMissingRows": 0,
+      "recovered": [
+        {
+          "epoch": 1791399833,
+          "quote": 1289.39
+        },
+        {
+          "epoch": 1791399834,
+          "quote": 1289.58
+        },
+        {
+          "epoch": 1791399835,
+          "quote": 1289.26
+        },
+        {
+          "epoch": 1791399836,
+          "quote": 1289.17
+        },
+        {
+          "epoch": 1791399837,
+          "quote": 1289.33
+        },
+        {
+          "epoch": 1791399838,
+          "quote": 1289.11
+        },
+        {
+          "epoch": 1791399839,
+          "quote": 1289.24
+        },
+        {
+          "epoch": 1791399840,
+          "quote": 1289.25
+        },
+        {
+          "epoch": 1791399841,
+          "quote": 1288.98
+        },
+        {
+          "epoch": 1791399842,
+          "quote": 1289.19
+        },
+        {
+          "epoch": 1791399843,
+          "quote": 1288.96
+        },
+        {
+          "epoch": 1791399844,
+          "quote": 1288.9
+        },
+        {
+          "epoch": 1791399845,
+          "quote": 1289.38
+        },
+        {
+          "epoch": 1791399846,
+          "quote": 1289.41
+        },
+        {
+          "epoch": 1791399847,
+          "quote": 1289.49
+        },
+        {
+          "epoch": 1791399848,
+          "quote": 1289.33
+        },
+        {
+          "epoch": 1791399849,
+          "quote": 1289.55
+        },
+        {
+          "epoch": 1791399850,
+          "quote": 1289.44
+        },
+        {
+          "epoch": 1791399851,
+          "quote": 1289.31
+        },
+        {
+          "epoch": 1791399852,
+          "quote": 1289.11
+        },
+        {
+          "epoch": 1791399853,
+          "quote": 1289.24
+        },
+        {
+          "epoch": 1791399854,
+          "quote": 1288.83
+        },
+        {
+          "epoch": 1791399855,
+          "quote": 1288.79
+        },
+        {
+          "epoch": 1791399856,
+          "quote": 1288.69
+        },
+        {
+          "epoch": 1791399857,
+          "quote": 1288.58
+        },
+        {
+          "epoch": 1791399858,
+          "quote": 1288.46
+        },
+        {
+          "epoch": 1791399859,
+          "quote": 1288.58
+        },
+        {
+          "epoch": 1791399860,
+          "quote": 1289.08
+        },
+        {
+          "epoch": 1791399861,
+          "quote": 1289.34
+        },
+        {
+          "epoch": 1791399862,
+          "quote": 1289.42
+        },
+        {
+          "epoch": 1791399863,
+          "quote": 1289.57
+        },
+        {
+          "epoch": 1791399864,
+          "quote": 1289.41
+        },
+        {
+          "epoch": 1791399865,
+          "quote": 1289.31
+        },
+        {
+          "epoch": 1791399866,
+          "quote": 1289.43
+        },
+        {
+          "epoch": 1791399867,
+          "quote": 1289.55
+        },
+        {
+          "epoch": 1791399868,
+          "quote": 1289.6
+        },
+        {
+          "epoch": 1791399869,
+          "quote": 1289.3
+        },
+        {
+          "epoch": 1791399870,
+          "quote": 1289.34
+        },
+        {
+          "epoch": 1791399871,
+          "quote": 1289.15
+        },
+        {
+          "epoch": 1791399872,
+          "quote": 1289.09
+        },
+        {
+          "epoch": 1791399873,
+          "quote": 1288.88
+        },
+        {
+          "epoch": 1791399874,
+          "quote": 1289.07
+        },
+        {
+          "epoch": 1791399875,
+          "quote": 1289.32
+        },
+        {
+          "epoch": 1791399876,
+          "quote": 1289.04
+        },
+        {
+          "epoch": 1791399877,
+          "quote": 1288.84
+        },
+        {
+          "epoch": 1791399878,
+          "quote": 1288.71
+        },
+        {
+          "epoch": 1791399879,
+          "quote": 1288.9
+        },
+        {
+          "epoch": 1791399880,
+          "quote": 1288.72
+        },
+        {
+          "epoch": 1791399881,
+          "quote": 1288.99
+        },
+        {
+          "epoch": 1791399882,
+          "quote": 1289.19
+        },
+        {
+          "epoch": 1791399883,
+          "quote": 1288.92
+        },
+        {
+          "epoch": 1791399884,
+          "quote": 1289.37
+        },
+        {
+          "epoch": 1791399885,
+          "quote": 1289.89
+        },
+        {
+          "epoch": 1791399886,
+          "quote": 1289.59
+        },
+        {
+          "epoch": 1791399887,
+          "quote": 1289.6
+        },
+        {
+          "epoch": 1791399888,
+          "quote": 1289.74
+        },
+        {
+          "epoch": 1791399889,
+          "quote": 1289.46
+        },
+        {
+          "epoch": 1791399890,
+          "quote": 1289.18
+        },
+        {
+          "epoch": 1791399891,
+          "quote": 1288.69
+        },
+        {
+          "epoch": 1791399892,
+          "quote": 1288.64
+        },
+        {
+          "epoch": 1791399893,
+          "quote": 1288.88
+        },
+        {
+          "epoch": 1791399894,
+          "quote": 1288.87
+        },
+        {
+          "epoch": 1791399895,
+          "quote": 1289.04
+        },
+        {
+          "epoch": 1791399896,
+          "quote": 1288.19
+        },
+        {
+          "epoch": 1791399897,
+          "quote": 1288.22
+        },
+        {
+          "epoch": 1791399898,
+          "quote": 1288.02
+        },
+        {
+          "epoch": 1791399899,
+          "quote": 1288
+        },
+        {
+          "epoch": 1791399900,
+          "quote": 1288.19
+        },
+        {
+          "epoch": 1791399901,
+          "quote": 1288.28
+        },
+        {
+          "epoch": 1791399902,
+          "quote": 1288.09
+        },
+        {
+          "epoch": 1791399903,
+          "quote": 1287.76
+        },
+        {
+          "epoch": 1791399904,
+          "quote": 1287.86
+        },
+        {
+          "epoch": 1791399905,
+          "quote": 1288.06
+        },
+        {
+          "epoch": 1791399906,
+          "quote": 1287.88
+        },
+        {
+          "epoch": 1791399907,
+          "quote": 1288.19
+        },
+        {
+          "epoch": 1791399908,
+          "quote": 1287.86
+        },
+        {
+          "epoch": 1791399909,
+          "quote": 1287.75
+        },
+        {
+          "epoch": 1791399910,
+          "quote": 1287.57
+        },
+        {
+          "epoch": 1791399911,
+          "quote": 1287.46
+        },
+        {
+          "epoch": 1791399912,
+          "quote": 1287.44
+        },
+        {
+          "epoch": 1791399913,
+          "quote": 1287.7
+        },
+        {
+          "epoch": 1791399914,
+          "quote": 1287.73
+        },
+        {
+          "epoch": 1791399915,
+          "quote": 1287.58
+        },
+        {
+          "epoch": 1791399916,
+          "quote": 1287.26
+        },
+        {
+          "epoch": 1791399917,
+          "quote": 1287.49
+        },
+        {
+          "epoch": 1791399918,
+          "quote": 1287.7
+        },
+        {
+          "epoch": 1791399919,
+          "quote": 1287.64
+        },
+        {
+          "epoch": 1791399920,
+          "quote": 1287.85
+        },
+        {
+          "epoch": 1791399921,
+          "quote": 1287.84
+        },
+        {
+          "epoch": 1791399922,
+          "quote": 1287.84
+        },
+        {
+          "epoch": 1791399923,
+          "quote": 1287.87
+        },
+        {
+          "epoch": 1791399924,
+          "quote": 1287.8
+        },
+        {
+          "epoch": 1791399925,
+          "quote": 1287.61
+        },
+        {
+          "epoch": 1791399926,
+          "quote": 1287.63
+        },
+        {
+          "epoch": 1791399927,
+          "quote": 1287.89
+        },
+        {
+          "epoch": 1791399928,
+          "quote": 1287.63
+        },
+        {
+          "epoch": 1791399929,
+          "quote": 1288.04
+        },
+        {
+          "epoch": 1791399930,
+          "quote": 1287.82
+        },
+        {
+          "epoch": 1791399931,
+          "quote": 1287.95
+        },
+        {
+          "epoch": 1791399932,
+          "quote": 1288.05
+        },
+        {
+          "epoch": 1791399933,
+          "quote": 1287.86
+        },
+        {
+          "epoch": 1791399934,
+          "quote": 1288.18
+        },
+        {
+          "epoch": 1791399935,
+          "quote": 1288.06
+        },
+        {
+          "epoch": 1791399936,
+          "quote": 1288.03
+        },
+        {
+          "epoch": 1791399937,
+          "quote": 1287.82
+        },
+        {
+          "epoch": 1791399938,
+          "quote": 1287.64
+        },
+        {
+          "epoch": 1791399939,
+          "quote": 1287.6
+        },
+        {
+          "epoch": 1791399940,
+          "quote": 1287.54
+        },
+        {
+          "epoch": 1791399941,
+          "quote": 1287.67
+        },
+        {
+          "epoch": 1791399942,
+          "quote": 1287.72
+        },
+        {
+          "epoch": 1791399943,
+          "quote": 1287.72
+        },
+        {
+          "epoch": 1791399944,
+          "quote": 1287.87
+        },
+        {
+          "epoch": 1791399945,
+          "quote": 1288.17
+        },
+        {
+          "epoch": 1791399946,
+          "quote": 1288.2
+        },
+        {
+          "epoch": 1791399947,
+          "quote": 1288.4
+        },
+        {
+          "epoch": 1791399948,
+          "quote": 1288.34
+        },
+        {
+          "epoch": 1791399949,
+          "quote": 1288.43
+        },
+        {
+          "epoch": 1791399950,
+          "quote": 1288.5
+        },
+        {
+          "epoch": 1791399951,
+          "quote": 1288.26
+        },
+        {
+          "epoch": 1791399952,
+          "quote": 1288.48
+        },
+        {
+          "epoch": 1791399953,
+          "quote": 1288.61
+        },
+        {
+          "epoch": 1791399954,
+          "quote": 1288.41
+        },
+        {
+          "epoch": 1791399955,
+          "quote": 1288.58
+        },
+        {
+          "epoch": 1791399956,
+          "quote": 1288.72
+        },
+        {
+          "epoch": 1791399957,
+          "quote": 1288.83
+        },
+        {
+          "epoch": 1791399958,
+          "quote": 1289.07
+        },
+        {
+          "epoch": 1791399959,
+          "quote": 1289.43
+        },
+        {
+          "epoch": 1791399960,
+          "quote": 1289.27
+        },
+        {
+          "epoch": 1791399961,
+          "quote": 1289.25
+        },
+        {
+          "epoch": 1791399962,
+          "quote": 1289.51
+        },
+        {
+          "epoch": 1791399963,
+          "quote": 1289.96
+        },
+        {
+          "epoch": 1791399964,
+          "quote": 1290.3
+        },
+        {
+          "epoch": 1791399965,
+          "quote": 1290.28
+        },
+        {
+          "epoch": 1791399966,
+          "quote": 1289.95
+        },
+        {
+          "epoch": 1791399967,
+          "quote": 1290.04
+        },
+        {
+          "epoch": 1791399968,
+          "quote": 1289.98
+        },
+        {
+          "epoch": 1791399969,
+          "quote": 1289.76
+        },
+        {
+          "epoch": 1791399970,
+          "quote": 1289.45
+        },
+        {
+          "epoch": 1791399971,
+          "quote": 1288.96
+        },
+        {
+          "epoch": 1791399972,
+          "quote": 1289.23
+        },
+        {
+          "epoch": 1791399973,
+          "quote": 1289.21
+        },
+        {
+          "epoch": 1791399974,
+          "quote": 1289.26
+        },
+        {
+          "epoch": 1791399975,
+          "quote": 1289.28
+        },
+        {
+          "epoch": 1791399976,
+          "quote": 1289.32
+        },
+        {
+          "epoch": 1791399977,
+          "quote": 1289.12
+        },
+        {
+          "epoch": 1791399978,
+          "quote": 1288.68
+        },
+        {
+          "epoch": 1791399979,
+          "quote": 1288.9
+        },
+        {
+          "epoch": 1791399980,
+          "quote": 1288.88
+        },
+        {
+          "epoch": 1791399981,
+          "quote": 1288.65
+        },
+        {
+          "epoch": 1791399982,
+          "quote": 1288.97
+        },
+        {
+          "epoch": 1791399983,
+          "quote": 1289.11
+        },
+        {
+          "epoch": 1791399984,
+          "quote": 1289.24
+        },
+        {
+          "epoch": 1791399985,
+          "quote": 1289.47
+        },
+        {
+          "epoch": 1791399986,
+          "quote": 1289.64
+        },
+        {
+          "epoch": 1791399987,
+          "quote": 1289.98
+        },
+        {
+          "epoch": 1791399988,
+          "quote": 1290.05
+        },
+        {
+          "epoch": 1791399989,
+          "quote": 1289.91
+        },
+        {
+          "epoch": 1791399990,
+          "quote": 1289.98
+        },
+        {
+          "epoch": 1791399991,
+          "quote": 1290.31
+        },
+        {
+          "epoch": 1791399992,
+          "quote": 1290.45
+        },
+        {
+          "epoch": 1791399993,
+          "quote": 1290.33
+        },
+        {
+          "epoch": 1791399994,
+          "quote": 1290.21
+        },
+        {
+          "epoch": 1791399995,
+          "quote": 1290.68
+        },
+        {
+          "epoch": 1791399996,
+          "quote": 1290.57
+        },
+        {
+          "epoch": 1791399997,
+          "quote": 1290.59
+        },
+        {
+          "epoch": 1791399998,
+          "quote": 1291.06
+        },
+        {
+          "epoch": 1791399999,
+          "quote": 1290.92
+        },
+        {
+          "epoch": 1791400000,
+          "quote": 1290.86
+        },
+        {
+          "epoch": 1791400001,
+          "quote": 1290.73
+        },
+        {
+          "epoch": 1791400002,
+          "quote": 1291.35
+        },
+        {
+          "epoch": 1791400003,
+          "quote": 1291.48
+        },
+        {
+          "epoch": 1791400004,
+          "quote": 1291.76
+        },
+        {
+          "epoch": 1791400005,
+          "quote": 1291.91
+        },
+        {
+          "epoch": 1791400006,
+          "quote": 1292.27
+        },
+        {
+          "epoch": 1791400007,
+          "quote": 1292.27
+        },
+        {
+          "epoch": 1791400008,
+          "quote": 1292.35
+        },
+        {
+          "epoch": 1791400009,
+          "quote": 1292.15
+        },
+        {
+          "epoch": 1791400010,
+          "quote": 1292
+        },
+        {
+          "epoch": 1791400011,
+          "quote": 1291.59
+        },
+        {
+          "epoch": 1791400012,
+          "quote": 1291.71
+        },
+        {
+          "epoch": 1791400013,
+          "quote": 1291.59
+        },
+        {
+          "epoch": 1791400014,
+          "quote": 1291.48
+        },
+        {
+          "epoch": 1791400015,
+          "quote": 1291.18
+        },
+        {
+          "epoch": 1791400016,
+          "quote": 1291.37
+        },
+        {
+          "epoch": 1791400017,
+          "quote": 1291.55
+        },
+        {
+          "epoch": 1791400018,
+          "quote": 1291.56
+        }
+      ],
+      "stillMissing": []
+    },
+    {
+      "firstEpoch": 1791408710,
+      "lastEpoch": 1791408740,
+      "contextStart": 1791408690,
+      "contextEnd": 1791408760,
+      "fetchedRows": 71,
+      "fetchedSha256": "113efb1ce02e7edbe651c7c5236f714b8b7e1316f9b4a223a7293e669b6971b4",
+      "recoveredRows": 31,
+      "stillMissingRows": 0,
+      "recovered": [
+        {
+          "epoch": 1791408710,
+          "quote": 1282.94
+        },
+        {
+          "epoch": 1791408711,
+          "quote": 1283.13
+        },
+        {
+          "epoch": 1791408712,
+          "quote": 1283.03
+        },
+        {
+          "epoch": 1791408713,
+          "quote": 1283.39
+        },
+        {
+          "epoch": 1791408714,
+          "quote": 1283.33
+        },
+        {
+          "epoch": 1791408715,
+          "quote": 1283.34
+        },
+        {
+          "epoch": 1791408716,
+          "quote": 1283
+        },
+        {
+          "epoch": 1791408717,
+          "quote": 1282.9
+        },
+        {
+          "epoch": 1791408718,
+          "quote": 1282.71
+        },
+        {
+          "epoch": 1791408719,
+          "quote": 1282.36
+        },
+        {
+          "epoch": 1791408720,
+          "quote": 1282.71
+        },
+        {
+          "epoch": 1791408721,
+          "quote": 1282.59
+        },
+        {
+          "epoch": 1791408722,
+          "quote": 1283.02
+        },
+        {
+          "epoch": 1791408723,
+          "quote": 1283.42
+        },
+        {
+          "epoch": 1791408724,
+          "quote": 1283.5
+        },
+        {
+          "epoch": 1791408725,
+          "quote": 1283.16
+        },
+        {
+          "epoch": 1791408726,
+          "quote": 1283.16
+        },
+        {
+          "epoch": 1791408727,
+          "quote": 1283.01
+        },
+        {
+          "epoch": 1791408728,
+          "quote": 1283.1
+        },
+        {
+          "epoch": 1791408729,
+          "quote": 1283.08
+        },
+        {
+          "epoch": 1791408730,
+          "quote": 1282.98
+        },
+        {
+          "epoch": 1791408731,
+          "quote": 1283.04
+        },
+        {
+          "epoch": 1791408732,
+          "quote": 1283.47
+        },
+        {
+          "epoch": 1791408733,
+          "quote": 1283.9
+        },
+        {
+          "epoch": 1791408734,
+          "quote": 1283.94
+        },
+        {
+          "epoch": 1791408735,
+          "quote": 1284.02
+        },
+        {
+          "epoch": 1791408736,
+          "quote": 1284.71
+        },
+        {
+          "epoch": 1791408737,
+          "quote": 1284.96
+        },
+        {
+          "epoch": 1791408738,
+          "quote": 1285.09
+        },
+        {
+          "epoch": 1791408739,
+          "quote": 1284.49
+        },
+        {
+          "epoch": 1791408740,
+          "quote": 1284.86
+        }
+      ],
+      "stillMissing": []
+    }
+  ],
+  "recoveredTicksSha256": "a3d6a1b4262e7653a52c3476019dc8b75a08d21957f228ec7bbcaacf50ea11dc",
+  "livePilotStatusUnchanged": "INCONCLUSIVE",
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false
+}

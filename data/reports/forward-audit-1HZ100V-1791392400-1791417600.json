@@ -1,0 +1,37 @@
+{
+  "kind": "public-forward-window-row-audit",
+  "symbol": "1HZ100V",
+  "fromEpoch": 1791392400,
+  "toEpochExclusive": 1791417600,
+  "fromUtcInclusive": "2026-10-07T17:00:00.000Z",
+  "toUtcExclusive": "2026-10-08T00:00:00.000Z",
+  "minimumCoverageRate": 0.999,
+  "state": "INCONCLUSIVE",
+  "expectedRows": 25200,
+  "availableRows": 24980,
+  "missingRows": 220,
+  "coverageRate": 0.9912698412698413,
+  "missingRanges": [
+    {
+      "firstEpoch": 1791398477,
+      "lastEpoch": 1791398479
+    },
+    {
+      "firstEpoch": 1791399833,
+      "lastEpoch": 1791400018
+    },
+    {
+      "firstEpoch": 1791408710,
+      "lastEpoch": 1791408740
+    }
+  ],
+  "duplicateRows": 0,
+  "duplicateRanges": [],
+  "conflictingRows": 0,
+  "conflictingRanges": [],
+  "observedWindowRows": 24980,
+  "verifiedChunks": 93,
+  "rowsRead": 25099,
+  "note": "A passing archive audit verifies stored public ticks only; it does not establish an executable quote, a profitable method, or permission to trade.",
+  "auditedAtUtc": "2026-10-08T01:05:02.669Z"
+}

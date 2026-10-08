@@ -1,0 +1,9 @@
+{
+  "mode": "research-only",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "symbol": "1HZ100V",
+  "granularitySeconds": 60,
+  "candleCount": 1000,
+  "fastWindow": 20,
+  "slowWindow": 50
+}

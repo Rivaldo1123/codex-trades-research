@@ -1,0 +1,37 @@
+{
+  "kind": "public-only-frozen-shortlist-historical-check",
+  "version": 1,
+  "mode": "public-data-only",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "sourceDiscoveryReportSha256": "26c3f9c3d128e81ae098d634b709549290f532bbb9a482b78d49025bea1eb847",
+  "fromEpoch": 1791165600,
+  "toEpochExclusive": 1791338400,
+  "windowUtc": "[2026-10-05T02:00:00Z, 2026-10-07T02:00:00Z)",
+  "candidates": [
+    { "symbol": "R_50", "secondsPerTick": 2, "methodId": "normalized-price-sma-distance-34-1.5-reverse" },
+    { "symbol": "1HZ10V", "secondsPerTick": 1, "methodId": "normalized-tick-streak-8-0.25-reverse" },
+    { "symbol": "R_100", "secondsPerTick": 2, "methodId": "normalized-sma-spread-89-233-1-trend" }
+  ],
+  "collection": {
+    "pageSize": 1000,
+    "minimumInterRequestMs": 1500,
+    "maximumConsecutiveRetries": 8,
+    "minimumCoverageRatePerSymbol": 0.999
+  },
+  "evaluation": {
+    "contractType": "Rise/Fall",
+    "durationTicks": 5,
+    "oneOpenContract": true,
+    "entryDelayTicks": [1, 2, 3],
+    "winProfitPerDollarStake": [0.8, 0.9, 0.95],
+    "stressWinProfitPerDollarStake": 0.9,
+    "minimumSettledTradesPerHalfPerDelay": 100,
+    "requirePositiveEveryHalfAndDelayAtStressPayout": true,
+    "allowNoTrade": true
+  },
+  "evidenceLevel": "UNVIEWED_BUT_RETROSPECTIVE_HISTORICAL_CHECK_AFTER_ADAPTIVE_DISCOVERY",
+  "botBuilderParity": "UNVERIFIED",
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false
+}

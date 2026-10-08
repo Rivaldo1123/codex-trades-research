@@ -1,0 +1,54 @@
+{
+  "kind": "preregistered-public-short-pilot",
+  "version": 3,
+  "frozenAtUtc": "2026-10-07T16:41:29Z",
+  "status": "FROZEN_BEFORE_ELIGIBLE_WINDOW",
+  "predecessor": "v2 forward collector failed at 2026-10-07T16:31:33Z on a Windows status-file rename; v2 stays an aborted 14-day plan and is not relabeled as this pilot",
+  "purpose": "A same-day exploratory, public-data-only Bot Builder research checkpoint at the user's requested 8 pm New York cutoff; not a profitability validation.",
+  "source": {
+    "symbol": "1HZ100V",
+    "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+    "authentication": "none",
+    "orderAccess": "none"
+  },
+  "eligibleWindow": {
+    "fromUtcInclusive": "2026-10-07T17:00:00Z",
+    "toUtcExclusive": "2026-10-08T00:00:00Z",
+    "plannedSeconds": 25200,
+    "localCutoff": "2026-10-07 20:00:00 America/New_York"
+  },
+  "candidateRules": [
+    {
+      "id": "bb20-2-reversal-5t",
+      "indicator": "Bollinger Bands on the most recent 20 ticks including decision tick; center is arithmetic mean; standard deviation is population SD; upper/lower = center +/- 2 SD.",
+      "direction": "Rise if decision quote is strictly below lower band; Fall if strictly above upper band; otherwise NO TRADE.",
+      "durationTicks": 5
+    },
+    {
+      "id": "rsi14-reversal-5t",
+      "indicator": "RSI(14) using Wilder smoothing of upward/downward quote differences, seeded by the first 14 differences; current decision tick included.",
+      "direction": "Rise if RSI is strictly below 30; Fall if RSI is strictly above 70; otherwise NO TRADE.",
+      "durationTicks": 5
+    }
+  ],
+  "fixedReplayRules": {
+    "processingDelayTicks": [1, 2, 3],
+    "profitPerDollarOnWin": [0.7, 0.8, 0.9],
+    "profitPerDollarOnLossOrTie": -1,
+    "entryAndExpiry": "Signal at t; hypothetical entry at t+delay ticks; expiry at entry+5 ticks. Never bridge a missing second. At most one open hypothetical contract per candidate/delay; next decision strictly after settlement.",
+    "assumptions": "Public tick replay is not an executable quote. Payouts and entry delays are scenarios, not actual fills."
+  },
+  "evaluation": {
+    "timing": "No eligible-window strategy performance inspection before 2026-10-08T00:00:00Z and collector completion.",
+    "archiveGate": "Verify the exact UTC-second window with chunk SHA-256, row counts, bounds, duplicates/conflicts, and explicit missing ranges. At least 99.9% genuine-second coverage is required for descriptive replay; no interpolation.",
+    "outcome": "Only DEVELOPMENT_ONLY or INCONCLUSIVE. Log every fixed candidate/delay/payout scenario with observations, wins/losses/ties, signed average per $1, and no-signal counts. This seven-hour pilot cannot pass the original 14-day gate, prove profit, authorize Demo or real orders, or permit Bot Builder Run.",
+    "platformParity": "Deriv Bot BB rounding, RSI flat-series behavior and tick/tick-list timing differ or remain unverified. Do not claim Bot Builder equivalence."
+  },
+  "safety": {
+    "botBuilderRun": false,
+    "demoOrder": false,
+    "realOrder": false,
+    "accountOrTokenUse": false,
+    "legacyArchive": "The viewed prior 30-day archive and the failed v2 partial window are development context, not this pilot's exact prospective window."
+  }
+}

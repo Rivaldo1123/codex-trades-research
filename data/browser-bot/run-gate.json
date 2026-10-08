@@ -1,0 +1,97 @@
+{
+  "generatedAt": "2026-10-07T02:41:51.914Z",
+  "modules": {
+    "liveSavedWorkspace": "Codex Browser Learning - One-Shot Gate",
+    "validatedConditionalXml": "dbot/Codex_Browser_Learning_OneTick_Fall_Signal.xml",
+    "browserVariantId": "one-tick-fall-signal"
+  },
+  "mode": "Deriv Demo only",
+  "decision": "WAIT",
+  "action": "Do not press Run. Obtain adequate historical data for this Bot Builder flow, then evaluate an explicit capped Demo forward batch.",
+  "eligibleForSignalCheck": false,
+  "evidence": {
+    "apiOneTickDirectionalGateTest": {
+      "averageProfitPerDollarStake": -0.05839793281653748,
+      "losses": 3709,
+      "netProfitPerDollarStake": -429.4000000000001,
+      "observations": 7353,
+      "parameters": {
+        "entryDelayTicks": 1,
+        "fastWindow": 10,
+        "horizonTicks": 1,
+        "payoutOnLoss": -1,
+        "payoutOnWin": 0.9,
+        "slowWindow": 20,
+        "direction": "fall"
+      },
+      "winRate": 0.4955800353597171,
+      "wins": 3644
+    },
+    "archiveAgeHours": 0.19080944444444445,
+    "browser": {
+      "averageLoss": null,
+      "averageWin": null,
+      "breakEvenWinRate": null,
+      "observations": null,
+      "profitFactor": null,
+      "winRate": null,
+      "winRateWilson95": null
+    }
+  },
+  "failedRequirementCodes": [
+    "browser_sample_size",
+    "browser_confidence_above_break_even",
+    "browser_profit_factor",
+    "api_test_edge"
+  ],
+  "requirements": [
+    {
+      "actual": null,
+      "code": "browser_sample_size",
+      "explanation": "Require a meaningful number of settled Demo contracts before trusting the observed rate.",
+      "pass": false,
+      "required": 200
+    },
+    {
+      "actual": null,
+      "code": "browser_confidence_above_break_even",
+      "explanation": "The conservative 95% lower win-rate bound must exceed the payout-implied break-even rate.",
+      "pass": false,
+      "required": null
+    },
+    {
+      "actual": null,
+      "code": "browser_profit_factor",
+      "explanation": "Require a buffer above break-even instead of reacting to a marginally positive sample.",
+      "pass": false,
+      "required": 1.1
+    },
+    {
+      "actual": 7353,
+      "code": "api_test_sample_size",
+      "explanation": "The independent untouched API test must contain enough one-tick observations.",
+      "pass": true,
+      "required": 5000
+    },
+    {
+      "actual": 0.4955800353597171,
+      "code": "api_test_edge",
+      "explanation": "The exact Fall-only 10/20 SMA flow must clear payout break-even by the safety margin and have positive simulated profit on the untouched test segment.",
+      "pass": false,
+      "required": null
+    },
+    {
+      "actual": 0.19080944444444445,
+      "code": "api_archive_freshness",
+      "explanation": "Do not arm the browser bot from a stale tick archive.",
+      "pass": true,
+      "required": 6
+    }
+  ],
+  "safeguards": {
+    "automaticRepeat": false,
+    "contractDirection": "Fall only when fast SMA (10 ticks) is below slow SMA (20 ticks)",
+    "maximumContractsPerRun": 1,
+    "stakeDemoUsd": 1
+  }
+}

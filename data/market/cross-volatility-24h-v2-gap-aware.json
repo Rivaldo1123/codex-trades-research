@@ -1,0 +1,39 @@
+{
+  "kind": "public-only-cross-volatility-24h-gap-aware-study",
+  "version": 2,
+  "frozenAtUtc": "2026-10-08T02:39:00Z",
+  "baseProtocolSha256": "976ef6ba70977919c1fb20d718ac5119b364b413cc5e801fa7d0d7b1ef396b75",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "mode": "public-data-only",
+  "fromEpoch": 1791338400,
+  "toEpochExclusive": 1791424800,
+  "symbolRule": "Exactly the 13 active Volatility symbols and native 1s/2s cadences in the checksum-pinned v1 protocol; do not add or remove symbols after observing results.",
+  "observedV1Failure": "R_10 public history omitted scheduled epochs 1791354024 and 1791354026 in both a 1000-tick page and a focused 30-tick request. V1 remains FAILED; no row is interpolated or copied into this study.",
+  "collection": {
+    "request": "public ticks_history only",
+    "pageSize": 1000,
+    "minimumInterRequestMs": 1500,
+    "maximumConsecutiveRateLimitRetries": 20,
+    "maximumReconnectRetries": 5,
+    "pageRule": "Fetch backward from the exact UTC end; save checksum-named immutable pages separately. Permit aligned missing source timestamps, but never interpolate, forward-fill, or manufacture a tick.",
+    "minimumCoverageRatePerSymbol": 0.999,
+    "integrityRule": "Reject malformed, out-of-window, misaligned, out-of-order, duplicate, conflicting, or checksum-invalid rows. Any symbol below 99.9% source-tick coverage is INCOMPLETE and cannot receive a strategy score."
+  },
+  "evaluation": {
+    "candidateSource": "All 550 previously frozen variants from the 50-rule and additional-500 catalogs; no rule changes after seeing cross-symbol data.",
+    "minimumSettledTradesPerHalfPerDelay": 100,
+    "durationTicks": 5,
+    "delaysTicks": [1, 2, 3],
+    "oneOpenContract": true,
+    "winProfitPerDollarStake": [0.7, 0.8, 0.9],
+    "lossOrTiePerDollarStake": -1,
+    "split": "first 12 UTC hours and last 12 UTC hours; reset indicator state at midpoint and at each missing tick",
+    "gapRule": "No signal, delayed entry, open contract, or settlement may cross a missing tick or the midpoint.",
+    "exploratoryScreen": "At least 100 settlements in both halves for every delay, and positive modeled return in both halves for every delay at +0.70 win profit. Passing remains DEVELOPMENT_ONLY, never trading approval.",
+    "actualExecutablePayoutsObserved": false,
+    "botBuilderParityVerified": false
+  },
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false
+}

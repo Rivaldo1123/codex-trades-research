@@ -1,0 +1,172 @@
+<xml xmlns="http://www.w3.org/1999/xhtml" collection="false" is_dbot="true">
+  <variables>
+    <variable type="" id="browser_fall_fast_sma" islocal="false" iscloud="false">fast SMA</variable>
+    <variable type="" id="browser_fall_slow_sma" islocal="false" iscloud="false">slow SMA</variable>
+  </variables>
+  <block type="trade_definition" id="browser_fall_trade" deletable="false" x="20" y="20">
+    <statement name="TRADE_OPTIONS">
+      <block type="trade_definition_market" id="browser_fall_market" deletable="false" movable="false">
+        <field name="MARKET_LIST">synthetic_index</field>
+        <field name="SUBMARKET_LIST">random_index</field>
+        <field name="SYMBOL_LIST">1HZ100V</field>
+        <next>
+          <block type="trade_definition_tradetype" id="browser_fall_type" deletable="false" movable="false">
+            <field name="TRADETYPECAT_LIST">callput</field>
+            <field name="TRADETYPE_LIST">callput</field>
+            <next>
+              <block type="trade_definition_contracttype" id="browser_fall_contract" deletable="false" movable="false">
+                <field name="TYPE_LIST">both</field>
+                <next>
+                  <block type="trade_definition_candleinterval" id="browser_fall_interval" deletable="false" movable="false">
+                    <field name="CANDLEINTERVAL_LIST">60</field>
+                    <next>
+                      <block type="trade_definition_restartbuysell" id="browser_fall_restart_buy" deletable="false" movable="false">
+                        <field name="TIME_MACHINE_ENABLED">FALSE</field>
+                        <next>
+                          <block type="trade_definition_restartonerror" id="browser_fall_restart_error" deletable="false" movable="false">
+                            <field name="RESTARTONERROR">FALSE</field>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <statement name="INITIALIZATION">
+      <block type="notify" id="browser_fall_warning">
+        <field name="NOTIFICATION_TYPE">warn</field>
+        <field name="NOTIFICATION_SOUND">silent</field>
+        <value name="MESSAGE">
+          <shadow type="text" id="browser_fall_warning_text">
+            <field name="TEXT">DEMO ONLY: one $1 contract maximum. External evidence gate must say READY before this signal check.</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+    <statement name="SUBMARKET">
+      <block type="trade_definition_tradeoptions" id="browser_fall_options">
+        <mutation has_first_barrier="false" has_second_barrier="false" has_prediction="false"></mutation>
+        <field name="DURATIONTYPE_LIST">t</field>
+        <field name="CURRENCY_LIST">USD</field>
+        <value name="DURATION">
+          <shadow type="math_number_positive" id="browser_fall_duration">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="AMOUNT">
+          <shadow type="math_number_positive" id="browser_fall_amount">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <field name="AMOUNT_LIMITS"></field>
+      </block>
+    </statement>
+  </block>
+  <block type="during_purchase" id="browser_fall_during" x="850" y="20">
+    <statement name="DURING_PURCHASE_STACK">
+      <block type="controls_if" id="browser_fall_sell_if">
+        <value name="IF0">
+          <block type="check_sell" id="browser_fall_sell"></block>
+        </value>
+      </block>
+    </statement>
+  </block>
+  <block type="after_purchase" id="browser_fall_after" x="850" y="250">
+    <statement name="AFTERPURCHASE_STACK">
+      <block type="notify" id="browser_fall_complete_notice">
+        <field name="NOTIFICATION_TYPE">info</field>
+        <field name="NOTIFICATION_SOUND">silent</field>
+        <value name="MESSAGE">
+          <shadow type="text" id="browser_fall_complete_text">
+            <field name="TEXT">One Demo research contract settled. Rebuild the learning report and gate before another Run.</field>
+          </shadow>
+        </value>
+      </block>
+    </statement>
+  </block>
+  <block type="before_purchase" id="browser_fall_before" deletable="false" x="20" y="560">
+    <statement name="BEFOREPURCHASE_STACK">
+      <block type="sma_statement" id="browser_fall_fast_sma_statement">
+        <field name="VARIABLE" id="browser_fall_fast_sma" variabletype="">fast SMA</field>
+        <statement name="STATEMENT">
+          <block type="input_list" id="browser_fall_fast_input">
+            <value name="INPUT_LIST">
+              <block type="ticks" id="browser_fall_fast_ticks"></block>
+            </value>
+            <next>
+              <block type="period" id="browser_fall_fast_period">
+                <value name="PERIOD">
+                  <block type="math_number" id="browser_fall_fast_ten">
+                    <field name="NUM">10</field>
+                  </block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </statement>
+        <next>
+          <block type="sma_statement" id="browser_fall_slow_sma_statement">
+            <field name="VARIABLE" id="browser_fall_slow_sma" variabletype="">slow SMA</field>
+            <statement name="STATEMENT">
+              <block type="input_list" id="browser_fall_slow_input">
+                <value name="INPUT_LIST">
+                  <block type="ticks" id="browser_fall_slow_ticks"></block>
+                </value>
+                <next>
+                  <block type="period" id="browser_fall_slow_period">
+                    <value name="PERIOD">
+                      <block type="math_number" id="browser_fall_slow_twenty">
+                        <field name="NUM">20</field>
+                      </block>
+                    </value>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="browser_fall_signal_gate">
+                <mutation else="1"></mutation>
+                <value name="IF0">
+                  <block type="logic_compare" id="browser_fall_sma_compare">
+                    <field name="OP">LT</field>
+                    <value name="A">
+                      <block type="variables_get" id="browser_fall_fast_read">
+                        <field name="VAR" id="browser_fall_fast_sma" variabletype="">fast SMA</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="variables_get" id="browser_fall_slow_read">
+                        <field name="VAR" id="browser_fall_slow_sma" variabletype="">slow SMA</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="purchase" id="browser_fall_purchase">
+                    <field name="PURCHASE_LIST">PUT</field>
+                  </block>
+                </statement>
+                <statement name="ELSE">
+                  <block type="notify" id="browser_fall_wait_notice">
+                    <field name="NOTIFICATION_TYPE">warn</field>
+                    <field name="NOTIFICATION_SOUND">silent</field>
+                    <value name="MESSAGE">
+                      <shadow type="text" id="browser_fall_wait_text">
+                        <field name="TEXT">WAIT: the 10-tick SMA is not below the 20-tick SMA. No contract was purchased.</field>
+                      </shadow>
+                    </value>
+                  </block>
+                </statement>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

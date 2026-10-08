@@ -1,0 +1,63 @@
+{
+  "kind": "bounded-bot-builder-method-screen",
+  "version": 1,
+  "symbol": "1HZ100V",
+  "developmentWindow": {
+    "fromEpoch": 1788667200,
+    "toEpochExclusive": 1791259200,
+    "expectedSeconds": 2592000,
+    "knownMissingEpochs": [1789085201, 1789085202, 1789085203, 1789085204, 1789085205, 1789085206, 1789085207],
+    "split": [0.7, 0.85]
+  },
+  "timing": {
+    "contractType": "Rise/Fall",
+    "durationTicks": 5,
+    "processingDelayTicks": [1, 2, 3],
+    "oneOpenContract": true,
+    "tieOutcome": "loss",
+    "gapAndSplitRule": "Reset all indicators at missing seconds and UTC split boundaries. Never cross either with a signal, entry or settlement."
+  },
+  "payout": {
+    "profitPerDollarOnWin": [0.7, 0.8, 0.9],
+    "profitPerDollarOnLossOrTie": -1,
+    "primaryDevelopmentPayout": 0.8,
+    "stressPayout": 0.7,
+    "observedExecutableQuotes": false
+  },
+  "ranking": {
+    "rankOn": "middle UTC segment only; minimum across all three delays at +0.80 win payout",
+    "minimumMiddleTradesPerDelay": 250,
+    "lateSegmentUse": "reported as an already-viewed stability diagnostic, never called an untouched test",
+    "topCount": 3,
+    "promotionRule": "No method becomes tradable from this screen. New prospective data and Bot Builder parity are required."
+  },
+  "methods": [
+    { "id": "sma10-20-trend", "family": "SMA", "rule": "Rise when SMA10>SMA20; Fall when SMA10<SMA20; otherwise no trade." },
+    { "id": "sma20-50-trend", "family": "SMA", "rule": "Rise when SMA20>SMA50; Fall when SMA20<SMA50; otherwise no trade." },
+    { "id": "sma10-20-contrarian", "family": "SMA", "rule": "Fall when SMA10>SMA20; Rise when SMA10<SMA20; otherwise no trade." },
+    { "id": "sma20-50-contrarian", "family": "SMA", "rule": "Fall when SMA20>SMA50; Rise when SMA20<SMA50; otherwise no trade." },
+    { "id": "sma10-20-cross", "family": "SMA", "rule": "Rise only on SMA10 crossing above SMA20; Fall only on crossing below." },
+    { "id": "sma20-50-cross", "family": "SMA", "rule": "Rise only on SMA20 crossing above SMA50; Fall only on crossing below." },
+    { "id": "ema12-26-trend", "family": "EMA", "rule": "Rise when EMA12>EMA26; Fall when EMA12<EMA26." },
+    { "id": "ema12-26-contrarian", "family": "EMA", "rule": "Fall when EMA12>EMA26; Rise when EMA12<EMA26." },
+    { "id": "ema12-26-cross", "family": "EMA", "rule": "Rise only on EMA12 crossing above EMA26; Fall only on crossing below." },
+    { "id": "macd12-26-9-sign", "family": "MACD", "rule": "Rise when MACD line is above its 9-period signal; Fall when below." },
+    { "id": "macd12-26-9-cross", "family": "MACD", "rule": "Rise only on MACD crossing above its signal; Fall only on crossing below." },
+    { "id": "bb20-2-revert", "family": "Bollinger", "rule": "Rise below the lower 20-period, 2-SD band; Fall above the upper band." },
+    { "id": "bb20-2-breakout", "family": "Bollinger", "rule": "Fall below the lower 20-period, 2-SD band; Rise above the upper band." },
+    { "id": "bb20-2-reentry", "family": "Bollinger", "rule": "Rise when price returns inside the lower band from below; Fall when it returns inside the upper band from above." },
+    { "id": "rsi14-30-70-revert", "family": "RSI", "rule": "Rise when Wilder RSI14<30; Fall when RSI14>70." },
+    { "id": "rsi14-30-70-trend", "family": "RSI", "rule": "Fall when Wilder RSI14<30; Rise when RSI14>70." },
+    { "id": "rsi14-50-cross", "family": "RSI", "rule": "Rise only when RSI14 crosses above 50; Fall only when it crosses below 50." },
+    { "id": "rsi14-extreme-exit", "family": "RSI", "rule": "Rise when RSI14 exits below-30 territory upward; Fall when it exits above-70 territory downward." },
+    { "id": "sma10-20-rsi50-confirm", "family": "SMA+RSI", "rule": "Rise when SMA10>SMA20 and RSI14>50; Fall when SMA10<SMA20 and RSI14<50." },
+    { "id": "bb20-2-rsi-confirm", "family": "Bollinger+RSI", "rule": "Rise below lower band only with RSI14<30; Fall above upper band only with RSI14>70." }
+  ],
+  "sourceNotes": [
+    "https://experts.deriv.com/insights/how-to-use-technical-analysis-tools-on-derivs-trading-bot",
+    "https://deriv.com/markets/derived-indices/synthetic-indices?ae675f24_page=2"
+  ],
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false
+}

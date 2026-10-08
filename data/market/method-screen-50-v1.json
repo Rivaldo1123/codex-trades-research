@@ -1,0 +1,92 @@
+{
+  "kind": "bounded-bot-builder-method-screen-50",
+  "version": 1,
+  "symbol": "1HZ100V",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "priorTwenty": {
+    "catalogSha256": "d050e41582df2490095b6027fb490ec2e95c8e694a88f3416634b08736d99634",
+    "reportSha256": "c08b766e3a31e0d808b2f71ec82fcb4a6e454a6c094c3c6169ba6eb5da38801c",
+    "status": "already viewed; reuse exact 180-scenario ledger after verifying source and assumptions"
+  },
+  "developmentSeries": [
+    {
+      "name": "thirty-day-public-archive",
+      "fromEpoch": 1788667200,
+      "toEpochExclusive": 1791259200,
+      "expectedSeconds": 2592000,
+      "genuineSeconds": 2591993,
+      "missingSeconds": 7,
+      "splitFractions": [0.7, 0.85]
+    },
+    {
+      "name": "retrospective-seven-hour-composite",
+      "fromEpoch": 1791392400,
+      "toEpochExclusive": 1791417600,
+      "expectedSeconds": 25200,
+      "originalLiveSeconds": 24980,
+      "historicalSecondsAdded": 220,
+      "recoveryReportSha256": "7199a46433985380594f5e1dbcf639ed854b630835c43b06dc022cec0a19a450",
+      "splitFractions": [0.5]
+    }
+  ],
+  "newMethodGrid": [
+    {
+      "family": "tick-momentum",
+      "lookbackTicks": [2, 3, 5, 10, 20, 30],
+      "directions": ["trend", "reverse"],
+      "rule": "Compare current price with price lookbackTicks genuine contiguous ticks earlier. Trend follows the difference; reverse opposes it; tie abstains."
+    },
+    {
+      "family": "tick-streak",
+      "lengths": [2, 3, 4],
+      "directions": ["trend", "reverse"],
+      "rule": "Require length consecutive strictly same-sign one-tick changes. Trend follows that sign; reverse opposes it; otherwise abstain."
+    },
+    {
+      "family": "price-versus-sma",
+      "windows": [10, 20, 50],
+      "directions": ["trend", "reverse"],
+      "rule": "Compare current price with simple moving average including the current tick. Trend follows the difference; reverse opposes it; equality abstains."
+    },
+    {
+      "family": "relative-tick-impulse",
+      "averageAbsoluteChangeTicks": 20,
+      "multipliers": [1.5, 2, 3],
+      "directions": ["trend", "reverse"],
+      "rule": "When the current absolute one-tick change is strictly greater than multiplier times mean absolute change over the last 20 changes (including current), trend follows the change or reverse opposes it; zero change or zero mean abstains."
+    }
+  ],
+  "timing": {
+    "contractType": "Rise/Fall",
+    "durationTicks": 5,
+    "processingDelayTicks": [1, 2, 3],
+    "oneOpenContract": true,
+    "tieOutcome": "loss",
+    "resetAt": "every missing tick and chronological segment boundary",
+    "noCrossing": "decision, delayed entry and settlement must remain in the same contiguous segment"
+  },
+  "payout": {
+    "profitPerDollarOnWin": [0.7, 0.8, 0.9],
+    "profitPerDollarOnLossOrTie": -1,
+    "observedExecutableQuotes": false
+  },
+  "ranking": {
+    "primaryPayout": 0.8,
+    "stressPayout": 0.7,
+    "rankOn": "worst modeled average signed return over 30-day middle, 30-day late and both seven-hour halves, across all three delays at primary payout; only methods meeting trade-count floors are ranked first",
+    "minimumTradesPerDelay": {"thirtyDayMiddle": 250, "thirtyDayLate": 250, "pilotFirst": 50, "pilotSecond": 50},
+    "developmentPass": "all four segments positive at every delay at +0.8 payout, and both late segments positive at every delay at +0.7 payout",
+    "topCount": 3,
+    "noSelectionException": "If none passes, report NO TRADE, not a forced winner. Even a development pass is not trading authorization."
+  },
+  "knownLimitations": [
+    "The earlier two-week period is contained inside the 30-day archive and is not independent evidence.",
+    "The first 20 candidates and both series were viewed before these 30 extra variants were added; all results are development evidence, not a pristine holdout.",
+    "The seven-hour composite contains 220 later-recovered historical seconds and is not an untouched live test.",
+    "All payouts and entry delays are assumptions; actual executable contract payouts and Deriv Bot tick/indicator parity are unverified.",
+    "Variants within one family are correlated; 50 comparisons increase selection/overfitting risk."
+  ],
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false
+}

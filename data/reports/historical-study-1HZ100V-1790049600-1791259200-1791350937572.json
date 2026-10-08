@@ -1,0 +1,120 @@
+{
+  "kind": "offline-historical-study",
+  "generatedAt": "2026-10-07T05:28:57.568Z",
+  "symbol": "1HZ100V",
+  "window": {
+    "fromEpoch": 1790049600,
+    "toEpochExclusive": 1791259200,
+    "fromUtc": "2026-09-22T04:00:00.000Z",
+    "toUtcExclusive": "2026-10-06T04:00:00.000Z",
+    "expectedTicks": 1209600,
+    "observedTicks": 1209600,
+    "timeZone": "America/New_York"
+  },
+  "archive": {
+    "manifestSha256": "e33e34f44fa05fa6fa054f8aa7895d7d95e5a26303cba91e47e74cb187dfef4a",
+    "manifestUpdatedAt": "2026-10-07T05:28:29.597Z",
+    "selectedChunks": 1211
+  },
+  "split": {
+    "method": "Chronological 70/15/15 by tick count",
+    "train": {
+      "fromEpoch": 1790049600,
+      "toEpochExclusive": 1790896320,
+      "ticks": 846720
+    },
+    "validation": {
+      "fromEpoch": 1790896320,
+      "toEpochExclusive": 1791077760,
+      "ticks": 181440
+    },
+    "test": {
+      "fromEpoch": 1791077760,
+      "toEpochExclusive": 1791259200,
+      "ticks": 181440
+    },
+    "boundaryRule": "Each signal, next-tick entry, and settlement must remain in its own segment."
+  },
+  "model": {
+    "entryDelayTicks": 1,
+    "fastWindow": 10,
+    "horizonTicks": 1,
+    "payoutOnLoss": -1,
+    "payoutOnWin": 0.9,
+    "slowWindow": 20,
+    "payoutBreakEvenWinRate": 0.5263157894736842,
+    "tieRule": "loss",
+    "opportunityRule": "Every qualifying historical tick is scored as an independent opportunity."
+  },
+  "candidates": [
+    {
+      "id": "one-tick-rise-signal",
+      "direction": "rise",
+      "training": {
+        "observations": 424007,
+        "skipped": 422692,
+        "wins": 207551,
+        "losses": 216456,
+        "winRate": 0.4894989941203801,
+        "netProfitPerDollarStake": -29660.100000000006,
+        "averageProfitPerDollarStake": -0.06995191117127784,
+        "profitFactor": 0.8629739993347377
+      },
+      "validation": {
+        "observations": 91175,
+        "skipped": 90263,
+        "wins": 44828,
+        "losses": 46347,
+        "winRate": 0.49166986564299425,
+        "netProfitPerDollarStake": -6001.799999999996,
+        "averageProfitPerDollarStake": -0.06582725527831089,
+        "profitFactor": 0.870502945174445
+      }
+    },
+    {
+      "id": "one-tick-fall-signal",
+      "direction": "fall",
+      "training": {
+        "observations": 422465,
+        "skipped": 424234,
+        "wins": 205799,
+        "losses": 216666,
+        "winRate": 0.4871385795272981,
+        "netProfitPerDollarStake": -31446.899999999994,
+        "averageProfitPerDollarStake": -0.07443669889813356,
+        "profitFactor": 0.8548600149538922
+      },
+      "validation": {
+        "observations": 90226,
+        "skipped": 91212,
+        "wins": 44189,
+        "losses": 46037,
+        "winRate": 0.4897590494979274,
+        "netProfitPerDollarStake": -6266.9000000000015,
+        "averageProfitPerDollarStake": -0.06945780595393791,
+        "profitFactor": 0.8638725373069487
+      }
+    }
+  ],
+  "selection": {
+    "criterion": "Highest validation average profit per $1 stake; candidate IDs break ties.",
+    "selectedId": "one-tick-rise-signal",
+    "validationPositive": false
+  },
+  "untouchedTest": {
+    "candidateId": "one-tick-rise-signal",
+    "observations": 92117,
+    "skipped": 89321,
+    "wins": 45248,
+    "losses": 46869,
+    "winRate": 0.4912014069064342,
+    "netProfitPerDollarStake": -6145.799999999996,
+    "averageProfitPerDollarStake": -0.06671732687777496,
+    "profitFactor": 0.8688728157204123
+  },
+  "limitations": [
+    "The one-tick entry delay and +$0.90/-$1.00 payout are fixed assumptions; actual quotes and processing delays can differ.",
+    "Qualifying ticks are opportunities, not executable one-shot Bot Builder trades or independent observations.",
+    "This offline report does not authorize running a bot or placing an order."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "mode": "public-data-only",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "symbol": "1HZ100V",
+  "pageSize": 1000,
+  "historyPagesPerRun": 60,
+  "requestDelayMs": 1000,
+  "targetHistoryDays": 365,
+  "maxDatasetTicks": 1000000,
+  "featureWindowsTicks": [5, 10, 20, 50, 100, 200, 500],
+  "horizonsTicks": [1, 2, 3, 5, 10, 20, 30, 60],
+  "backtestFastWindows": [5, 10, 20, 50],
+  "backtestSlowWindows": [20, 50, 100, 200, 500]
+}

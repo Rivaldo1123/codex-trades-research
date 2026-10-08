@@ -1,0 +1,72 @@
+{
+  "kind": "public-indicative-payout-probe",
+  "generatedAtUtc": "2026-10-08T04:00:32.591Z",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "mode": "public-data-only",
+  "durationTicks": 5,
+  "quoteCount": 6,
+  "quotes": [
+    {
+      "symbol": "R_50",
+      "contractType": "CALL",
+      "stakeUsd": 1,
+      "payoutUsd": 1.95,
+      "netProfitOnWinPerDollarStake": 0.95,
+      "quoteSpot": 81.4675,
+      "quoteEpoch": 1791432022
+    },
+    {
+      "symbol": "R_50",
+      "contractType": "PUT",
+      "stakeUsd": 1,
+      "payoutUsd": 1.95,
+      "netProfitOnWinPerDollarStake": 0.95,
+      "quoteSpot": 81.4769,
+      "quoteEpoch": 1791432024
+    },
+    {
+      "symbol": "1HZ10V",
+      "contractType": "CALL",
+      "stakeUsd": 1,
+      "payoutUsd": 1.95,
+      "netProfitOnWinPerDollarStake": 0.95,
+      "quoteSpot": 9409.02,
+      "quoteEpoch": 1791432025
+    },
+    {
+      "symbol": "1HZ10V",
+      "contractType": "PUT",
+      "stakeUsd": 1,
+      "payoutUsd": 1.95,
+      "netProfitOnWinPerDollarStake": 0.95,
+      "quoteSpot": 9408.88,
+      "quoteEpoch": 1791432027
+    },
+    {
+      "symbol": "R_100",
+      "contractType": "CALL",
+      "stakeUsd": 1,
+      "payoutUsd": 1.95,
+      "netProfitOnWinPerDollarStake": 0.95,
+      "quoteSpot": 613.76,
+      "quoteEpoch": 1791432028
+    },
+    {
+      "symbol": "R_100",
+      "contractType": "PUT",
+      "stakeUsd": 1,
+      "payoutUsd": 1.95,
+      "netProfitOnWinPerDollarStake": 0.95,
+      "quoteSpot": 613.9,
+      "quoteEpoch": 1791432030
+    }
+  ],
+  "limitations": [
+    "No account, token, proposal purchase, or Bot Builder Run was used.",
+    "Public proposals are indicative snapshots, not account-specific executable fills.",
+    "Payout and Bot Builder entry timing may change; these snapshots cannot prove profitability."
+  ],
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false
+}

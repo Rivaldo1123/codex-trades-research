@@ -1,0 +1,30 @@
+{
+  "kind": "deriv-bot-builder-research-decision",
+  "version": 5,
+  "symbol": "1HZ100V",
+  "decision": "NO_TRADE",
+  "methodsScreened": 20,
+  "fixedScenarios": 180,
+  "developmentPassCount": 0,
+  "primaryPayout": 0.8,
+  "positiveMiddleScenariosAtPrimaryPayout": 0,
+  "positiveLateScenariosAtPrimaryPayout": 0,
+  "provisionalLeastNegativeThree": [
+    "macd12-26-9-cross",
+    "sma20-50-contrarian",
+    "bb20-2-revert"
+  ],
+  "provisionalThreeAreProfitable": false,
+  "sourceCoverage": { "genuineSeconds": 2591993, "expectedSeconds": 2592000, "sourceMissingSeconds": 7 },
+  "historicalDevelopmentOnly": true,
+  "botBuilderIndicatorAndTimingParity": "UNVERIFIED",
+  "observedExecutablePayouts": false,
+  "newUntouchedForwardTest": "NOT_STARTED",
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false,
+  "methodCatalog": "data/market/method-screen-20-v1.json",
+  "catalogSha256": "d050e41582df2490095b6027fb490ec2e95c8e694a88f3416634b08736d99634",
+  "fullLedger": "data/reports/method-screen-20-1HZ100V-1788667200-1791259200.json",
+  "readableReview": "data/reports/method-screen-20-review.md"
+}

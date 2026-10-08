@@ -1,0 +1,96 @@
+{
+  "kind": "bounded-bot-builder-additional-500-method-screen",
+  "version": 1,
+  "symbol": "1HZ100V",
+  "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+  "previousFiftyReportSha256": "c03d4ab6e2d62043119fbd48160fa8aa5f2b0ebf703de682d8db260468be099f",
+  "previousFiftyCatalogSha256": "fb63246f03ea7060821b442e7e687ab584964261c0c2e50993b01478e8370a02",
+  "series": {
+    "archive": {
+      "fromEpoch": 1788667200,
+      "toEpochExclusive": 1791259200,
+      "genuineSeconds": 2591993,
+      "knownMissingSeconds": 7,
+      "splits": [0.7, 0.85]
+    },
+    "pilotComposite": {
+      "fromEpoch": 1791392400,
+      "toEpochExclusive": 1791417600,
+      "originalLiveSeconds": 24980,
+      "laterRecoveredSeconds": 220,
+      "recoveryReportSha256": "7199a46433985380594f5e1dbcf639ed854b630835c43b06dc022cec0a19a450",
+      "split": 0.5
+    }
+  },
+  "families": [
+    {
+      "name": "normalized-lag-momentum",
+      "lags": [1, 2, 3, 5, 10, 20, 30, 60, 120, 300],
+      "thresholds": [0.25, 0.5, 0.75, 1, 1.5],
+      "modes": ["trend", "reverse"],
+      "rule": "Compare current price with price lag ticks ago. Abstain unless absolute change exceeds threshold times mean absolute one-tick change over the last 20 changes times square root of lag. Trend follows change; reverse opposes it."
+    },
+    {
+      "name": "normalized-price-sma-distance",
+      "windows": [5, 8, 13, 21, 34, 55, 89, 144, 233, 377],
+      "thresholds": [0.25, 0.5, 0.75, 1, 1.5],
+      "modes": ["trend", "reverse"],
+      "rule": "Compare current price with the simple moving average including current price. Abstain unless absolute difference exceeds threshold times mean absolute one-tick change over the last 20 changes times square root of window. Trend follows difference; reverse opposes it."
+    },
+    {
+      "name": "normalized-tick-streak",
+      "lengths": [2, 3, 4, 5, 6, 7, 8, 9, 10, 12],
+      "thresholds": [0.25, 0.5, 0.75, 1, 1.5],
+      "modes": ["trend", "reverse"],
+      "rule": "Require length consecutive strictly same-sign one-tick changes. Abstain unless absolute change across the streak exceeds threshold times mean absolute one-tick change over the last 20 changes times square root of length. Trend follows streak; reverse opposes it."
+    },
+    {
+      "name": "normalized-sma-spread",
+      "fastSlowPairs": [[3, 8], [5, 13], [8, 21], [10, 30], [13, 34], [20, 50], [21, 55], [34, 89], [55, 144], [89, 233]],
+      "thresholds": [0.25, 0.5, 0.75, 1, 1.5],
+      "modes": ["trend", "reverse"],
+      "rule": "Compare fast and slow simple moving averages, both including current price. Abstain unless absolute spread exceeds threshold times mean absolute one-tick change over the last 20 changes times square root of slow period. Trend follows spread; reverse opposes it."
+    },
+    {
+      "name": "relative-tick-impulse",
+      "meanAbsoluteChangeWindows": [5, 8, 10, 13, 30, 34, 50, 55, 89, 100],
+      "thresholds": [0.5, 1, 1.5, 2, 3],
+      "modes": ["trend", "reverse"],
+      "rule": "Abstain unless current absolute one-tick change is strictly greater than threshold times the mean absolute change over the last window changes, including current. Trend follows the change; reverse opposes it."
+    }
+  ],
+  "timing": {
+    "contractType": "Rise/Fall",
+    "durationTicks": 5,
+    "processingDelayTicks": [1, 2, 3],
+    "oneOpenContract": true,
+    "tieOutcome": "loss",
+    "resetAt": "every missing tick and chronological split boundary",
+    "noCrossing": "decision, delayed entry and settlement stay in the same contiguous segment"
+  },
+  "payout": {
+    "profitPerDollarOnWin": [0.7, 0.8, 0.9],
+    "lossOrTiePerDollar": -1,
+    "observedExecutableQuotes": false
+  },
+  "ranking": {
+    "primaryPayout": 0.8,
+    "stressPayout": 0.7,
+    "fourDiagnostics": ["thirtyDayMiddle", "thirtyDayLate", "pilotFirst", "pilotSecond"],
+    "minimumSettledTradesPerDelay": [250, 250, 50, 50],
+    "rankOn": "minimum modeled signed return over all four diagnostics and all three delays at primary payout; underpowered candidates rank last",
+    "developmentPass": "All four diagnostics positive at every delay under the stress payout, plus all sample floors. Never a trading approval.",
+    "topCount": 3,
+    "noForcedWinner": true
+  },
+  "limitations": [
+    "These are 500 correlated rule variants across five families, not 500 independent discoveries.",
+    "Both data series and the previous 50-method results were viewed before this catalog was written. All scores are adaptive retrospective development evidence, not untouched validation.",
+    "The prior two-week study is contained in the 30-day archive and is not double-counted.",
+    "The pilot composite includes 220 seconds recovered historically after the live cutoff; the original incomplete live pilot remains unchanged.",
+    "Public tick prices, assumed payouts and fixed processing delays do not establish executable Deriv Bot conditions or platform timing parity."
+  ],
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false
+}

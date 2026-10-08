@@ -1,0 +1,63 @@
+{
+  "kind": "preregistered-public-forward-test",
+  "version": 1,
+  "frozenAtUtc": "2026-10-07T15:45:27Z",
+  "status": "FROZEN_BEFORE_ELIGIBLE_WINDOW",
+  "purpose": "Research a small fixed set of Deriv Bot Builder-compatible rules on new public ticks; never authorize execution.",
+  "source": {
+    "symbol": "1HZ100V",
+    "endpoint": "wss://api.derivws.com/trading/v1/options/ws/public",
+    "authentication": "none",
+    "orderAccess": "none"
+  },
+  "eligibleWindow": {
+    "fromUtcInclusive": "2026-10-07T15:48:00Z",
+    "toUtcExclusive": "2026-10-21T15:47:00Z",
+    "plannedSeconds": 1209540,
+    "note": "Approximately 14 days, one minute short of a full 14-day window to fit the collector's existing 14-day run cap. Only ticks in this exact prospective interval are eligible."
+  },
+  "candidateRules": [
+    {
+      "id": "bb20-2-reversal-5t",
+      "indicator": "Bollinger Bands on the most recent 20 ticks including decision tick; center is arithmetic mean; standard deviation is population SD; upper/lower = center +/- 2 SD.",
+      "direction": "Rise if decision quote is strictly below lower band; Fall if strictly above upper band; otherwise NO TRADE.",
+      "durationTicks": 5
+    },
+    {
+      "id": "rsi14-reversal-5t",
+      "indicator": "RSI(14) using Wilder smoothing of upward/downward quote differences, seeded by the first 14 differences; current decision tick included.",
+      "direction": "Rise if RSI is strictly below 30; Fall if strictly above 70; otherwise NO TRADE.",
+      "durationTicks": 5
+    }
+  ],
+  "fixedReplayRules": {
+    "processingDelayTicks": [1, 2, 3],
+    "profitPerDollarOnWin": [0.7, 0.8, 0.9],
+    "profitPerDollarOnLossOrTie": -1,
+    "entryAndExpiry": "Signal at decision tick t; hypothetical entry at t+delay observed ticks; expiry at entry+5 observed ticks. No signal, lookback, entry or expiry may bridge a missing second.",
+    "concurrency": "One open hypothetical contract at a time per candidate/delay; next decision strictly after settlement.",
+    "assumptions": "Public historical ticks are not executable contract quotes. Delay and payouts are fixed sensitivity assumptions, not measured fills. No Deriv order is placed or simulated through Deriv."
+  },
+  "evaluation": {
+    "timing": "No eligible-window performance inspection, candidate change, or parameter tuning before the window closes and tick-level archive audit finishes.",
+    "coverage": "Read every archived row and verify chunk SHA-256, row count, bounds, duplicates/conflicts and expected UTC seconds. At least 99.9% genuine-second coverage is required; never interpolate or bridge a gap. Report all missing seconds. If coverage falls short, result is INCONCLUSIVE.",
+    "chronologicalHalves": "Split the eligible window at its exact UTC midpoint; signal, entry and expiry must stay within one half.",
+    "minimumTrades": "At least 1000 settled hypothetical trades over the full interval and 200 in each half, for each candidate/delay scenario.",
+    "profitCriterion": "At +0.80/-1 per $1 stake, average signed outcome must be strictly positive in both chronological halves for every delay 1, 2 and 3. The full-window mean must also have a strictly positive one-sided 99.1667% hourly-block-bootstrap lower confidence bound for each delay (Bonferroni over two candidates x three delays; 10000 resamples, fixed seed 20261007).",
+    "outcomes": "If no candidate satisfies every condition: NO_TRADE. A passing candidate is only READY_FOR_SEPARATE_DEMO_REVIEW, never permission to press Run or trade.",
+    "platformParity": "Before any Bot Builder XML is considered representative, verify its actual Bollinger/RSI calculation, lookback and tick timing against these frozen definitions. If parity cannot be established, result is INCONCLUSIVE/NO_TRADE for Bot Builder."
+  },
+  "safety": {
+    "botBuilderRun": false,
+    "demoOrder": false,
+    "realOrder": false,
+    "accountOrTokenUse": false,
+    "legacyArchive": "The viewed 30-day archive and earlier two-week results are development evidence, not this prospective test. The known seven-second September gap is outside this window and is not silently considered complete."
+  },
+  "primarySources": [
+    "https://experts.deriv.com/insights/how-to-use-technical-analysis-tools-on-derivs-trading-bot",
+    "https://community.deriv.com/t/dbot-setting-up-your-strategy/38065",
+    "https://community.deriv.com/t/dbot-contract-type-conditions/38112",
+    "https://deriv.com/markets/derived-indices/synthetic-indices"
+  ]
+}

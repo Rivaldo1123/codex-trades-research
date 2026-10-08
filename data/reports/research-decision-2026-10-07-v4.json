@@ -1,0 +1,23 @@
+{
+  "kind": "deriv-bot-builder-research-decision",
+  "symbol": "1HZ100V",
+  "decision": "NO_TRADE",
+  "reason": "Four SMA development candidates failed the 30-day screen; all 18 Bollinger/RSI retrospective composite scenarios had negative modeled average signed return.",
+  "thirtyDaySmaCandidatesPassed": 0,
+  "thirtyDaySmaCandidatesTested": 4,
+  "compositePilotScenariosPositive": 0,
+  "compositePilotScenariosTested": 18,
+  "historicalRowsRecoveredSeparately": 220,
+  "originalPilotLiveSeconds": 24980,
+  "originalPilotExpectedSeconds": 25200,
+  "botBuilderIndicatorAndTimingParity": "UNVERIFIED",
+  "newUntouchedForwardTest": "NOT_STARTED",
+  "botBuilderRunPermission": false,
+  "demoOrderPermission": false,
+  "realOrderPermission": false,
+  "researchProtocol": "data/market/research-protocol-v4.md",
+  "recoveryReport": "data/reports/retrospective-pilot-recovery-1HZ100V-1791392400-1791417600.json",
+  "compositeReplayReport": "data/reports/retrospective-pilot-replay-1HZ100V-1791392400-1791417600.json",
+  "originalPilotAudit": "data/reports/forward-audit-1HZ100V-1791392400-1791417600.json",
+  "thirtyDayReplayReport": "data/reports/offline-gap-replay-1HZ100V-1788667200-1791259200-1791386924840.json"
+}

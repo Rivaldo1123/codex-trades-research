@@ -1,0 +1,14 @@
+data/reports/*.json
+data/demo/*.json
+data/demo/*.jsonl
+data/demo/*.lock
+data/market/
+data/datasets/
+data/backtests/
+data/browser-bot/
+node_modules/
+.env
+.env.*
+*.log
+secrets.local.json
+config.demo.json

@@ -1,0 +1,40 @@
+{
+  "mode": "research-only",
+  "source": "Deriv public market data",
+  "symbol": "1HZ100V",
+  "disclaimer": "Research signal only. This is not a trade instruction or evidence of future profit.",
+  "generatedAt": "2026-10-06T19:49:56.854Z",
+  "input": {
+    "candles": 1000,
+    "fastWindow": 20,
+    "firstEpoch": 1791256200,
+    "lastEpoch": 1791316140,
+    "slowWindow": 50
+  },
+  "latestSignal": {
+    "close": 1259.91,
+    "epoch": 1791316140,
+    "fast": 1261.614000000001,
+    "signal": "down",
+    "slow": 1267.1286000000002
+  },
+  "methodology": {
+    "evaluation": "Each signal is checked against the direction of the next candle only.",
+    "split": "Chronological 70% training / 30% testing",
+    "strategy": "Simple moving-average direction baseline"
+  },
+  "testing": {
+    "averageSignedReturn": 0.00007182919659140511,
+    "observations": 299,
+    "positiveRate": 0.49498327759197325,
+    "wins": 148,
+    "losses": 151
+  },
+  "training": {
+    "averageSignedReturn": 0.000032975752194409985,
+    "observations": 650,
+    "positiveRate": 0.52,
+    "wins": 338,
+    "losses": 310
+  }
+}
